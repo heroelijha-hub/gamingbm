@@ -53,6 +53,8 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
   
   const [shortDescription, setShortDescription] = useState(initialData?.shortDescription || '');
   const [description, setDescription] = useState(initialData?.description || '');
+  const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle || '');
+  const [metaDescription, setMetaDescription] = useState(initialData?.metaDescription || '');
   
   // Prix régulier = ancien prix barré (compareAtPrice en BDD)
   // Prix promotionnel = prix payé par le client (price en BDD)
@@ -152,6 +154,8 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
       
       formData.append('shortDescription', shortDescription);
       formData.append('description', description);
+      formData.append('metaTitle', metaTitle);
+      formData.append('metaDescription', metaDescription);
       
       const imageUrls: string[] = [...existingImages];
 
@@ -550,6 +554,31 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
             <div className="bg-white">
               <ReactQuill theme="snow" value={description} onChange={setDescription} className="h-64 mb-12" />
             </div>
+          </div>
+        </div>
+
+        {/* SEO */}
+        <div className="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">SEO (Référencement)</h3>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Titre SEO (Title)</label>
+            <input 
+              type="text" 
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              placeholder="ex: Kaminholz kaufen | Kammergetrocknet"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Méta Description</label>
+            <textarea 
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              placeholder="ex: Günstig Kaminholz kaufen..."
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+            ></textarea>
           </div>
         </div>
 
