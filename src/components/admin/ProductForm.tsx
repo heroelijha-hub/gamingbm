@@ -330,16 +330,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         {/* Price & Stock (for simple product or base price) */}
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('regular_price_label')}</label>
-            <input 
-              type="number" step="0.01" name="compareAtPrice" 
-              value={regularPrice} 
-              onChange={(e) => setRegularPrice(e.target.value)} 
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("sale_price")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Prix de vente (actuel) *</label>
             <input 
               type="number" step="0.01" name="price" 
               value={salePrice} 
@@ -348,6 +339,16 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
               className={`w-full px-4 py-2 border rounded-md focus:ring-orange-500 focus:border-orange-500 ${priceError ? 'border-red-500' : 'border-gray-300'}`} 
             />
             {priceError && <p className="text-red-500 text-xs font-semibold mt-1">{priceError}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ancien prix barré <span className="text-gray-400 font-normal">(si promo)</span></label>
+            <input 
+              type="number" step="0.01" name="compareAtPrice" 
+              value={regularPrice} 
+              onChange={(e) => setRegularPrice(e.target.value)} 
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 bg-gray-50" 
+              placeholder="ex: 299.99"
+            />
           </div>
           {productType === 'SIMPLE' && (
             <div>
