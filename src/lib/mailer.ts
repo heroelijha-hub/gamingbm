@@ -100,7 +100,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
     const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from.match(/<(.+)>/);
     const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@topkaminbrennstoffe.com";
     
@@ -299,7 +299,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
     const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
     const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -476,7 +476,7 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
     const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
     const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from?.match(/<(.+)>/);
     const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@topkaminbrennstoffe.com";
     
@@ -625,7 +625,7 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
     // USER TODO: Add your coupon code here! For example: "Use code COMEBACK10 for 10% off!"
     const couponMessage = ""; 
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     let itemsHtml = '';
     if (cart.cartData && cart.cartData.length > 0) {
@@ -722,7 +722,7 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 50px;"></div>` : "";
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     let itemsHtml = '';
     if (order.orderItems && order.orderItems.length > 0) {
@@ -808,7 +808,7 @@ export async function sendLowStockAlertEmail(productTitle: string, variationName
 
     const productName = variationName ? `${productTitle} (${variationName})` : productTitle;
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -853,7 +853,7 @@ export async function sendAdminNewChatMessageEmail(guestName: string, guestEmail
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 40px;"></div>` : "";
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -902,7 +902,7 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 40px;"></div>` : "";
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kamin Brennstoffe";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">

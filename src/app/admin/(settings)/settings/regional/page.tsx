@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import RegionalForm from '@/components/admin/settings/RegionalForm';
 
 export const metadata = {
-  title: 'Regional and Currency Settings | Top Kamin Brennstoffe Admin',
+  title: 'Regional and Currency Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function RegionalSettingsPage() {

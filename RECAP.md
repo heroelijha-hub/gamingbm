@@ -1,6 +1,6 @@
-# Récapitulatif du Projet : Top Kamin Brennstoffe
+# Récapitulatif du Projet : Top Kaminbrennstoffe
 
-Ce document liste toutes les fonctionnalités et configurations qui ont été mises en place jusqu'à présent sur la boutique E-commerce **Top Kamin Brennstoffe**.
+Ce document liste toutes les fonctionnalités et configurations qui ont été mises en place jusqu'à présent sur la boutique E-commerce **Top Kaminbrennstoffe**.
 
 ## 🛠 Stack Technique
 - **Framework** : Next.js 16.3.1 (App Router)

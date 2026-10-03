@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import DesignHeaderForm from '@/components/admin/settings/DesignHeaderForm';
 
 export const metadata = {
-  title: 'Header and product cards Settings | Top Kamin Brennstoffe Admin',
+  title: 'Header and product cards Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function DesignHeaderSettingsPage() {

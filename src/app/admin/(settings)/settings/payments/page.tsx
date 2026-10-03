@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import PaymentsForm from '@/components/admin/settings/PaymentsForm';
 
 export const metadata = {
-  title: 'Payments Settings | Top Kamin Brennstoffe Admin',
+  title: 'Payments Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function PaymentsSettingsPage() {

@@ -1,6 +1,6 @@
 {
   "Frontend": {
-    "welcome": "Welcome to Top Kamin Brennstoffe",
+    "welcome": "Welcome to Top Kaminbrennstoffe",
     "shop": "Shop Now",
     "cart": "Your Cart"
   },
@@ -427,7 +427,7 @@
     "newsletter_placeholder": "Enter your email...",
     "call_us": "Call Us Now",
     "email": "Email",
-    "copyright": "© 2026 Top Kamin Brennstoffe All rights reserved."
+    "copyright": "© 2026 Top Kaminbrennstoffe All rights reserved."
   },
   "Messages": {
     "success": "Action successful",
@@ -565,7 +565,7 @@
     "logging_in": "Logging in..."
   },
   "AdminLayout": {
-    "title": "Top Kamin Brennstoffe Admin",
+    "title": "Top Kaminbrennstoffe Admin",
     "dashboard": "Dashboard",
     "products": "Products",
     "categories": "Categories",

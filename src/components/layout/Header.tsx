@@ -280,7 +280,7 @@ export default function Header({
         <div className="flex-shrink flex items-center min-w-0">
           <Link href="/" className="flex items-center">
             {logoImage ? (
-              <Image src={logoImage} alt="Top Kamin Brennstoffe Logo" width={250} height={80} sizes="(max-width: 640px) 250px, 250px" className="object-contain custom-logo-height max-w-full" style={{ width: 'auto' }} priority />
+              <Image src={logoImage} alt="Top Kaminbrennstoffe Logo" width={250} height={80} sizes="(max-width: 640px) 250px, 250px" className="object-contain custom-logo-height max-w-full" style={{ width: 'auto' }} priority />
             ) : (
               <span className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">LOGO</span>
             )}

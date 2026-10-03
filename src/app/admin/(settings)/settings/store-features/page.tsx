@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import StoreFeaturesForm from '@/components/admin/settings/StoreFeaturesForm';
 
 export const metadata = {
-  title: 'Store features Settings | Top Kamin Brennstoffe Admin',
+  title: 'Store features Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function StoreFeaturesSettingsPage() {

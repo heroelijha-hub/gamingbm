@@ -56,7 +56,7 @@ function generateHeader(doc: typeof PDFDocument) {
     .fontSize(24)
     .text('RECHNUNG', 50, 57)
     .fontSize(10)
-    .text('Top Kamin Brennstoffe', 200, 65, { align: 'right' })
+    .text('Top Kaminbrennstoffe', 200, 65, { align: 'right' })
     // If they have an address, you can add it here, or just keep it simple
     .moveDown();
 }

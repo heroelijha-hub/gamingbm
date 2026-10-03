@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import NavigationForm from '@/components/admin/settings/NavigationForm';
 
 export const metadata = {
-  title: 'Navigation menu Settings | Top Kamin Brennstoffe Admin',
+  title: 'Navigation menu Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function NavigationSettingsPage() {

@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import LanguageForm from '@/components/admin/settings/LanguageForm';
 
 export const metadata = {
-  title: 'Language Settings | Top Kamin Brennstoffe Admin',
+  title: 'Language Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function LanguageSettingsPage() {

@@ -3,7 +3,7 @@ import ShippingManager from './ShippingManager';
 import { getTranslations } from 'next-intl/server';
 
 export const metadata = {
-  title: 'Shipping Settings | Top Kamin Brennstoffe Admin',
+  title: 'Shipping Settings | Top Kaminbrennstoffe Admin',
 };
 
 export default async function ShippingPage() {
