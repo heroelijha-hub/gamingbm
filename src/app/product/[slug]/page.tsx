@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: product.metaTitle ? product.metaTitle : `${product.title} | ${storeName}`,
-    description: product.metaDescription || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').substring(0, 160) : '') || (product.description ? product.description.replace(/<[^>]*>?/gm, '').substring(0, 160) : ''),
+    description: product.metaDescription || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '') || (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : ''),
     alternates: {
       canonical: `/product/${slug}`,
     }
@@ -83,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     '@type': 'Product',
     name: product.title,
     image: product.images || [],
-    description: (product.description ? product.description.replace(/<[^>]*>?/gm, '') : undefined) || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '') : undefined),
+    description: (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : undefined) || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : undefined),
     sku: product.id.split('-')[0].toUpperCase(),
     offers: {
       '@type': 'Offer',

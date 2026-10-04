@@ -29,7 +29,8 @@ export default function SafeHTML({
   useEffect(() => {
     setIsClient(true);
     if (html) {
-      setClean(DOMPurify.sanitize(html, {
+      const htmlToRender = html.replace(/&nbsp;/g, ' ');
+      setClean(DOMPurify.sanitize(htmlToRender, {
         // Allow common HTML tags for rich content
         ALLOWED_TAGS: [
           'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -61,7 +62,9 @@ export default function SafeHTML({
   }, [html]);
 
   // Render basicSanitizeHtml during SSR for SEO and safety, then swap to DOMPurify on client
-  const renderHtml = isClient ? clean : basicSanitizeHtml(html);
+  // We also replace &nbsp; with regular spaces because copied text often has excessive &nbsp; which prevents word wrapping
+  const htmlToRender = (html || '').replace(/&nbsp;/g, ' ');
+  const renderHtml = isClient ? clean : basicSanitizeHtml(htmlToRender);
   
   return <Tag className={className} style={style} dangerouslySetInnerHTML={{ __html: renderHtml }} />;
 }

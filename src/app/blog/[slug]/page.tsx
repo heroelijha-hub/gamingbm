@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: t('article_not_found') };
   }
   
-  const description = article.metaDescription || article.excerpt || article.content.replace(/<[^>]*>?/gm, '').substring(0, 160);
+  const description = article.metaDescription || article.excerpt || article.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160);
   
   return {
     title: article.metaTitle || article.title,
@@ -86,7 +86,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: article.title,
-    description: article.metaDescription || article.excerpt || article.content.replace(/<[^>]*>?/gm, '').substring(0, 160),
+    description: article.metaDescription || article.excerpt || article.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160),
     image: article.image || undefined,
     datePublished: article.createdAt.toISOString(),
     dateModified: article.updatedAt.toISOString(),
@@ -232,7 +232,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                         {post.title}
                       </h4>
                       <p className="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">
-                        {post.excerpt || post.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...'}
+                        {post.excerpt || post.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 100) + '...'}
                       </p>
                       <div className="flex items-center text-xs text-gray-500 gap-4 mt-auto">
                         <span className="flex items-center gap-1">

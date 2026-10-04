@@ -120,7 +120,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
           {/* Short Description */}
           {(product.shortDescription || product.description) && (
             <div className="text-sm text-gray-600 mb-6 line-clamp-4">
-              {String(product.shortDescription || product.description).replace(/<[^>]*>?/gm, '')}
+              {String(product.shortDescription || product.description).replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ')}
             </div>
           )}
 

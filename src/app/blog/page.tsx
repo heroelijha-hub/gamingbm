@@ -79,7 +79,7 @@ export default async function BlogIndexPage({
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
-                      {article.excerpt || article.content.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...'}
+                      {article.excerpt || article.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 150) + '...'}
                     </p>
                     <Link href={`/blog/${article.slug}`} className="inline-block mt-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded transition self-start">
                       {t('read_more')}

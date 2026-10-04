@@ -65,9 +65,9 @@ a {
 }
 
 /* Force normal word breaking to prevent letters splitting inside words */
-.break-words, .prose, .prose p, .prose li, .prose h1, .prose h2, .prose h3, .prose h4 {
+*, ::before, ::after {
   word-break: normal !important;
   overflow-wrap: break-word !important;
-  hyphens: manual !important;
+  hyphens: none !important;
 }
 
