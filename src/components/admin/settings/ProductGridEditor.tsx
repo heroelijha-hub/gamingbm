@@ -306,7 +306,7 @@ export default function ProductGridEditor({
                       </button>
                       {section.settings[`PROMO_${blockNum}_IMAGE`] && (
                         <div className="mt-2 flex items-center justify-between bg-white p-2 border rounded">
-                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_IMAGE`]} className="h-8 object-contain" / alt="" >
+                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_IMAGE`]} className="h-8 object-contain" alt="" />
                           <button onClick={() => updateSectionSettings(section.id, `PROMO_${blockNum}_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                         </div>
                       )}
@@ -317,7 +317,7 @@ export default function ProductGridEditor({
                       </button>
                       {section.settings[`PROMO_${blockNum}_BG_IMAGE`] && (
                         <div className="mt-2 flex items-center justify-between bg-white p-2 border rounded">
-                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_BG_IMAGE`]} className="h-8 object-cover" / alt="" >
+                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_BG_IMAGE`]} className="h-8 object-cover" alt="" />
                           <button onClick={() => updateSectionSettings(section.id, `PROMO_${blockNum}_BG_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                         </div>
                       )}
