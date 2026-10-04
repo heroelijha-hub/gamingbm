@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { getAdminSessions, sendMessage, closeSession, getSessionMessages } from '@/actions/chat';
+import { getAdminSessions, sendAdminMessage, closeSession, getAdminSessionMessages } from '@/actions/chat';
 import { ChatSender, ChatMessage, ChatSession } from '@prisma/client';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -28,7 +28,7 @@ export default function AdminChatClient({ initialSessions }: { initialSessions: 
     if (!activeSessionId) return;
 
     const fetchMessages = async () => {
-      const msgs = await getSessionMessages(activeSessionId);
+      const msgs = await getAdminSessionMessages(activeSessionId);
       setMessages(msgs);
     };
 
@@ -56,7 +56,7 @@ export default function AdminChatClient({ initialSessions }: { initialSessions: 
     setMessages([...messages, tempMsg]);
     setNewMessage('');
 
-    const savedMsg = await sendMessage(activeSessionId, ChatSender.ADMIN, tempMsg.content);
+    const savedMsg = await sendAdminMessage(activeSessionId, tempMsg.content);
     setMessages(prev => prev.map(m => m.id === tempMsg.id ? savedMsg : m));
   };
 

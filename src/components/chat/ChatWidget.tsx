@@ -64,7 +64,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
       try {
         const session = await getOrCreateSession(id as string, savedName || undefined, savedEmail || undefined);
         setSessionId(session.id);
-        const msgs = await getSessionMessages(session.id);
+        const msgs = await getSessionMessages(session.id, id as string);
         setMessages(msgs);
       } catch (err) {
         console.error("Failed to init chat session:", err);
@@ -90,7 +90,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
       try {
         const session = await getOrCreateSession(guestId, guestName, guestEmail);
         setSessionId(session.id);
-        const msgs = await getSessionMessages(session.id);
+        const msgs = await getSessionMessages(session.id, guestId);
         setMessages(msgs);
       } catch (err) {
         console.error("Failed to create session on register:", err);
@@ -105,7 +105,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
     if (!isOpen || !sessionId) return;
     
     const interval = setInterval(async () => {
-      const msgs = await getSessionMessages(sessionId);
+      const msgs = await getSessionMessages(sessionId, guestId as string);
       if (msgs.length > messages.length) {
         setMessages(msgs);
       }
