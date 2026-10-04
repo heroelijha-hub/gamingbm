@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Price from '@/components/Price';
 import { useCartStore } from '@/store/cartStore';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 type QuickViewModalProps = {
   isOpen: boolean;
@@ -81,11 +82,9 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
           {/* Main Image */}
           <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
             {product.images && product.images.length > 0 ? (
-              <img 
-                src={product.images[activeImage]} 
+              <Image width={800} height={800} src={product.images[activeImage]} 
                 alt={product.title} 
-                className="w-full h-full object-contain p-4"
-              />
+                className="w-full h-full object-contain p-4" />
             ) : (
               <div className="text-6xl text-gray-300">🛍️</div>
             )}
@@ -100,7 +99,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                   onClick={() => setActiveImage(idx)}
                   className={`w-16 h-16 flex-shrink-0 rounded-md border-2 overflow-hidden bg-white ${activeImage === idx ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'}`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-contain p-1" />
+                  <Image width={800} height={800} src={img} alt="" className="w-full h-full object-contain p-1" />
                 </button>
               ))}
             </div>

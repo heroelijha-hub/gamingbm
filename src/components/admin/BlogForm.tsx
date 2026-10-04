@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 import { useTranslations } from 'next-intl';
 import MediaPickerModal from '@/components/admin/MediaPickerModal';
+import Image from "next/image";
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -298,7 +299,7 @@ export default function BlogForm({ article, existingCategories = [], existingAut
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <h3 className="font-semibold text-gray-800 mb-3">{t('cover_image')}</h3>
             {formData.image && (
-              <img src={formData.image} alt="Cover" className="w-full h-auto rounded mb-3 border object-cover" />
+              <Image width={800} height={800} src={formData.image} alt="Cover" className="w-full h-auto rounded mb-3 border object-cover" />
             )}
             <button
               type="button"

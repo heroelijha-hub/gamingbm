@@ -3,8 +3,10 @@ import prisma from '@/lib/prisma';
 
 import { getContactSettings } from '@/actions/contactSettings';
 
+import { SITE_URL } from '@/lib/site';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mystore.com'; // Replace with the real domain
+  const baseUrl = SITE_URL;
   const contactSettings = await getContactSettings();
 
   // 1. Pages statiques
@@ -32,11 +34,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/sale`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/new`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/hot`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     }
   ];
 
   // 2. Produits dynamiques
   const products = await prisma.product.findMany({
+    where: { isDeleted: false },
     select: { slug: true, updatedAt: true },
   });
 
@@ -62,17 +83,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 4. Dynamic categories
   const categories = await prisma.category.findMany({
-    select: { slug: true },
+    select: { slug: true, updatedAt: true },
   });
 
   const categoryPages = categories
     .filter(c => c.slug)
     .map((category) => ({
       url: `${baseUrl}/product-category/${category.slug}`,
-      lastModified: new Date(),
+      lastModified: category.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     }));
 
-  return [...staticPages, ...productPages, ...articlePages, ...categoryPages];
+  // 5. CMS Pages
+  const pages = await prisma.page.findMany({
+    select: { slug: true, updatedAt: true },
+  });
+
+  const cmsPages = pages.map((page) => ({
+    url: `${baseUrl}/${page.slug}`,
+    lastModified: page.updatedAt,
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  }));
+
+  return [...staticPages, ...productPages, ...articlePages, ...categoryPages, ...cmsPages];
 }

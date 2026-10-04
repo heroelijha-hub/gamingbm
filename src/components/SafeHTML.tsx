@@ -2,6 +2,7 @@
 
 import DOMPurify from 'dompurify';
 import { useEffect, useState } from 'react';
+import { basicSanitizeHtml } from '@/lib/security';
 
 /**
  * Renders sanitized HTML content safely using DOMPurify.
@@ -23,9 +24,11 @@ export default function SafeHTML({
   style?: React.CSSProperties;
 }) {
   const [clean, setClean] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && html) {
+    setIsClient(true);
+    if (html) {
       setClean(DOMPurify.sanitize(html, {
         // Allow common HTML tags for rich content
         ALLOWED_TAGS: [
@@ -57,9 +60,8 @@ export default function SafeHTML({
     }
   }, [html]);
 
-  // Render original html during SSR to maintain SEO, hydration might warn but it's safe since it's from DB
-  // Actually, to avoid hydration mismatch, we render empty string until client loads
-  // Or we could dangerouslySetInnerHTML the raw HTML if we trust the DB. 
-  // Let's render empty string to be safe and avoid hydration mismatch.
-  return <Tag className={className} style={style} dangerouslySetInnerHTML={{ __html: clean || (typeof window === 'undefined' ? html : '') }} />;
+  // Render basicSanitizeHtml during SSR for SEO and safety, then swap to DOMPurify on client
+  const renderHtml = isClient ? clean : basicSanitizeHtml(html);
+  
+  return <Tag className={className} style={style} dangerouslySetInnerHTML={{ __html: renderHtml }} />;
 }

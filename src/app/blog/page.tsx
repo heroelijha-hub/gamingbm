@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import BlogSidebar from '@/components/blog/BlogSidebar';
 import { getRecentComments } from '@/actions/blog';
 import { getTranslations, getLocale } from 'next-intl/server';
+import Image from "next/image";
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +52,7 @@ export default async function BlogIndexPage({
                 <div key={article.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm flex flex-col md:flex-row h-full md:h-64 group">
                   <div className="md:w-2/5 h-48 md:h-full bg-gray-100 flex-shrink-0 relative overflow-hidden">
                     {article.image ? (
-                       <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                       <Image width={800} height={800} src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-4xl text-gray-300">📝</div>
                     )}

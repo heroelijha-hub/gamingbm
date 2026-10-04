@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from "next/image";
 
 type ProductGalleryProps = {
   images: string[];
@@ -45,7 +46,7 @@ export default function ProductGallery({ images, title, discountLabel, compareAt
               onClick={() => setSelectedIndex(idx)}
               className={`border-2 rounded overflow-hidden cursor-pointer h-20 w-20 flex-shrink-0 transition-colors ${idx === selectedIndex ? 'border-[#ff4500]' : 'border-transparent hover:border-[#ff4500]/50'}`}
             >
-              <img src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
+              <Image width={800} height={800} src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
             </div>
           ))
         ) : (
@@ -69,7 +70,7 @@ export default function ProductGallery({ images, title, discountLabel, compareAt
           </span>
         )}
         {mainImage ? (
-          <img src={mainImage} alt={title} className="w-full h-full object-contain p-4 transition-opacity duration-300" />
+          <Image width={800} height={800} src={mainImage} alt={title} className="w-full h-full object-contain p-4 transition-opacity duration-300" />
         ) : (
           <div className="text-9xl text-gray-300">🛍️</div>
         )}

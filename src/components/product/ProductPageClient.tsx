@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ProductGallery from './ProductGallery';
 import ProductActions from './ProductActions';
 import Link from 'next/link';
+import Image from "next/image";
 
 const Star = ({ filled = true }: { filled?: boolean }) => (
   <svg
@@ -79,7 +80,7 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
         {product.brand && (
           <div className="flex items-center mb-4">
             {product.brand.logo ? (
-              <img src={product.brand.logo} alt={product.brand.name} className="h-10 object-contain rounded-sm" />
+              <Image width={800} height={800} src={product.brand.logo} alt={product.brand.name} className="h-10 object-contain rounded-sm" />
             ) : (
               <span className="text-sm text-gray-500 uppercase tracking-wider font-semibold">{product.brand.name}</span>
             )}

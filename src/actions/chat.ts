@@ -45,26 +45,16 @@ export async function getOrCreateSession(guestId: string, guestName?: string, gu
   return session;
 }
 
-export async function sendMessage(sessionId: string, sender: ChatSender, content: string) {
-  // Validate sessionId format
-  if (!sessionId || !UUID_REGEX.test(sessionId)) {
-    throw new Error('Invalid session identifier.');
-  }
-
+/**
+ * Internal helper (NOT exported => not callable from the browser).
+ */
+async function createChatMessage(sessionId: string, sender: ChatSender, content: string) {
   // Validate content
   if (!content || content.trim().length === 0) {
     throw new Error('Message cannot be empty.');
   }
   if (content.length > MAX_MESSAGE_LENGTH) {
     throw new Error(`Message is too long (max ${MAX_MESSAGE_LENGTH} characters).`);
-  }
-
-  // Verify session exists
-  const session = await prisma.chatSession.findUnique({
-    where: { id: sessionId },
-  });
-  if (!session) {
-    throw new Error('Chat session not found.');
   }
 
   const message = await prisma.chatMessage.create({
@@ -82,11 +72,13 @@ export async function sendMessage(sessionId: string, sender: ChatSender, content
   });
 
   // Create notification
-  const { createNotification } = await import('./notification');
+  const { createNotification } = await import('@/lib/notifications');
   if (sender === ChatSender.CUSTOMER) {
     // Notify Admin via Email
     try {
-      const allSettings = await prisma.setting.findMany();
+      const allSettings = await prisma.setting.findMany({
+        where: { key: { in: ['CONTACT_RECEIVER_EMAIL'] } }
+      });
       const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
       const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'admin@mystore.com';
       const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
@@ -124,12 +116,62 @@ export async function sendMessage(sessionId: string, sender: ChatSender, content
   return message;
 }
 
-export async function getSessionMessages(sessionId: string) {
-  // Validate sessionId format
+/**
+ * Verify that the chat session exists AND belongs to the given guest.
+ */
+async function getOwnedSession(sessionId: string, guestId: string) {
   if (!sessionId || !UUID_REGEX.test(sessionId)) {
     throw new Error('Invalid session identifier.');
   }
+  if (!guestId || !UUID_REGEX.test(guestId)) {
+    throw new Error('Invalid guest identifier.');
+  }
+  const session = await prisma.chatSession.findUnique({ where: { id: sessionId } });
+  if (!session || session.guestId !== guestId) {
+    throw new Error('Chat session not found.');
+  }
+  return session;
+}
 
+/**
+ * Customer sends a message. The sender is ALWAYS forced to CUSTOMER
+ * (previously the client could choose ADMIN and impersonate support).
+ */
+export async function sendMessage(sessionId: string, guestId: string, content: string) {
+  await getOwnedSession(sessionId, guestId);
+  return createChatMessage(sessionId, ChatSender.CUSTOMER, content);
+}
+
+/**
+ * Customer reads the messages of their OWN session only.
+ */
+export async function getSessionMessages(sessionId: string, guestId: string) {
+  await getOwnedSession(sessionId, guestId);
+
+  return await prisma.chatMessage.findMany({
+    where: { sessionId },
+    orderBy: { createdAt: 'asc' },
+  });
+}
+
+// Admin actions
+export async function sendAdminMessage(sessionId: string, content: string) {
+  await requireAdmin();
+  if (!sessionId || !UUID_REGEX.test(sessionId)) {
+    throw new Error('Invalid session identifier.');
+  }
+  const session = await prisma.chatSession.findUnique({ where: { id: sessionId } });
+  if (!session) {
+    throw new Error('Chat session not found.');
+  }
+  return createChatMessage(sessionId, ChatSender.ADMIN, content);
+}
+
+export async function getAdminSessionMessages(sessionId: string) {
+  await requireAdmin();
+  if (!sessionId || !UUID_REGEX.test(sessionId)) {
+    throw new Error('Invalid session identifier.');
+  }
   return await prisma.chatMessage.findMany({
     where: { sessionId },
     orderBy: { createdAt: 'asc' },

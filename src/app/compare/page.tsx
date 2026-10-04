@@ -4,6 +4,7 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Compare Products',
   description: 'Compare products',
+  robots: { index: false, follow: false },
 };
 
 export default function ComparePage() {

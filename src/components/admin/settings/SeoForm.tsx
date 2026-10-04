@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { updateSettingsBatch } from '@/actions/settings';
 import MediaPickerModal from '@/components/admin/MediaPickerModal';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function SeoForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const router = useRouter();
@@ -139,7 +140,7 @@ export default function SeoForm({ initialSettings }: { initialSettings: Record<s
           <div className="md:w-2/3">
             {ogImage && (
               <div className="mb-3">
-                <img src={ogImage} alt="OG Image" className="max-w-xs rounded-md border border-gray-200 shadow-sm" />
+                <Image width={800} height={800} src={ogImage} alt="OG Image" className="max-w-xs rounded-md border border-gray-200 shadow-sm" />
               </div>
             )}
             <button

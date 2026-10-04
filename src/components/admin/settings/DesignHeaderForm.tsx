@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateSettingsBatch } from '@/actions/settings';
 import MediaPickerModal from '@/components/admin/MediaPickerModal';
+import Image from "next/image";
 
 export default function DesignHeaderForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const tSettings = useTranslations('AdminSettings');
@@ -72,7 +73,7 @@ export default function DesignHeaderForm({ initialSettings }: { initialSettings:
             <div className="flex items-center gap-4">
               {headerLogoImage && (
                 <div className="w-32 p-2 bg-gray-100 rounded border">
-                  <img src={headerLogoImage} alt="Header logo" className="max-h-12 object-contain" />
+                  <Image width={800} height={800} src={headerLogoImage} alt="Header logo" className="max-h-12 object-contain" />
                 </div>
               )}
               <button type="button" onClick={() => setShowHeaderLogoModal(true)} className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -85,7 +86,7 @@ export default function DesignHeaderForm({ initialSettings }: { initialSettings:
             <div className="flex items-center gap-4">
               {faviconImage && (
                 <div className="w-12 h-12 p-1 bg-gray-100 rounded border flex items-center justify-center">
-                  <img src={faviconImage} alt="Favicon" className="max-h-8 max-w-8 object-contain" />
+                  <Image width={800} height={800} src={faviconImage} alt="Favicon" className="max-h-8 max-w-8 object-contain" />
                 </div>
               )}
               <button type="button" onClick={() => setShowFaviconModal(true)} className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">

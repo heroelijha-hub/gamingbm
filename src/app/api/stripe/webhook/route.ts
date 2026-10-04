@@ -59,13 +59,16 @@ export async function POST(request: Request) {
     } catch (err: any) {
       console.error('[Stripe Webhook] Signature verification failed:', err.message);
       return NextResponse.json(
-        { error: `Webhook signature verification failed: ${err.message}` },
+        { error: 'Webhook signature verification failed' },
         { status: 400 }
       );
     }
 
     // Handle the event
-    if (event.type === 'checkout.session.completed') {
+    if (
+      event.type === 'checkout.session.completed' ||
+      event.type === 'checkout.session.async_payment_succeeded'
+    ) {
       const session = event.data.object;
       const orderId = session.client_reference_id;
 
@@ -77,7 +80,12 @@ export async function POST(request: Request) {
         );
       }
 
-      // Update order status to PAID
+      // SECURITY: a completed session is not necessarily paid (async methods)
+      if (session.payment_status !== 'paid') {
+        console.warn(`[Stripe Webhook] Session ${session.id} not paid yet (${session.payment_status})`);
+        return NextResponse.json({ received: true });
+      }
+
       const order = await prisma.order.findUnique({ where: { id: orderId } });
 
       if (!order) {
@@ -88,13 +96,26 @@ export async function POST(request: Request) {
         );
       }
 
-      // Only process if order is still PENDING (idempotency)
-      if (order.status === 'PENDING') {
-        await prisma.order.update({
-          where: { id: orderId },
-          data: { status: 'PAID', stripeSessionId: session.id },
-        });
+      // SECURITY: the session must be the one created for this order,
+      // and the paid amount must cover the order total.
+      if (order.stripeSessionId && order.stripeSessionId !== session.id) {
+        console.error(`[Stripe Webhook] Session mismatch for order ${orderId}`);
+        return NextResponse.json({ error: 'Session mismatch' }, { status: 400 });
+      }
+      const expectedCents = Math.round(order.total * 100);
+      // 2-cent tolerance for per-line rounding differences
+      if (typeof session.amount_total === 'number' && session.amount_total < expectedCents - 2) {
+        console.error(`[Stripe Webhook] Amount mismatch for order ${orderId}: paid ${session.amount_total}, expected ${expectedCents}`);
+        return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+      }
 
+      // Atomic update (idempotency): only one delivery can switch PENDING -> PAID
+      const updated = await prisma.order.updateMany({
+        where: { id: orderId, status: 'PENDING' },
+        data: { status: 'PAID', stripeSessionId: session.id },
+      });
+
+      if (updated.count === 1) {
         // Trigger post-payment logic (emails, stock, notifications)
         const { finalizeOrder } = await import('@/lib/orderFinalizer');
         await finalizeOrder(orderId);

@@ -6,10 +6,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // Optional: secure the endpoint if not using Vercel Cron
+    // SECURITY: always require the secret (Vercel Cron sends it automatically).
+    // If CRON_SECRET is not configured, the endpoint is disabled.
     const authHeader = request.headers.get('authorization');
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      // Vercel Cron automatically sends this header if configured
+    if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

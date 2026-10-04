@@ -197,7 +197,7 @@ export default async function OrderDetailsPage({
                 <div key={item.id} className="flex justify-between items-center py-3 border-b last:border-0">
                   <div className="flex items-center space-x-4">
                     {item.product.images && item.product.images[0] ? (
-                      <img src={item.product.images[0]} alt={item.product.title} className="w-16 h-16 object-cover rounded border border-gray-100" />
+                      <Image width={800} height={800} src={item.product.images[0]} alt={item.product.title} className="w-16 h-16 object-cover rounded border border-gray-100" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
                         <span className="text-gray-500 text-xs">No image</span>

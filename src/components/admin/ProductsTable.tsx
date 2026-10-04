@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { deleteProduct, duplicateProduct, quickEditProduct, bulkDeleteProducts } from '@/actions/admin';
 import Price from '@/components/Price';
+import Image from "next/image";
 
 export default function ProductsTable({ products, categories }: { products: any[], categories: any[] }) {
   const t = useTranslations('AdminProducts');
@@ -146,7 +147,7 @@ export default function ProductsTable({ products, categories }: { products: any[
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap align-top">
                     {product.images && product.images[0] ? (
-                      <img src={product.images[0]} alt={product.title} className="h-12 w-12 rounded object-cover border border-gray-200" />
+                      <Image width={800} height={800} src={product.images[0]} alt={product.title} className="h-12 w-12 rounded object-cover border border-gray-200" />
                     ) : (
                       <div className="h-12 w-12 rounded bg-gray-100 flex items-center justify-center text-xs text-gray-500 border border-gray-200">N/A</div>
                     )}

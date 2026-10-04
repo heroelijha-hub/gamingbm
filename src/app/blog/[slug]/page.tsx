@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 
 import { Metadata } from 'next';
+import { safeJsonLd } from '@/lib/security';
+import { SITE_URL } from '@/lib/site';
+import Image from "next/image";
 
 export const dynamic = 'force-dynamic';
 
@@ -76,7 +79,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     orderBy: { createdAt: 'asc' }
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://topkaminbrennstoffe.com';
+  const baseUrl = SITE_URL;
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Top Kaminbrennstoffe';
 
   const articleSchema = {
@@ -130,11 +133,11 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     <div className="bg-gray-50 min-h-screen py-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(articleSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }}
       />
       <div className="max-w-7xl mx-auto px-4 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -174,7 +177,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               {/* Cover Image */}
               {article.image && (
                 <div className="w-full mb-8 rounded-xl overflow-hidden bg-gray-100 flex justify-center">
-                  <img src={article.image} alt={article.title} className="max-h-[500px] object-cover" />
+                  <Image width={800} height={800} src={article.image} alt={article.title} className="max-h-[500px] object-cover" />
                 </div>
               )}
 

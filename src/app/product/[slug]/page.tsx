@@ -6,10 +6,12 @@ import Price from '@/components/Price';
 import ProductReviews from '@/components/product/ProductReviews';
 import { createClient } from '@/utils/supabase/server';
 import { getTranslations } from 'next-intl/server';
+import { safeJsonLd } from '@/lib/security';
 
 import { Metadata } from 'next';
 
 import { getCachedProductBySlug, getCachedSettings, getCachedRelatedProducts } from '@/lib/cache';
+import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -57,6 +59,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const categoryIds = (product as any).categories?.map((c: any) => c.id) || [];
   const relatedProducts = await getCachedRelatedProducts(categoryIds, product.id);
 
+  // Lowest shipping rate for DE (default)
+  const deZone = await prisma.shippingZone.findFirst({
+    where: { name: 'DE', isActive: true },
+    include: { methods: { where: { isActive: true }, orderBy: { rate: 'asc' } } }
+  });
+  const lowestShippingRate = deZone?.methods?.[0]?.rate ?? 0;
+
   // Check if logged in
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -99,7 +108,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
-          value: 0,
+          value: lowestShippingRate,
           currency: 'EUR'
         },
         shippingDestination: {
@@ -139,7 +148,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       },
       author: {
         '@type': 'Person',
-        name: r.reviewerName || r.user?.email?.split('@')[0] || 'Client anonyme',
+        name: r.reviewerName || 'Kunde',
       },
       reviewBody: r.comment || '',
       datePublished: r.createdAt ? new Date(r.createdAt).toISOString().split('T')[0] : undefined,
@@ -164,13 +173,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(schemaJson)
+            __html: safeJsonLd(schemaJson)
           }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [
@@ -258,7 +267,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   <Link href={`/product/${rp.slug}`} key={rp.id} className="group border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition flex flex-col">
                     <div className="relative h-48 w-full flex items-center justify-center mb-4">
                       {rp.images && rp.images[0] ? (
-                        <img src={rp.images[0]} alt={rp.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-500" />
+                        <Image width={800} height={800} src={rp.images[0]} alt={rp.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-500" />
                       ) : (
                         <div className="text-6xl text-gray-300">🛍️</div>
                       )}

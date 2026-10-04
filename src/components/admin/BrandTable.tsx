@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { updateBrand, deleteBrand, bulkDeleteBrands } from '@/actions/admin';
 import MediaPickerModal from '@/components/admin/MediaPickerModal';
+import Image from "next/image";
 
 export default function BrandTable({ brands }: { brands: any[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -100,7 +101,7 @@ export default function BrandTable({ brands }: { brands: any[] }) {
                       {/* Prévisualisation */}
                       {editLogoUrl ? (
                         <div className="relative w-9 h-9 flex-shrink-0">
-                          <img src={editLogoUrl} alt="logo" className="w-9 h-9 object-contain rounded border border-gray-200" />
+                          <Image width={800} height={800} src={editLogoUrl} alt="logo" className="w-9 h-9 object-contain rounded border border-gray-200" />
                           <button
                             type="button"
                             onClick={handleRemoveEditLogo}
@@ -137,7 +138,7 @@ export default function BrandTable({ brands }: { brands: any[] }) {
                       )}
                     </div>
                   ) : (
-                    b.logo ? <img src={b.logo} alt={b.name} className="h-8 object-contain"/> : <span className="text-gray-300">-</span>
+                    b.logo ? <Image width={800} height={800} src={b.logo} alt={b.name} className="h-8 object-contain" /> : <span className="text-gray-300">-</span>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

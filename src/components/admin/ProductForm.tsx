@@ -6,6 +6,7 @@ import { getCategories, getBrands, createBrandAction, createProduct, uploadImage
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 import MediaPickerModal from './MediaPickerModal';
+import Image from "next/image";
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -296,7 +297,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('brand_logo_label')}</label>
                   {newBrandLogo && (
-                    <img src={newBrandLogo} alt="Logo" className="h-12 w-auto mb-2 border rounded" />
+                    <Image width={800} height={800} src={newBrandLogo} alt="Logo" className="h-12 w-auto mb-2 border rounded" />
                   )}
                   <button
                     type="button"
@@ -505,7 +506,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                     setDraggedImageIdx(null);
                   }}
                 >
-                  <img src={img} alt={`img-${idx}`} className="h-20 w-20 object-cover rounded border" />
+                  <Image width={800} height={800} src={img} alt={`img-${idx}`} className="h-20 w-20 object-cover rounded border" />
                   <button 
                     type="button" 
                     onClick={() => setExistingImages(existingImages.filter((_, i) => i !== idx))}
@@ -662,7 +663,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                         }}
                         className="flex items-center gap-2 px-3 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 text-sm transition"
                       >
-                        {prod.images?.[0] && <img src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded border border-gray-100" />}
+                        {prod.images?.[0] && <Image width={800} height={800} src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded border border-gray-100" />}
                         <span className="line-clamp-1 text-gray-800">{prod.title}</span>
                       </div>
                     ))}
@@ -681,7 +682,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                   <div key={id} className="flex items-center justify-between bg-white border border-orange-200 rounded p-2 text-sm shadow-sm group">
                     <div className="flex items-center gap-3 overflow-hidden">
                       {prod.images?.[0] ? (
-                        <img src={prod.images[0]} alt="" className="w-10 h-10 object-cover rounded border border-gray-100 shrink-0" />
+                        <Image width={800} height={800} src={prod.images[0]} alt="" className="w-10 h-10 object-cover rounded border border-gray-100 shrink-0" />
                       ) : (
                         <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center shrink-0 text-gray-500 text-xs">img</div>
                       )}
@@ -732,7 +733,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                         }}
                         className="flex items-center gap-2 px-3 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 text-sm transition"
                       >
-                        {prod.images?.[0] && <img src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded border border-gray-100" />}
+                        {prod.images?.[0] && <Image width={800} height={800} src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded border border-gray-100" />}
                         <span className="line-clamp-1 text-gray-800">{prod.title}</span>
                       </div>
                     ))}
@@ -751,7 +752,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
                   <div key={id} className="flex items-center justify-between bg-white border border-gray-200 rounded p-2 text-sm shadow-sm group">
                     <div className="flex items-center gap-3 overflow-hidden">
                       {prod.images?.[0] ? (
-                        <img src={prod.images[0]} alt="" className="w-10 h-10 object-cover rounded border border-gray-100 shrink-0" />
+                        <Image width={800} height={800} src={prod.images[0]} alt="" className="w-10 h-10 object-cover rounded border border-gray-100 shrink-0" />
                       ) : (
                         <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center shrink-0 text-gray-500 text-xs">img</div>
                       )}

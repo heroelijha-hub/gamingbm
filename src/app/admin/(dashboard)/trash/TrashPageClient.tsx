@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { restoreProduct, restoreMedia, permanentlyDeleteProduct, permanentlyDeleteMedia, emptyTrash } from '@/actions/trash';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function TrashPageClient({ initialProducts, initialMedia }: { initialProducts: any[], initialMedia: any[] }) {
   const [products, setProducts] = useState(initialProducts);
@@ -120,7 +121,7 @@ export default function TrashPageClient({ initialProducts, initialMedia }: { ini
                     <td className="p-4 flex items-center gap-3">
                       <div className="w-12 h-12 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                         {product.images?.[0] ? (
-                          <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                          <Image width={800} height={800} src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-500">?</div>
                         )}
@@ -161,7 +162,7 @@ export default function TrashPageClient({ initialProducts, initialMedia }: { ini
           ) : (
             media.map(m => (
               <div key={m.id} className="relative aspect-square border rounded overflow-hidden group bg-gray-100">
-                <img src={m.url} alt="media" className="object-cover w-full h-full opacity-70" />
+                <Image width={800} height={800} unoptimized src={m.url} alt="media" className="object-cover w-full h-full opacity-70" />
                 <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2">
                   <button 
                     onClick={() => handleRestoreMedia(m.id)} 

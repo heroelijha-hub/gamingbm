@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cartStore';
 import Price from '@/components/Price';
 import { useTranslations } from 'next-intl';
 import { validateCoupon } from '@/actions/checkout';
+import Image from "next/image";
 
 type CartDrawerProps = {
   isOpen: boolean;
@@ -132,7 +133,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <div key={item.id} className="flex gap-4 border-b border-gray-100 pb-4">
                   <div className="w-20 h-20 bg-gray-50 border border-gray-100 flex-shrink-0 rounded flex items-center justify-center relative overflow-hidden">
                     {item.image ? (
-                       <img src={item.image} alt={item.title} className="w-full h-full object-contain p-1" />
+                       <Image width={800} height={800} src={item.image} alt={item.title} className="w-full h-full object-contain p-1" />
                     ) : (
                        <span className="text-xs text-gray-500">{t('no_image')}</span>
                     )}

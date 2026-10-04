@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from "next/image";
 
 type MaintenanceViewProps = {
   title: string;
@@ -15,7 +16,7 @@ export default function MaintenanceView({ title, message, image, logoImage }: Ma
       {/* Header simple avec le logo */}
       <header className="w-full bg-white border-b border-gray-200 py-6 px-8 flex justify-center">
         {logoImage ? (
-          <img src={logoImage} alt="Logo" className="h-20 sm:h-28 object-contain scale-150" />
+          <Image width={800} height={800} src={logoImage} alt="Logo" className="h-20 sm:h-28 object-contain scale-150" />
         ) : (
           <span className="text-3xl font-extrabold tracking-tight text-gray-900">LOGO</span>
         )}
@@ -25,11 +26,9 @@ export default function MaintenanceView({ title, message, image, logoImage }: Ma
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="max-w-2xl w-full bg-white p-8 md:p-12 rounded-2xl shadow-xl text-center border border-gray-100">
           {image && (
-            <img 
-              src={image} 
+            <Image width={800} height={800} src={image} 
               alt="Maintenance" 
-              className="mx-auto h-48 md:h-64 object-contain mb-8 rounded-lg"
-            />
+              className="mx-auto h-48 md:h-64 object-contain mb-8 rounded-lg" />
           )}
           
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 mb-6">

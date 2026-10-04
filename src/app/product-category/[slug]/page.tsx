@@ -1,6 +1,7 @@
 import ShopPage from '@/app/shop/page';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { SITE_URL } from '@/lib/site';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: category?.metaTitle || category?.name || 'Category',
       description: category?.metaDescription || `Shop products in ${category?.name}`,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/product-category/${category?.slug}`,
+      url: `${SITE_URL}/product-category/${category?.slug}`,
       siteName: storeName,
       type: 'website',
     }

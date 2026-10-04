@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
+import { SITE_URL } from '@/lib/site';
 
 const DEFAULT_DISALLOW_PATHS = [
   '/admin/', 
@@ -8,18 +9,18 @@ const DEFAULT_DISALLOW_PATHS = [
   '/api/', 
   '/categorie-produit/', 
   '/produit/',
-  '/*?filter_cat=/',
-  '/*?column=/',
-  '/*?per_page=/',
-  '/*?rating_filter=/',
-  '/*?stock_status=/',
-  '/*?featured=/',
-  '/*?best_seller=/',
-  '/*?add-to-cart=/'
+  '/*?filter_cat=',
+  '/*?column=',
+  '/*?per_page=',
+  '/*?rating_filter=',
+  '/*?stock_status=',
+  '/*?featured=',
+  '/*?best_seller=',
+  '/*?add-to-cart='
 ];
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mystore.com';
+  const baseUrl = SITE_URL;
 
   // Read robots settings from the database
   const settings = await prisma.setting.findMany({

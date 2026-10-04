@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCurrency } from '@/components/CurrencyProvider';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 interface ProductActionsProps {
   product: {
@@ -204,7 +205,7 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
           <div className="space-y-3">
             {product.forceSales.map(fs => (
               <div key={fs.id} className="flex items-center gap-3 bg-white p-2 rounded shadow-sm border border-orange-100">
-                {fs.images?.[0] && <img src={fs.images[0]} alt={fs.title} className="w-12 h-12 object-cover rounded" />}
+                {fs.images?.[0] && <Image width={800} height={800} src={fs.images[0]} alt={fs.title} className="w-12 h-12 object-cover rounded" />}
                 <div>
                   <div className="text-sm font-medium text-gray-900 leading-tight">{fs.title}</div>
                   <div className="text-sm font-bold text-gray-700">{formatPrice(fs.price)}</div>
@@ -335,7 +336,7 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
                   }}
                   className="w-5 h-5 text-orange-700 rounded border-gray-300 focus:ring-orange-500"
                 />
-                {st.images?.[0] && <img src={st.images[0]} alt={st.title} className="w-12 h-12 object-cover rounded bg-white border border-gray-100" />}
+                {st.images?.[0] && <Image width={800} height={800} src={st.images[0]} alt={st.title} className="w-12 h-12 object-cover rounded bg-white border border-gray-100" />}
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 leading-tight line-clamp-1">{st.title}</div>
                   <div className="text-sm font-bold text-gray-700">{formatPrice(st.price)}</div>

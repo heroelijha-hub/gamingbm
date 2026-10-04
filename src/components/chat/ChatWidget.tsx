@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { usePathname } from 'next/navigation';
+import Image from "next/image";
 
 function generateId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -167,7 +168,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-orange-400">
                 {storeIcon ? (
-                  <img src={storeIcon} alt="Store Icon" className="w-full h-full object-cover" />
+                  <Image width={800} height={800} src={storeIcon} alt="Store Icon" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-orange-700 font-bold text-xl">{storeName.charAt(0)}</span>
                 )}

@@ -202,6 +202,7 @@ export default async function ShopPage({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-8">{pageTitle}</h1>
         <div className="flex flex-col lg:flex-row gap-8">
           
           {/* Left Sidebar (Filters) */}

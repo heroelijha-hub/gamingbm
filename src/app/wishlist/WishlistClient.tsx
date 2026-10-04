@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Price from '@/components/Price';
 import { useCartStore } from '@/store/cartStore';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function WishlistClient() {
   const [products, setProducts] = useState<any[]>([]);
@@ -81,7 +82,7 @@ export default function WishlistClient() {
         <div key={p.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col">
           <Link href={`/product/${p.slug}`} className="relative bg-gray-50 aspect-square p-4 flex items-center justify-center">
             {p.images && p.images.length > 0 ? (
-              <img src={p.images[0]} alt={p.title} className="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+              <Image width={800} height={800} src={p.images[0]} alt={p.title} className="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
             ) : (
               <div className="text-5xl">🛍️</div>
             )}

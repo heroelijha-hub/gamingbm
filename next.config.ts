@@ -11,9 +11,7 @@ const nextConfig: NextConfig = {
     },
   },
   turbopack: {},
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [320, 360, 420, 480, 500, 540, 600, 640, 700, 750, 828, 900, 1080, 1200, 1920, 2048],
@@ -112,7 +110,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com https://us.i.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.stripe.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://us.i.posthog.com; frame-src 'self' https://js.stripe.com https://www.paypal.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.stripe.com https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://js.stripe.com https://www.paypal.com;",
           },
         ],
       },

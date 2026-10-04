@@ -116,7 +116,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             dangerouslySetInnerHTML={{ __html: settings.HERO_1_SUBTITLE }}
           />
         )}
-        <h2 
+        <h1 
           className="font-extrabold tracking-tight mb-4 text-responsive drop-shadow-md" 
           style={{...getResponsiveVars('HERO_1_TITLE', {m: '28px', t: '32px', d: '38px'}), color: settings.HERO_1_TEXT_COLOR || '#ffffff', lineHeight: '1.2'}}
           dangerouslySetInnerHTML={{ __html: settings.HERO_1_TITLE || t('hero_1_title') }}
@@ -311,7 +311,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
               {settings.STYLE2_HERO_1_SUBTITLE || t('hero_1_subtitle')}
             </span>
           )}
-          <h2 
+          <h1 
             className="font-black italic tracking-wide leading-relaxed mb-6 text-responsive drop-shadow-md" 
             style={{
               ...getResponsiveVars('STYLE2_HERO_1_TITLE', {m: '28px', t: '36px', d: '46px'}),
@@ -322,7 +322,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             <span className="text-[#107c41] leading-[1.6]" style={{ color: settings.STYLE2_HERO_1_TEXT_COLOR || '#107c41' }}>
                {settings.STYLE2_HERO_1_TITLE || t('hero_1_title')}
             </span>
-          </h2>
+          </h1>
         </div>
         <div className="mt-8">
           <Link 

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { renderContentInput, renderDesignTextControls } from './SharedUI';
+import Image from "next/image";
 
 interface PromoBannersEditorProps {
   section: any;
@@ -76,7 +77,7 @@ export default function PromoBannersEditor({
                   </button>
                   {section.settings[`${prefix}_IMAGE`] && (
                     <div className="mt-2 flex items-center justify-between bg-gray-50 p-2 border rounded">
-                      <img src={section.settings[`${prefix}_IMAGE`]} className="h-10 object-contain" />
+                      <Image width={800} height={800} src={section.settings[`${prefix}_IMAGE`]} className="h-10 object-contain" />
                       <button onClick={() => updateSectionSettings(section.id, `${prefix}_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                     </div>
                   )}
@@ -89,7 +90,7 @@ export default function PromoBannersEditor({
                   </button>
                   {section.settings[`${prefix}_BG_IMAGE`] && (
                     <div className="mt-2 flex items-center justify-between bg-gray-50 p-2 border rounded">
-                      <img src={section.settings[`${prefix}_BG_IMAGE`]} className="h-10 object-cover" />
+                      <Image width={800} height={800} src={section.settings[`${prefix}_BG_IMAGE`]} className="h-10 object-cover" />
                       <button onClick={() => updateSectionSettings(section.id, `${prefix}_BG_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                     </div>
                   )}

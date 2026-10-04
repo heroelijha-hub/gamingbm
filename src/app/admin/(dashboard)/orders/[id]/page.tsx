@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import DeliveryTracker from '@/components/admin/DeliveryTracker';
 import Price from '@/components/Price';
 import { getTranslations } from 'next-intl/server';
+import Image from "next/image";
 
 export const dynamic = 'force-dynamic';
 
@@ -93,7 +94,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                 <div key={item.id} className="flex justify-between items-center py-2 border-b last:border-0">
                   <div className="flex items-center space-x-4">
                     {item.product.images[0] && (
-                      <img src={item.product.images[0]} alt={item.product.title} className="w-12 h-12 object-cover rounded" />
+                      <Image width={800} height={800} src={item.product.images[0]} alt={item.product.title} className="w-12 h-12 object-cover rounded" />
                     )}
                     <div>
                       <p className="font-medium text-sm text-gray-900">{item.product.title}</p>

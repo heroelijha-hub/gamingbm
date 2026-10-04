@@ -57,6 +57,9 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
     ? [billing.firstName, billing.lastName].filter(Boolean).join(' ')
     : '';
 
+  const maskName = (name: string) => name ? name.split(' ').map(n => n.charAt(0) + '***').join(' ') : '';
+  const maskAddress = (address: string) => address ? address.substring(0, 3) + '***' : '';
+
   // First product info
   const firstItem = order?.orderItems?.[0];
   const allProducts = order?.orderItems?.map(i => i.product.title).join(', ') || '';
@@ -125,7 +128,7 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
 
             {customerName && (
               <p className="text-sm text-gray-600 mb-1">
-                <span className="font-medium text-gray-700">{t('customer_label')}</span> {customerName}
+                <span className="font-medium text-gray-700">{t('customer_label')}</span> {maskName(customerName)}
               </p>
             )}
 
@@ -168,7 +171,7 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex justify-between text-sm font-medium text-gray-500 mb-3">
               <span>{t('departure')}</span>
-              <span>{t('arrival')} {billing?.address1 ? `${billing.address1}, ${billing.city || ''}` : (order.destinationAddress || order.destinationCountry || '')}</span>
+              <span>{t('arrival')} {billing?.address1 ? `${maskAddress(billing.address1)}, ${billing.city || ''}` : (maskAddress(order.destinationAddress || '') || order.destinationCountry || '')}</span>
             </div>
             <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden">
               <div 
@@ -259,7 +262,7 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
             <p className="text-green-700">{t('thanks')}</p>
           </div>
           {customerName && (
-            <p className="text-sm text-center text-gray-600">{customerName}</p>
+            <p className="text-sm text-center text-gray-600">{maskName(customerName)}</p>
           )}
           <div className="text-center mt-4">
             <a href="/order-tracking" className="text-orange-600 font-medium hover:underline">← {t('track_another')}</a>
@@ -299,7 +302,7 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
             <div className="mb-10">
               <div className="flex justify-between text-sm font-medium text-gray-500 mb-2">
                 <span>{t('departure')} {order.originCity}</span>
-                <span>{t('arrival')} {order.destinationAddress || order.destinationCountry}</span>
+                <span>{t('arrival')} {maskAddress(order.destinationAddress || '') || order.destinationCountry}</span>
               </div>
               <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                 <div className="absolute top-0 left-0 h-full bg-green-500 transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
@@ -332,7 +335,7 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
               originName={`${order.originCity}, ${order.originCountry}`}
               destinationLat={order.destinationLat}
               destinationLng={order.destinationLng}
-              destinationName={`${order.destinationAddress}, ${order.destinationCountry}`}
+              destinationName={`${maskAddress(order.destinationAddress || '')}, ${order.destinationCountry}`}
               positions={order.deliveryPositions}
               departureText={t('departure').replace(':', '').trim()}
               arrivalText={t('arrival').replace(':', '').trim()}

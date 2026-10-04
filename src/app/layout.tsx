@@ -13,13 +13,14 @@ import { getMessages, getLocale } from 'next-intl/server';
 import { PostHogProvider } from '@/components/providers/PostHogProvider';
 import { Toaster } from 'react-hot-toast';
 import { getCachedSettings, getCachedCategoriesTree, getCachedProductCounts } from '@/lib/cache';
-
+import { safeJsonLd } from '@/lib/security';
+import { SITE_URL } from '@/lib/site';
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "My Store";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({
@@ -32,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = settingsMap['HOME_META_DESCRIPTION'] || "Découvrez notre vaste sélection de produits de haute qualité sur notre boutique en ligne complète.";
   const ogImage = settingsMap['HEADER_LOGO_IMAGE'] || '/logo.jpg';
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://mystore.vercel.app";
+  const baseUrl = SITE_URL;
 
   return {
     metadataBase: new URL(baseUrl),
@@ -90,9 +91,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const defaultMenuLinks = [
     { label: 'Home', url: '/' },
     { label: 'Shop', url: '/shop' },
-    { label: 'Pages', url: '/pages' },
-    { label: 'Blogs', url: '/blogs' },
-    { label: 'Portfolios', url: '/portfolios' },
+    { label: 'Blog', url: '/blog' },
     { label: 'Contact Us', url: `/${contactSlug}` },
   ];
 
@@ -231,19 +230,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               "@context": "https://schema.org",
-              "@type": "Store",
+              "@type": "LocalBusiness",
               "name": storeName,
               "image": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
-              "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://mystore.com',
+              "url": SITE_URL,
               "telephone": settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE,
               "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": settingsMap.FOOTER_ADDRESS_1 || '',
-                "addressCountry": settingsMap.STORE_COUNTRY || "FR"
-              }
+                "addressCountry": settingsMap.STORE_COUNTRY || "DE",
+                "addressLocality": "Langenhagen"
+              },
+              "description": "Ihr zuverlässiger Partner für Kaminholz, Holzpellets und Holzbriketts."
             })
           }}
         />

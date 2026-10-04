@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getMediaList, uploadMediaAction, updateMediaAction, deleteMediaAction, deleteMultipleMediaAction } from '@/actions/media';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function MediaPageClient() {
   const [media, setMedia] = useState<any[]>([]);
@@ -212,7 +213,7 @@ export default function MediaPageClient() {
                     isSelected ? 'border-[#2271b1] border-4' : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
-                  <img src={m.url} alt={m.altText || m.title || 'media'} className="object-contain w-full h-full bg-gray-50" />
+                  <Image width={800} height={800} unoptimized src={m.url} alt={m.altText || m.title || 'media'} className="object-contain w-full h-full bg-gray-50" />
                   {isSelected && (
                     <div className="absolute top-1 right-1 bg-[#2271b1] text-white w-6 h-6 flex items-center justify-center border-2 border-white rounded-sm shadow-sm">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
@@ -237,7 +238,7 @@ export default function MediaPageClient() {
             </div>
             
             <div className="p-4">
-              <img src={selectedMedia[0].url} className="w-full h-auto mb-4 border bg-gray-50" alt="Aperçu" />
+              <Image width={800} height={800} src={selectedMedia[0].url} className="w-full h-auto mb-4 border bg-gray-50" alt="Aperçu" />
               
               <div className="mb-4">
                 <span className="text-xs text-gray-500 block mb-1 font-medium">{t('file_url')}</span>

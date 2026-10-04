@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateSettingsBatch } from '@/actions/settings';
 import MediaPickerModal from '@/components/admin/MediaPickerModal';
+import Image from "next/image";
 
 export default function FooterForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const tSettings = useTranslations('AdminSettings');
@@ -97,7 +98,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
               <div className="flex items-center gap-4">
                 {footerLogoImage && (
                   <div className="w-32 p-2 bg-gray-100 rounded border">
-                    <img src={footerLogoImage} alt="Footer logo" className="max-h-12 object-contain" />
+                    <Image width={800} height={800} src={footerLogoImage} alt="Footer logo" className="max-h-12 object-contain" />
                   </div>
                 )}
                 <button type="button" onClick={() => setShowMediaModal(true)} className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">

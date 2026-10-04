@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { renderContentInput, renderDesignTextControls } from './SharedUI';
+import Image from "next/image";
 
 interface ProductGridEditorProps {
   section: any;
@@ -57,7 +58,7 @@ export default function ProductGridEditor({
                   }}
                 >
                   {p.images && p.images[0] && (
-                     <img src={p.images[0]} alt="" className="w-8 h-8 object-cover rounded" />
+                     <Image width={800} height={800} src={p.images[0]} alt="" className="w-8 h-8 object-cover rounded" />
                   )}
                   <span className="font-medium truncate">{p.title}</span>
                 </div>
@@ -78,7 +79,7 @@ export default function ProductGridEditor({
               <div key={id} className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md p-2 shadow-sm">
                 <div className="flex items-center gap-3 overflow-hidden">
                   {prod.images && prod.images[0] && (
-                    <img src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded flex-shrink-0" />
+                    <Image width={800} height={800} src={prod.images[0]} alt="" className="w-8 h-8 object-cover rounded flex-shrink-0" />
                   )}
                   <span className="text-sm font-medium truncate">{prod.title}</span>
                 </div>
@@ -305,7 +306,7 @@ export default function ProductGridEditor({
                       </button>
                       {section.settings[`PROMO_${blockNum}_IMAGE`] && (
                         <div className="mt-2 flex items-center justify-between bg-white p-2 border rounded">
-                          <img src={section.settings[`PROMO_${blockNum}_IMAGE`]} className="h-8 object-contain" />
+                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_IMAGE`]} className="h-8 object-contain" />
                           <button onClick={() => updateSectionSettings(section.id, `PROMO_${blockNum}_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                         </div>
                       )}
@@ -316,7 +317,7 @@ export default function ProductGridEditor({
                       </button>
                       {section.settings[`PROMO_${blockNum}_BG_IMAGE`] && (
                         <div className="mt-2 flex items-center justify-between bg-white p-2 border rounded">
-                          <img src={section.settings[`PROMO_${blockNum}_BG_IMAGE`]} className="h-8 object-cover" />
+                          <Image width={800} height={800} src={section.settings[`PROMO_${blockNum}_BG_IMAGE`]} className="h-8 object-cover" />
                           <button onClick={() => updateSectionSettings(section.id, `PROMO_${blockNum}_BG_IMAGE`, '')} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
                         </div>
                       )}

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMediaList, uploadMediaAction } from '@/actions/media';
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 type Tab = 'library' | 'upload';
 
@@ -181,7 +182,7 @@ export default function MediaPickerModal({
                         className="relative aspect-square border-2 border-transparent rounded-lg overflow-hidden cursor-pointer hover:border-orange-500 group transition-all shadow-sm"
                       >
                         {isImageFile(m.url) ? (
-                          <img src={m.url} alt={m.altText || m.title || 'media'} className="object-cover w-full h-full" />
+                          <Image width={800} height={800} unoptimized src={m.url} alt={m.altText || m.title || 'media'} className="object-cover w-full h-full" />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 p-2">
                             <svg className="w-8 h-8 text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +243,7 @@ export default function MediaPickerModal({
               >
                 {uploadPreview && uploadFile && isImageFile(uploadFile.name) ? (
                   <div className="flex flex-col items-center gap-3">
-                    <img src={uploadPreview} alt="Aperçu" className="max-h-48 max-w-full rounded-lg object-contain shadow-md" />
+                    <Image width={800} height={800} src={uploadPreview} alt="Aperçu" className="max-h-48 max-w-full rounded-lg object-contain shadow-md" />
                     <p className="text-sm text-gray-600 font-medium">{uploadFile.name}</p>
                     <p className="text-xs text-gray-500">{(uploadFile.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>

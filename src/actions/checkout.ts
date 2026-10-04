@@ -2,6 +2,10 @@
 
 import prisma from '@/lib/prisma';
 
+const ALLOWED_PAYMENT_METHODS = ['STRIPE', 'PAYPAL', 'BANK_TRANSFER'] as const;
+const MAX_CART_LINES = 50;
+const MAX_QTY_PER_LINE = 999;
+
 export async function validateCoupon(code: string) {
   try {
     const coupon = await prisma.coupon.findUnique({
@@ -33,7 +37,7 @@ export async function validateCoupon(code: string) {
 
 export async function processCheckout(formData: FormData, cartItems: any[], finalTotal: number, paymentMethod: string) {
   try {
-    const email = formData.get('email') as string;
+    const email = String(formData.get('email') || '').trim().toLowerCase();
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
     const country = formData.get('country') as string;
@@ -43,10 +47,49 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     
     const effectiveCountry = shipToDifferentAddress ? shippingCountry : country;
 
-    // Validate that shippingMethodId is a valid UUID to prevent Prisma P2023 errors
+    // ===== INPUT VALIDATION (never trust the client) =====
+    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { error: "Please provide a valid email address." };
+    }
+
+    if (!(ALLOWED_PAYMENT_METHODS as readonly string[]).includes(paymentMethod)) {
+      return { error: "Invalid payment method." };
+    }
+
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return { error: "Your cart is empty." };
+    }
+    if (cartItems.length > MAX_CART_LINES) {
+      return { error: "Too many items in cart." };
+    }
+
+    // Validate shippingMethodId is a valid UUID to prevent Prisma P2023 errors
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    for (const item of cartItems) {
+      const qty = Number(item?.quantity);
+      if (!item || typeof item.productId !== 'string' || !uuidRegex.test(item.productId)) {
+        return { error: "Invalid product in cart. Please refresh your cart." };
+      }
+      // SECURITY: negative / fractional / huge quantities would alter the total
+      if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY_PER_LINE) {
+        return { error: "Invalid quantity in cart." };
+      }
+      item.quantity = qty;
+    }
+
     if (!shippingMethodId || !uuidRegex.test(shippingMethodId)) {
       return { error: "Invalid shipping method. Please refresh the page." };
+    }
+
+    // Check that the selected payment method is enabled by the admin
+    const paymentFlags = await prisma.setting.findMany({
+      where: { key: { in: ['ENABLE_STRIPE', 'ENABLE_PAYPAL', 'ENABLE_BANK_TRANSFER'] } }
+    });
+    const flagMap = Object.fromEntries(paymentFlags.map(s => [s.key, s.value]));
+    const flagKey = paymentMethod === 'BANK_TRANSFER' ? 'ENABLE_BANK_TRANSFER' : `ENABLE_${paymentMethod}`;
+    if (flagMap[flagKey] === 'false') {
+      return { error: "This payment method is not available." };
     }
 
     const validZone = await prisma.shippingZone.findFirst({
@@ -66,27 +109,35 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     
     // ===== SERVER-SIDE PRICE VERIFICATION =====
     // Never trust client-provided prices. Fetch real prices from database.
-    const productIds = cartItems.map((item: any) => item.productId);
+    const productIds = [...new Set(cartItems.map((item: any) => item.productId as string))];
     const dbProducts = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: { id: true, price: true, title: true },
+      where: { id: { in: productIds }, isDeleted: false },
+      select: { id: true, price: true, title: true, images: true },
     });
-    const productPriceMap = new Map(dbProducts.map(p => [p.id, p.price]));
+    const productMap = new Map(dbProducts.map(p => [p.id, p]));
 
     // Verify all products exist and recalculate total from DB prices
     let serverCartTotal = 0;
     const verifiedItems: any[] = [];
     for (const item of cartItems) {
-      const dbPrice = productPriceMap.get(item.productId);
-      if (dbPrice === undefined) {
-        return { error: `Product not found: ${item.productId}. Please refresh your cart.` };
+      const dbProduct = productMap.get(item.productId);
+      if (!dbProduct) {
+        return { error: `A product in your cart is no longer available. Please refresh your cart.` };
       }
-      serverCartTotal += dbPrice * item.quantity;
-      verifiedItems.push({ ...item, price: dbPrice }); // Use DB price, not client price
+      serverCartTotal += dbProduct.price * item.quantity;
+      verifiedItems.push({
+        productId: dbProduct.id,
+        quantity: item.quantity,
+        price: dbProduct.price, // Use DB price, not client price
+        title: dbProduct.title, // Use DB title, not client title
+        image: dbProduct.images?.[0],
+        variationId: typeof item.variationId === 'string' ? item.variationId.slice(0, 100) : null,
+        attributes: item.attributes && typeof item.attributes === 'object' ? item.attributes : null,
+      });
     }
 
     // Apply coupon discount server-side if provided
-    const couponCode = formData.get('couponCode') as string;
+    const couponCode = String(formData.get('couponCode') || '').slice(0, 64);
     let discountAmount = 0;
     if (couponCode) {
       const coupon = await prisma.coupon.findUnique({
@@ -186,20 +237,50 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
 
       const { default: Stripe } = await import('stripe');
       const stripe = new Stripe(stripeSecretKey);
+      const currency = storeCurrencyCode.toLowerCase();
+
+      const lineItems: any[] = verifiedItems.map(item => ({
+        price_data: {
+          currency,
+          product_data: {
+            name: item.title,
+            images: item.image && /^https:\/\//.test(item.image) ? [item.image] : [],
+          },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.quantity,
+      }));
+
+      // Charge shipping (previously missing -> amount paid != order total)
+      if (shippingRate > 0) {
+        lineItems.push({
+          price_data: {
+            currency,
+            product_data: { name: `Versand (${validZone.methods[0].type})` },
+            unit_amount: Math.round(shippingRate * 100),
+          },
+          quantity: 1,
+        });
+      }
+
+      // Apply the server-verified coupon discount on Stripe as well
+      let discounts: any[] | undefined;
+      const discountCents = Math.round(discountAmount * 100);
+      if (discountCents > 0) {
+        const stripeCoupon = await stripe.coupons.create({
+          amount_off: discountCents,
+          currency,
+          duration: 'once',
+          max_redemptions: 1,
+          name: couponCode ? `Gutschein ${couponCode.toUpperCase()}` : 'Rabatt',
+        });
+        discounts = [{ coupon: stripeCoupon.id }];
+      }
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: verifiedItems.map(item => ({
-          price_data: {
-            currency: storeCurrencyCode.toLowerCase(),
-            product_data: {
-              name: item.title,
-              images: item.image ? [item.image] : [],
-            },
-            unit_amount: Math.round(item.price * 100),
-          },
-          quantity: item.quantity,
-        })),
+        line_items: lineItems,
+        ...(discounts ? { discounts } : {}),
         mode: 'payment',
         success_url: `${baseUrl}/checkout/success?orderId=${order.id}`,
         cancel_url: `${baseUrl}/checkout`,

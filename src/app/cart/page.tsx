@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useTranslations } from 'next-intl';
 import { useCurrency } from '@/components/CurrencyProvider';
+import Image from "next/image";
 
 export default function CartPage() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function CartPage() {
                       <div className="col-span-2 flex justify-center">
                         <Link href={`/product/${item.productId}`} className="w-20 h-20 bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden">
                           {item.image ? (
-                            <img src={item.image} alt={item.title} className="max-w-full max-h-full object-contain" />
+                            <Image width={800} height={800} src={item.image} alt={item.title} className="max-w-full max-h-full object-contain" />
                           ) : (
                             <span className="text-xs text-gray-500">{t('image')}</span>
                           )}

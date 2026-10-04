@@ -90,30 +90,81 @@ export async function GET(request: Request) {
       );
     }
 
+    // Validate PayPal token format (alphanumeric order ID) to avoid path injection
+    if (!/^[A-Z0-9-]{5,64}$/i.test(paypalToken)) {
+      return NextResponse.redirect(
+        new URL('/checkout?error=invalid_order', request.url)
+      );
+    }
+
+    const expectedAmount = order.total.toFixed(2);
+    const currencySetting = await prisma.setting.findUnique({ where: { key: 'currency' } });
+    const expectedCurrency = (currencySetting?.value || 'EUR').toUpperCase();
+
+    // ===== SECURITY: verify the PayPal order BEFORE capturing =====
+    // The PayPal order must belong to THIS shop order and have the exact amount.
+    // Without this check, an attacker could pay a cheap order and use its token
+    // to mark an expensive order as PAID.
+    const detailsRes = await fetch(
+      `https://api-m.paypal.com/v2/checkout/orders/${encodeURIComponent(paypalToken)}`,
+      { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
+    );
+    const details = await detailsRes.json();
+    const unit = details?.purchase_units?.[0];
+
+    if (
+      !unit ||
+      unit.reference_id !== orderId ||
+      unit.amount?.value !== expectedAmount ||
+      String(unit.amount?.currency_code).toUpperCase() !== expectedCurrency
+    ) {
+      console.error('[PayPal Capture] Order mismatch', {
+        orderId,
+        paypalRef: unit?.reference_id,
+        paypalAmount: unit?.amount?.value,
+        expectedAmount,
+      });
+      return NextResponse.redirect(
+        new URL('/checkout?error=paypal_order_mismatch', request.url)
+      );
+    }
+
     // Capture the payment
     const captureRes = await fetch(
-      `https://api-m.paypal.com/v2/checkout/orders/${paypalToken}/capture`,
+      `https://api-m.paypal.com/v2/checkout/orders/${encodeURIComponent(paypalToken)}/capture`,
       {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
           'Content-Type': 'application/json',
+          // Idempotency: PayPal will not capture twice for the same request id
+          'PayPal-Request-Id': `capture-${orderId}`,
         },
       }
     );
 
     const captureData = await captureRes.json();
 
-    if (captureData.status === 'COMPLETED') {
-      // Update order status to PAID
-      await prisma.order.update({
-        where: { id: orderId },
+    // Double-check the captured amount (defence in depth)
+    const capture = captureData?.purchase_units?.[0]?.payments?.captures?.[0];
+    const capturedOk =
+      captureData.status === 'COMPLETED' &&
+      capture?.status === 'COMPLETED' &&
+      capture?.amount?.value === expectedAmount &&
+      String(capture?.amount?.currency_code).toUpperCase() === expectedCurrency;
+
+    if (capturedOk) {
+      // Atomic update: only one concurrent request can switch PENDING -> PAID
+      const updated = await prisma.order.updateMany({
+        where: { id: orderId, status: 'PENDING' },
         data: { status: 'PAID' },
       });
 
-      // Trigger post-payment logic
-      const { finalizeOrder } = await import('@/lib/orderFinalizer');
-      await finalizeOrder(orderId);
+      // Trigger post-payment logic only once
+      if (updated.count === 1) {
+        const { finalizeOrder } = await import('@/lib/orderFinalizer');
+        await finalizeOrder(orderId);
+      }
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
       return NextResponse.redirect(
