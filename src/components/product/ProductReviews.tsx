@@ -86,7 +86,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
               <div className="w-full overflow-x-auto">
                 <SafeHTML 
                   html={description}
-                  className="prose prose-sm max-w-none w-full break-words whitespace-normal" 
+                  className="prose prose-sm max-w-none w-full whitespace-normal" 
                 />
               </div>
             ) : (

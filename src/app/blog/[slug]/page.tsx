@@ -184,7 +184,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               {/* Rich Content */}
               <SafeHTML 
                 html={article.content}
-                className="prose prose-orange max-w-none w-full break-words overflow-hidden text-gray-700 leading-relaxed"
+                className="prose prose-orange max-w-none w-full overflow-hidden text-gray-700 leading-relaxed"
               />
 
               {/* Footer / Links */}

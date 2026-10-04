@@ -63,3 +63,11 @@ a {
     letter-spacing: var(--ls-d, var(--ls-t, var(--ls-m, normal)));
   } 
 }
+
+/* Force normal word breaking to prevent letters splitting inside words */
+.break-words, .prose, .prose p, .prose li, .prose h1, .prose h2, .prose h3, .prose h4 {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: manual !important;
+}
+
