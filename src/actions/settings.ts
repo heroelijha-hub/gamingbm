@@ -7,8 +7,24 @@ import { requireAdmin } from '@/lib/auth';
 export async function getSettings() {
   const settings = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};
+  
+  let isAdmin = false;
+  try {
+    const { requireAdmin } = await import('@/lib/auth');
+    await requireAdmin();
+    isAdmin = true;
+  } catch {
+    isAdmin = false;
+  }
+
+  // Liste des clés secrètes à ne jamais exposer au public
+  const hiddenKeys = ['STRIPE_SECRET_KEY', 'PAYPAL_SECRET', 'CRON_SECRET', 'SMTP_PASSWORD'];
+
   settings.forEach(s => {
-    settingsMap[s.key] = s.value;
+    // Si l'utilisateur est admin, on envoie tout. Sinon, on filtre les clés secrètes.
+    if (isAdmin || !hiddenKeys.includes(s.key)) {
+      settingsMap[s.key] = s.value;
+    }
   });
   return settingsMap;
 }

@@ -5,6 +5,16 @@ import { getSettings } from './settings';
 import { getContactSettings } from './contactSettings';
 import { getTranslations } from 'next-intl/server';
 
+// Utilitaire de sécurité pour bloquer les injections HTML (Correction M3)
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 export async function submitContactMessage(formData: FormData) {
   try {
     const name = formData.get('name') as string;
@@ -30,25 +40,23 @@ export async function submitContactMessage(formData: FormData) {
       return { error: t('fields_too_long') };
     }
 
-    // Save to DB if needed, or just simulate email sending
-    // For now, we simulate sending an email to the configured admin email
     const contactSettings = await getContactSettings();
     const receiverEmail = contactSettings.formRecipient;
 
-    // Send email to the configured admin/receiver
+    // Send email to the configured admin/receiver (HTML échappé)
     try {
       const { sendEmail } = await import('@/lib/mailer');
       await sendEmail({
         to: receiverEmail,
-        subject: subject ? `Neue Nachricht: "${subject}"` : `Neue Nachricht von ${name}`,
+        subject: subject ? `Neue Nachricht: "${escapeHtml(subject)}"` : `Neue Nachricht von ${escapeHtml(name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
             <h2 style="color: #1a1a1a;">Sie haben eine neue Nachricht erhalten.</h2>
-            <p><strong>Von:</strong> ${name} &lt;${email}&gt;</p>
-            ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ''}
-            ${subject ? `<p><strong>Betreff:</strong> ${subject}</p>` : ''}
+            <p><strong>Von:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>
+            ${phone ? `<p><strong>Telefon:</strong> ${escapeHtml(phone)}</p>` : ''}
+            ${subject ? `<p><strong>Betreff:</strong> ${escapeHtml(subject)}</p>` : ''}
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;"/>
-            <p><strong>Nachricht:</strong><br/><br/>${message.replace(/\n/g, '<br/>')}</p>
+            <p><strong>Nachricht:</strong><br/><br/>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>
             <br/>
             <p style="color: #666; font-size: 13px;"><em>Bitte antworten Sie dem Kunden so schnell wie möglich.</em></p>
           </div>
@@ -80,55 +88,41 @@ export async function submitNewsletter(formData: FormData) {
       return { error: 'Adresse e-mail invalide.' };
     }
 
-    const settings = await getSettings();
-    const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'admin@mystore.com';
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Top Kaminbrennstoffe';
-    const successMsg = settings.NEWSLETTER_SUCCESS_MESSAGE || 'Merci pour votre inscription à notre newsletter !';
+    const crypto = await import('crypto');
+    
+    // Génération du token de confirmation HMAC (valable 24h)
+    const secret = process.env.NEXTAUTH_SECRET || process.env.CRON_SECRET || 'fallback-secret';
+    const expiry = Date.now() + 24 * 60 * 60 * 1000;
+    const payload = `${email}|${expiry}`;
+    const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    const token = Buffer.from(`${payload}|${signature}`).toString('base64');
+    
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
+    const confirmUrl = `${baseUrl}/api/newsletter/confirm?token=${token}`;
 
-    // Envoi de l'email de notification à l'admin
     try {
       const { sendEmail } = await import('@/lib/mailer');
       await sendEmail({
-        to: receiverEmail,
-        subject: `Neue Newsletter-Anmeldung — ${email}`,
+        to: email,
+        subject: `Bestätigen Sie Ihre Newsletter-Anmeldung`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
-            <h1 style="font-size: 24px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">📬 Neue Newsletter-Anmeldung</h1>
-            <p style="font-size: 13px; color: #666;">Ein neuer Besucher hat sich gerade für den Newsletter von <strong>${storeName}</strong> angemeldet.</p>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #f9fafb; padding: 15px; border-radius: 8px;">
-              <tr>
-                <td style="padding: 10px; font-size: 13px; font-weight: bold; width: 120px;">E-Mail:</td>
-                <td style="padding: 10px; font-size: 13px;">
-                  <a href="mailto:${email}" style="color: #2563eb;">${email}</a>
-                </td>
-              </tr>
-              <tr style="border-top: 1px solid #e5e7eb;">
-                <td style="padding: 10px; font-size: 13px; font-weight: bold;">Datum:</td>
-                <td style="padding: 10px; font-size: 13px;">${new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
-              </tr>
-            </table>
-            
-            <div style="border-top: 1px solid #eee; margin-top: 40px; padding-top: 25px; text-align: center; font-size: 10px; color: #eab308; text-transform: uppercase;">
-              <strong>${storeName}</strong><br/>
-              DÜNNENRIEDE 3, 30853 LANGENHAGEN, DEUTSCHLAND
-            </div>
+            <h1 style="font-size: 24px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">Bitte bestätigen Sie Ihre Anmeldung</h1>
+            <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Vielen Dank für Ihr Interesse an unserem Newsletter! Bitte klicken Sie auf den folgenden Link, um Ihre Anmeldung zu bestätigen (Double Opt-in):</p>
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${confirmUrl}" style="background-color: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Anmeldung bestätigen</a>
+            </p>
+            <p style="font-size: 12px; color: #666;">Falls Sie sich nicht angemeldet haben, können Sie diese E-Mail einfach ignorieren.</p>
           </div>
         `,
       });
-      
-      // Envoi de l'email de bienvenue au client
-      const { sendNewsletterWelcomeEmail } = await import('@/lib/mailer');
-      await sendNewsletterWelcomeEmail(email);
     } catch (emailErr) {
-      console.error('[NEWSLETTER] Failed to send notification email:', emailErr);
-      // On ne bloque pas l'inscription si l'email échoue
+      console.error('[NEWSLETTER] Failed to send opt-in email:', emailErr);
     }
 
-    return { success: true, message: successMsg };
+    return { success: true, message: 'Bitte überprüfen Sie Ihren Posteingang, um Ihre Anmeldung zu bestätigen (Double Opt-in).' };
   } catch (error) {
     console.error('Newsletter submission error:', error);
     return { error: "Une erreur est survenue lors de l'inscription." };
   }
 }
-
