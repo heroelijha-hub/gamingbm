@@ -20,7 +20,8 @@ export async function middleware(request: NextRequest) {
   // 1. Rate Limiting Check (Protection anti-DDoS / Brute force)
   if (ratelimit) {
     // Get IP address from headers (Vercel sets x-forwarded-for)
-    const ip = request.headers.get('x-forwarded-for') ?? (request as any).ip ?? '127.0.0.1';
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (request as any).ip ?? '127.0.0.1';
     
     // Check limit for this IP
     const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`);

@@ -4,6 +4,8 @@ import { getSettings } from '@/actions/settings';
 import { sendEmail, sendNewsletterWelcomeEmail } from '@/lib/mailer';
 import { escapeHtml } from '@/lib/security';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
@@ -25,7 +27,7 @@ export async function GET(request: Request) {
     }
 
     // Strong secret resolution: use dedicated secret or server-side keys
-    const secret = process.env.NEWSLETTER_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
+    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
     const payload = `${email}|${expiry}`;
     const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
 
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
           </table>
           
           <div style="border-top: 1px solid #eee; margin-top: 40px; padding-top: 25px; text-align: center; font-size: 10px; color: #eab308; text-transform: uppercase;">
-            <strong>${storeName}</strong>
+            <strong>${escapeHtml(storeName)}</strong>
           </div>
         </div>
       `,

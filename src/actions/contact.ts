@@ -43,7 +43,7 @@ export async function submitContactMessage(formData: FormData) {
     const contactSettings = await getContactSettings();
     const receiverEmail = contactSettings.formRecipient;
 
-    // Send email to the configured admin/receiver
+    // Send email to the configured admin/receiver (HTML échappé)
     try {
       const { sendEmail } = await import('@/lib/mailer');
       await sendEmail({
@@ -94,7 +94,7 @@ export async function submitNewsletter(formData: FormData) {
       return { error: 'Adresse e-mail invalide.' };
     }
 
-    const secret = process.env.NEWSLETTER_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
+    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
     const payload = `${email}|${expiry}`;
     const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
@@ -109,7 +109,7 @@ export async function submitNewsletter(formData: FormData) {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
             <h1 style="font-size: 24px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">Bitte bestätigen Sie Ihre Anmeldung</h1>
-            <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Vielen Dank für Ihr Interesse an unserem Newsletter! Bitte klicken Sie auf den folgenden Link, um Ihre Anmeldung zu bestätigen:</p>
+            <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Vielen Dank für Ihr Interesse an unserem Newsletter! Bitte klicken Sie auf den folgenden Link, um Ihre Anmeldung zu bestätigen (Double Opt-in):</p>
             <p style="text-align: center; margin: 30px 0;">
               <a href="${confirmUrl}" style="background-color: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Anmeldung bestätigen</a>
             </p>
