@@ -4,8 +4,8 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 
-// Helper to geocode (City, Country) -> Lat, Lng via Nominatim
-export async function geocodeCity(city: string, country: string): Promise<{ lat: number, lng: number } | null> {
+// Internal helper to geocode (City, Country) -> Lat, Lng via Nominatim
+async function geocodeCity(city: string, country: string): Promise<{ lat: number, lng: number } | null> {
   const query = encodeURIComponent(`${city}, ${country}`);
   const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`;
   

@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const MAX_BODY_BYTES = 50_000; // 50 KB
-const MAX_CART_LINES = 50;
+const MAX_CART_LINES = 20;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const str = (v: unknown, max: number): string | undefined =>
   typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : undefined;
 
 export async function POST(req: Request) {
   try {
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit(`abandoned_cart_${ip}`, 15, 300); // 15 calls per 5 mins
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const raw = await req.text();
     if (raw.length > MAX_BODY_BYTES) {
       return NextResponse.json({ error: 'Payload too large' }, { status: 413 });
@@ -35,7 +43,19 @@ export async function POST(req: Request) {
     const firstName = str(body.firstName, 100);
     const lastName = str(body.lastName, 100);
     const phone = str(body.phone, 40);
-    const cartData = Array.isArray(body.cartData) ? body.cartData.slice(0, MAX_CART_LINES) : [];
+
+    // Strict validation of cartData to prevent injection
+    const cartData = Array.isArray(body.cartData)
+      ? body.cartData
+          .slice(0, MAX_CART_LINES)
+          .filter((item: any) => item && typeof item.productId === 'string' && UUID_REGEX.test(item.productId))
+          .map((item: any) => ({
+            productId: item.productId,
+            quantity: Math.min(Math.max(1, Number(item.quantity) || 1), 999),
+            variationId: typeof item.variationId === 'string' ? item.variationId.slice(0, 100) : null,
+          }))
+      : [];
+
     const totalAmountNum = Number(body.totalAmount);
     const totalAmount = Number.isFinite(totalAmountNum) && totalAmountNum >= 0 && totalAmountNum < 1_000_000
       ? Math.round(totalAmountNum * 100) / 100
@@ -50,7 +70,7 @@ export async function POST(req: Request) {
         phone: phone || undefined,
         cartData,
         totalAmount,
-        status: 'ABANDONED', // Always set to ABANDONED when they are on checkout page
+        status: 'ABANDONED',
         lastActive: new Date(),
       },
       create: {
@@ -65,8 +85,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // SECURITY: never echo the stored record back (it would leak the
-    // name / phone / cart of whoever owns this e-mail address).
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error in abandoned-cart route:', error);

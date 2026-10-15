@@ -30,6 +30,19 @@ export default function SafeHTML({
     setIsClient(true);
     if (html) {
       const htmlToRender = html.replace(/&nbsp;/g, ' ');
+
+      // Restrict iframes to trusted domains only
+      DOMPurify.addHook('uponSanitizeElement', (node, data) => {
+        if (data.tagName === 'iframe') {
+          const el = node as Element;
+          const src = el.getAttribute ? el.getAttribute('src') || '' : '';
+          const isAllowed = /^(https?:)?\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com|google\.com\/maps|maps\.google\.com)\//i.test(src);
+          if (!isAllowed) {
+            el.parentNode?.removeChild(el);
+          }
+        }
+      });
+
       setClean(DOMPurify.sanitize(htmlToRender, {
         // Allow common HTML tags for rich content
         ALLOWED_TAGS: [

@@ -159,7 +159,7 @@ export async function finalizeOrder(orderId: string) {
 
     // 5. In-app notification
     try {
-      const { createNotification } = await import('@/actions/notification');
+      const { createNotification } = await import('@/lib/notifications');
       const { formatPriceNumber, defaultCurrencyOptions } = await import(
         '@/lib/formatPrice'
       );

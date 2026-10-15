@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 
 export async function getPages() {
+  await requireAdmin();
   try {
     const pages = await prisma.page.findMany({
       orderBy: { createdAt: 'desc' }
@@ -12,11 +13,12 @@ export async function getPages() {
     return { success: true, data: pages };
   } catch (error: any) {
     console.error("Error fetching pages:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Erreur lors du chargement des pages.' };
   }
 }
 
 export async function getPage(id: string) {
+  await requireAdmin();
   try {
     const page = await prisma.page.findUnique({
       where: { id }
@@ -25,20 +27,21 @@ export async function getPage(id: string) {
     return { success: true, data: page };
   } catch (error: any) {
     console.error("Error fetching page:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Page introuvable.' };
   }
 }
 
 export async function getPageBySlug(slug: string) {
   try {
+    if (!slug || typeof slug !== 'string') return { success: true, data: null };
     const page = await prisma.page.findUnique({
       where: { slug }
     });
-    if (!page) return { success: true, data: null };
+    if (!page || !page.isPublished) return { success: true, data: null };
     return { success: true, data: page };
   } catch (error: any) {
     console.error("Error fetching page by slug:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Erreur lors du chargement de la page.' };
   }
 }
 

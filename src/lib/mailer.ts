@@ -95,10 +95,10 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     // Addresses
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
-    const billingName = `${b.firstName || ''} ${b.lastName || ''}`.trim() || escapeHtml(userName) || 'Kunde';
-    const shippingName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || billingName;
-    const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
-    const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
+    const billingName = escapeHtml(`${b.firstName || ''} ${b.lastName || ''}`.trim() || userName || 'Kunde');
+    const shippingName = escapeHtml(`${s.firstName || ''} ${s.lastName || ''}`.trim()) || billingName;
+    const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
+    const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from.match(/<(.+)>/);
@@ -123,9 +123,10 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
         } catch(e) {}
       }
 
-      const imgTag = imageUrl ? `<img src="${imageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
+      const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
+      const imgTag = safeImageUrl ? `<img src="${safeImageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
       
-      let sku = item.product?.sku ? `(#${item.product.sku})` : '';
+      let sku = item.product?.sku ? `(#${escapeHtml(item.product.sku)})` : '';
 
       return `
         <tr style="border-bottom: 1px dashed #eee;">
@@ -294,10 +295,10 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
     // Addresses
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
-    const billingName = `${b.firstName || ''} ${b.lastName || ''}`.trim() || escapeHtml(customerDetails.name) || 'Kunde';
-    const shippingName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || billingName;
-    const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
-    const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
+    const billingName = escapeHtml(`${b.firstName || ''} ${b.lastName || ''}`.trim() || customerDetails?.name || 'Kunde');
+    const shippingName = escapeHtml(`${s.firstName || ''} ${s.lastName || ''}`.trim()) || billingName;
+    const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
+    const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     
@@ -320,9 +321,10 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
         } catch(e) {}
       }
 
-      const imgTag = imageUrl ? `<img src="${imageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
+      const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
+      const imgTag = safeImageUrl ? `<img src="${safeImageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
       
-      let sku = item.product?.sku ? `(#${item.product.sku})` : '';
+      let sku = item.product?.sku ? `(#${escapeHtml(item.product.sku)})` : '';
 
       return `
         <tr style="border-bottom: 1px dashed #eee;">
@@ -471,10 +473,10 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
     // Addresses
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
-    const billingName = `${b.firstName || ''} ${b.lastName || ''}`.trim() || 'Kunde';
-    const shippingName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || billingName;
-    const billingAddressHtml = `${b.address1 || ''}<br/>${b.postalCode || ''} ${b.city || ''}${b.country ? `, ${b.country}` : ''}`;
-    const shippingAddressHtml = `${s.address1 || ''}<br/>${s.postalCode || ''} ${s.city || ''}${s.country ? `, ${s.country}` : ''}`;
+    const billingName = escapeHtml(`${b.firstName || ''} ${b.lastName || ''}`.trim() || 'Kunde');
+    const shippingName = escapeHtml(`${s.firstName || ''} ${s.lastName || ''}`.trim()) || billingName;
+    const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
+    const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from?.match(/<(.+)>/);
@@ -501,8 +503,9 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
           } catch(e) {}
         }
   
-        const imgTag = imageUrl ? `<img src="${imageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
-        let sku = item.product?.sku ? `(#${item.product.sku})` : '';
+        const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
+        const imgTag = safeImageUrl ? `<img src="${safeImageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
+        let sku = item.product?.sku ? `(#${escapeHtml(item.product.sku)})` : '';
   
         return `
           <tr style="border-bottom: 1px dashed #eee;">
@@ -628,19 +631,36 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
 
     let itemsHtml = '';
-    if (cart.cartData && cart.cartData.length > 0) {
+    if (Array.isArray(cart.cartData) && cart.cartData.length > 0) {
+      const productIds = cart.cartData
+        .map((i: any) => i?.productId)
+        .filter((id: any): id is string => typeof id === 'string');
+
+      const dbProducts = await prisma.product.findMany({
+        where: { id: { in: productIds }, isDeleted: false },
+        select: { id: true, title: true, price: true, images: true }
+      });
+      const dbMap = new Map(dbProducts.map(p => [p.id, p]));
+
       itemsHtml = cart.cartData.map((item: any) => {
+        const dbProduct = item?.productId ? dbMap.get(item.productId) : null;
+        const title = dbProduct?.title || item?.title || 'Produkt';
+        const price = dbProduct?.price ?? (Number(item?.price) || 0);
+        const rawImages = dbProduct?.images || item?.product?.images;
+
         let imageUrl = '';
-        if (item.product?.images && Array.isArray(item.product.images) && item.product.images.length > 0) {
-          imageUrl = typeof item.product.images[0] === 'string' ? item.product.images[0] : item.product.images[0].url;
-        } else if (typeof item.product?.images === 'string') {
+        if (Array.isArray(rawImages) && rawImages.length > 0) {
+          imageUrl = typeof rawImages[0] === 'string' ? rawImages[0] : (rawImages[0]?.url || '');
+        } else if (typeof rawImages === 'string') {
           try {
-            const imgs = JSON.parse(item.product.images);
-            if (imgs.length > 0) imageUrl = imgs[0];
-          } catch(e) {}
+            const parsed = JSON.parse(rawImages);
+            if (Array.isArray(parsed) && parsed.length > 0) imageUrl = parsed[0];
+          } catch {}
         }
   
-        const imgTag = imageUrl ? `<img src="${imageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
+        const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
+        const imgTag = safeImageUrl ? `<img src="${safeImageUrl}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />` : '';
+        const qty = Math.min(Math.max(1, Number(item?.quantity) || 1), 999);
   
         return `
           <tr style="border-bottom: 1px dashed #eee;">
@@ -649,13 +669,13 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
                 <tr>
                   <td style="width: 65px; vertical-align: middle;">${imgTag}</td>
                   <td style="vertical-align: middle;">
-                    <span style="font-size: 13px; color: #333;">${escapeHtml(item.title || 'Produkt')}</span>
+                    <span style="font-size: 13px; color: #333;">${escapeHtml(title)}</span>
                   </td>
                 </tr>
               </table>
             </td>
-            <td style="padding: 15px 0; text-align: center; vertical-align: middle; color: #666; font-size: 13px;">×${item.quantity}</td>
-            <td style="padding: 15px 0; text-align: right; vertical-align: middle; color: #666; font-size: 13px;">${formatPrice(item.price)}</td>
+            <td style="padding: 15px 0; text-align: center; vertical-align: middle; color: #666; font-size: 13px;">×${qty}</td>
+            <td style="padding: 15px 0; text-align: right; vertical-align: middle; color: #666; font-size: 13px;">${formatPrice(price)}</td>
           </tr>
         `;
       }).join('');

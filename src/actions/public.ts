@@ -67,17 +67,23 @@ export const getFilteredProducts = async (filterType: string, categoryId?: strin
   )();
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function searchProducts(query: string, categoryId?: string, limit: number = 5) {
-  if (!query || query.trim().length === 0) return [];
+  const safeQuery = String(query || '').trim().slice(0, 100);
+  if (!safeQuery) return [];
+
+  const safeLimit = Math.min(Math.max(1, Number(limit) || 5), 20);
 
   let where: any = {
+    isDeleted: false,
     OR: [
-      { title: { contains: query, mode: 'insensitive' } },
-      { description: { contains: query, mode: 'insensitive' } },
+      { title: { contains: safeQuery, mode: 'insensitive' } },
+      { description: { contains: safeQuery, mode: 'insensitive' } },
     ]
   };
 
-  if (categoryId && categoryId !== 'all') {
+  if (categoryId && categoryId !== 'all' && UUID_REGEX.test(categoryId)) {
     where.categories = { some: { id: categoryId } };
   }
 
@@ -91,19 +97,32 @@ export async function searchProducts(query: string, categoryId?: string, limit: 
       images: true,
       slug: true,
     },
-    take: limit,
+    take: safeLimit,
   });
 }
 
 export async function getProductsByIds(ids: string[]) {
-  if (!ids || ids.length === 0) return [];
+  if (!Array.isArray(ids) || ids.length === 0) return [];
+  const safeIds = ids.slice(0, 50).filter(id => typeof id === 'string' && UUID_REGEX.test(id));
+  if (safeIds.length === 0) return [];
   
   return await prisma.product.findMany({
     where: {
-      id: {
-        in: ids
-      }
+      id: { in: safeIds },
+      isDeleted: false,
     },
-    include: { categories: true, reviews: { where: { isApproved: true } } }
+    include: {
+      categories: true,
+      reviews: {
+        where: { isApproved: true },
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          reviewerName: true,
+          createdAt: true,
+        }
+      }
+    }
   });
 }

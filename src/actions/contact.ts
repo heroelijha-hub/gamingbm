@@ -7,14 +7,21 @@ import { getTranslations } from 'next-intl/server';
 import { escapeHtml } from '@/lib/security';
 import crypto from 'crypto';
 import { SITE_URL } from '@/lib/site';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function submitContactMessage(formData: FormData) {
   try {
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const phone = formData.get('phone') as string;
-    const subject = formData.get('subject') as string;
-    const message = formData.get('message') as string;
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit(`contact_${ip}`, 5, 600); // 5 messages per 10 minutes per IP
+    if (!rateLimit.success) {
+      return { error: 'Too many requests. Please wait a few minutes before sending another message.' };
+    }
+
+    const name = String(formData.get('name') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const phone = String(formData.get('phone') || '').trim();
+    const subject = String(formData.get('subject') || '').trim();
+    const message = String(formData.get('message') || '').trim();
 
     if (!name || !email || !message) {
       const t = await getTranslations('Contact');
@@ -33,8 +40,6 @@ export async function submitContactMessage(formData: FormData) {
       return { error: t('fields_too_long') };
     }
 
-    // Save to DB if needed, or just simulate email sending
-    // For now, we simulate sending an email to the configured admin email
     const contactSettings = await getContactSettings();
     const receiverEmail = contactSettings.formRecipient;
 
@@ -43,7 +48,7 @@ export async function submitContactMessage(formData: FormData) {
       const { sendEmail } = await import('@/lib/mailer');
       await sendEmail({
         to: receiverEmail,
-        subject: subject ? `Neue Nachricht: "${subject}"` : `Neue Nachricht von ${name}`,
+        subject: subject ? `Neue Nachricht: "${escapeHtml(subject)}"` : `Neue Nachricht von ${escapeHtml(name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
             <h2 style="color: #1a1a1a;">Sie haben eine neue Nachricht erhalten.</h2>
@@ -71,7 +76,13 @@ export async function submitContactMessage(formData: FormData) {
 
 export async function submitNewsletter(formData: FormData) {
   try {
-    const email = formData.get('email') as string;
+    const ip = await getClientIp();
+    const rateLimit = await checkRateLimit(`newsletter_${ip}`, 5, 3600); // 5 subscriptions per hour per IP
+    if (!rateLimit.success) {
+      return { error: 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.' };
+    }
+
+    const email = String(formData.get('email') || '').trim().toLowerCase();
 
     if (!email) {
       return { error: 'Veuillez entrer une adresse e-mail valide.' };
@@ -79,16 +90,16 @@ export async function submitNewsletter(formData: FormData) {
 
     // Validation format email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email) || email.length > 254) {
       return { error: 'Adresse e-mail invalide.' };
     }
 
-    const secret = process.env.NEXTAUTH_SECRET || process.env.CRON_SECRET || 'fallback-secret';
+    const secret = process.env.NEWSLETTER_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
     const payload = `${email}|${expiry}`;
     const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
     const token = Buffer.from(`${payload}|${signature}`).toString('base64');
-    const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${token}`;
+    const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
 
     try {
       const { sendEmail } = await import('@/lib/mailer');
@@ -116,4 +127,3 @@ export async function submitNewsletter(formData: FormData) {
     return { error: "Une erreur est survenue lors de l'inscription." };
   }
 }
-

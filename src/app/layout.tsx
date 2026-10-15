@@ -200,7 +200,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     contactSlug: contactSlug,
   };
 
-  const globalFont = settingsMap.GLOBAL_FONT_FAMILY || 'Inter';
+  const rawFont = settingsMap.GLOBAL_FONT_FAMILY || 'Inter';
+  const globalFont = /^[A-Za-z0-9 \-]{1,50}$/.test(rawFont) ? rawFont : 'Inter';
   const fontUrl = `https://fonts.googleapis.com/css2?family=${globalFont.replace(/ /g, '+')}:wght@300;400;500;600;700;800&display=swap`;
 
   return (

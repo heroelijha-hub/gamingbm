@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import HeroMobileSliderWrapper from './HeroMobileSliderWrapper';
 import { getTranslations } from 'next-intl/server';
 import HeroPreviewEditButton from '@/components/admin/HeroPreviewEditButton';
+import { basicSanitizeHtml } from '@/lib/security';
 
 export default async function Hero({ config, isPreview, sectionId }: { config?: any, isPreview?: boolean, sectionId?: string }) {
   const settingsDb = await prisma.setting.findMany();
@@ -113,13 +114,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           <span 
             className={getBadgeClasses('HERO_1')}
             style={getBadgeStyle('HERO_1', 'HERO_1_SUBTITLE_COLOR', '#e11d48')}
-            dangerouslySetInnerHTML={{ __html: settings.HERO_1_SUBTITLE }}
+            dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_1_SUBTITLE) }}
           />
         )}
         <h1 
           className="font-extrabold tracking-tight mb-4 text-responsive drop-shadow-md" 
           style={{...getResponsiveVars('HERO_1_TITLE', {m: '28px', t: '32px', d: '38px'}), color: settings.HERO_1_TEXT_COLOR || '#ffffff', lineHeight: '1.2'}}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_1_TITLE || t('hero_1_title') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_1_TITLE || t('hero_1_title')) }}
         />
         {settings.HERO_1_PRICE && (
           <p 
@@ -137,7 +138,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             backgroundColor: settings.HERO_1_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_1_BTN_TEXT_COLOR || '#ffffff'
           }}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_1_CTA || t('shop_now') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_1_CTA || t('shop_now')) }}
         />
       </div>
       {settings.HERO_1_IMAGE && settings.HERO_1_SHOW_IMAGE !== 'false' && (
@@ -166,13 +167,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           <span 
             className={getBadgeClasses('HERO_2')}
             style={getBadgeStyle('HERO_2', 'HERO_2_SUBTITLE_COLOR', '#fca5a5')}
-            dangerouslySetInnerHTML={{ __html: settings.HERO_2_SUBTITLE }}
+            dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_2_SUBTITLE) }}
           />
         )}
         <h2 
           className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
           style={{...getResponsiveVars('HERO_2_TITLE', {m: '22px', t: '24px', d: '26px'}), color: settings.HERO_2_TEXT_COLOR || '#ffffff'}}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_2_TITLE || t('hero_2_title') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_2_TITLE || t('hero_2_title')) }}
         />
         <Link 
           href={settings.HERO_2_LINK || '/#'} 
@@ -182,7 +183,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             backgroundColor: settings.HERO_2_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_2_BTN_TEXT_COLOR || '#ffffff'
           }}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_2_CTA || t('shop_now') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_2_CTA || t('shop_now')) }}
         />
       </div>
       {settings.HERO_2_IMAGE && settings.HERO_2_SHOW_IMAGE !== 'false' && (
@@ -211,13 +212,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           <span 
             className={getBadgeClasses('HERO_3')}
             style={getBadgeStyle('HERO_3', 'HERO_3_SUBTITLE_COLOR', '#fca5a5')}
-            dangerouslySetInnerHTML={{ __html: settings.HERO_3_SUBTITLE }}
+            dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_3_SUBTITLE) }}
           />
         )}
         <h2 
           className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
           style={{...getResponsiveVars('HERO_3_TITLE', {m: '22px', t: '24px', d: '26px'}), color: settings.HERO_3_TEXT_COLOR || '#ffffff'}}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_3_TITLE || t('hero_3_title') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_3_TITLE || t('hero_3_title')) }}
         />
         <Link 
           href={settings.HERO_3_LINK || '/#'} 
@@ -227,7 +228,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             backgroundColor: settings.HERO_3_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_3_BTN_TEXT_COLOR || '#ffffff'
           }}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_3_CTA || t('shop_now') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_3_CTA || t('shop_now')) }}
         />
       </div>
       {settings.HERO_3_IMAGE && settings.HERO_3_SHOW_IMAGE !== 'false' && (
@@ -255,13 +256,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         <h2 
           className="font-extrabold mb-3 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
           style={{...getResponsiveVars('HERO_4_TITLE', {m: '24px', t: '28px', d: '32px'}), color: settings.HERO_4_TEXT_COLOR || '#ffffff'}}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_4_TITLE || t('hero_4_title') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_4_TITLE || t('hero_4_title')) }}
         />
         {settings.HERO_4_SUBTITLE && (
           <p 
             className="mb-6 font-medium text-responsive drop-shadow" 
             style={{...getResponsiveVars('HERO_4_SUBTITLE', {m: '14px', t: '16px', d: '16px'}), color: settings.HERO_4_SUBTITLE_COLOR || '#d1d5db'}}
-            dangerouslySetInnerHTML={{ __html: settings.HERO_4_SUBTITLE }}
+            dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_4_SUBTITLE) }}
           />
         )}
         <Link 
@@ -272,7 +273,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             backgroundColor: settings.HERO_4_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_4_BTN_TEXT_COLOR || '#ffffff'
           }}
-          dangerouslySetInnerHTML={{ __html: settings.HERO_4_CTA || t('shop_now') }}
+          dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_4_CTA || t('shop_now')) }}
         />
       </div>
       {settings.HERO_4_IMAGE && settings.HERO_4_SHOW_IMAGE !== 'false' && (

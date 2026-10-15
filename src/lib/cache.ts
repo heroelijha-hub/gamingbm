@@ -24,7 +24,7 @@ export const getCachedProductBySlug = async (slug: string) => {
       let decodedSlug = slug;
       try { decodedSlug = decodeURIComponent(slug); } catch (e) {}
 
-      return prisma.product.findFirst({
+      const product = await prisma.product.findFirst({
         where: { 
           OR: [
             { slug: slug },
@@ -46,6 +46,23 @@ export const getCachedProductBySlug = async (slug: string) => {
           }
         }
       });
+
+      if (!product) return null;
+
+      // RGPD: Never leak raw emails to client RSC payload
+      const sanitizedReviews = product.reviews.map(r => ({
+        id: r.id,
+        productId: r.productId,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.createdAt,
+        reviewerName: r.reviewerName || (r.user?.email ? r.user.email.split('@')[0] : 'Client'),
+      }));
+
+      return {
+        ...product,
+        reviews: sanitizedReviews,
+      };
     },
     ['product-details', slug],
     { tags: ['products', `product-${slug}`], revalidate: 3600 }

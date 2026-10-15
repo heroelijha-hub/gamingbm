@@ -135,6 +135,19 @@ export async function uploadMediaAction(formData: FormData) {
     const file = formData.get('file') as File;
     if (!file) return { error: 'Aucun fichier fourni' };
 
+    const ALLOWED_MIME_TYPES = new Set([
+      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
+      'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+      'application/pdf'
+    ]);
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      return { error: 'Type de fichier non autorisé. Formats acceptés : images, vidéos web et PDF.' };
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      return { error: 'Fichier trop volumineux (max 10 Mo).' };
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 

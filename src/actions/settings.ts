@@ -1,15 +1,50 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
+import { createClient } from '@/utils/supabase/server';
 
+const SENSITIVE_KEYS = new Set([
+  'STRIPE_SECRET_KEY',
+  'PAYPAL_SECRET',
+  'SMTP_PASS',
+]);
+
+/**
+ * Fetch settings map.
+ *
+ * SECURITY: If called without an active ADMIN session, sensitive credentials
+ * (Stripe Secret Key, PayPal Secret, SMTP Password) are stripped to prevent
+ * unauthorized extraction through Next.js Server Action RPCs.
+ */
 export async function getSettings() {
   const settings = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};
   settings.forEach(s => {
     settingsMap[s.key] = s.value;
   });
+
+  let isAdmin = false;
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+      if (dbUser?.role === 'ADMIN') {
+        isAdmin = true;
+      }
+    }
+  } catch {
+    isAdmin = false;
+  }
+
+  if (!isAdmin) {
+    for (const key of SENSITIVE_KEYS) {
+      delete settingsMap[key];
+    }
+  }
+
   return settingsMap;
 }
 

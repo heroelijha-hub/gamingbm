@@ -1,6 +1,8 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const ALLOWED_PAYMENT_METHODS = ['STRIPE', 'PAYPAL', 'BANK_TRANSFER'] as const;
 const MAX_CART_LINES = 50;
@@ -8,6 +10,15 @@ const MAX_QTY_PER_LINE = 999;
 
 export async function validateCoupon(code: string) {
   try {
+    const ip = await getClientIp();
+    const rl = await checkRateLimit(`coupon_${ip}`, 10, 60); // 10 attempts per minute
+    if (!rl.success) {
+      return { error: "Trop de tentatives de code promo. Veuillez patienter un instant." };
+    }
+
+    if (!code || typeof code !== 'string' || code.trim().length === 0 || code.length > 50) {
+      return { error: "Code promo invalide." };
+    }
     const coupon = await prisma.coupon.findUnique({
       where: { code: code.toUpperCase() }
     });
@@ -37,6 +48,12 @@ export async function validateCoupon(code: string) {
 
 export async function processCheckout(formData: FormData, cartItems: any[], finalTotal: number, paymentMethod: string) {
   try {
+    const ip = await getClientIp();
+    const rl = await checkRateLimit(`checkout_${ip}`, 10, 60); // 10 checkouts per min
+    if (!rl.success) {
+      return { error: "Too many checkout requests. Please wait a moment." };
+    }
+
     const email = String(formData.get('email') || '').trim().toLowerCase();
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
@@ -112,7 +129,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     const productIds = [...new Set(cartItems.map((item: any) => item.productId as string))];
     const dbProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isDeleted: false },
-      select: { id: true, price: true, title: true, images: true },
+      select: { id: true, price: true, title: true, images: true, variations: true },
     });
     const productMap = new Map(dbProducts.map(p => [p.id, p]));
 
@@ -124,13 +141,35 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       if (!dbProduct) {
         return { error: `A product in your cart is no longer available. Please refresh your cart.` };
       }
-      serverCartTotal += dbProduct.price * item.quantity;
+
+      let itemPrice = dbProduct.price;
+      let itemImage = dbProduct.images?.[0] || '';
+
+      // Check if item has a variation with a specific price
+      if (item.variationId && Array.isArray(dbProduct.variations)) {
+        const foundVar = (dbProduct.variations as any[]).find(
+          (v: any) => v && String(v.id) === String(item.variationId)
+        );
+        if (foundVar) {
+          if (foundVar.price) {
+            const parsedVarPrice = parseFloat(String(foundVar.price));
+            if (!isNaN(parsedVarPrice) && parsedVarPrice > 0) {
+              itemPrice = parsedVarPrice;
+            }
+          }
+          if (foundVar.image && typeof foundVar.image === 'string') {
+            itemImage = foundVar.image;
+          }
+        }
+      }
+
+      serverCartTotal += itemPrice * item.quantity;
       verifiedItems.push({
         productId: dbProduct.id,
         quantity: item.quantity,
-        price: dbProduct.price, // Use DB price, not client price
+        price: itemPrice, // Use DB price or variation price, not client price
         title: dbProduct.title, // Use DB title, not client title
-        image: dbProduct.images?.[0],
+        image: itemImage,
         variationId: typeof item.variationId === 'string' ? item.variationId.slice(0, 100) : null,
         attributes: item.attributes && typeof item.attributes === 'object' ? item.attributes : null,
       });
@@ -157,15 +196,32 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     const verifiedTotal = Math.round(serverTotal * 100) / 100;
 
     
-    // Find or create user
-    let user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email,
-          role: 'CUSTOMER',
-        }
-      });
+    // Find or link user
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+
+    let user = null;
+    if (authUser) {
+      user = await prisma.user.findUnique({ where: { id: authUser.id } });
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            id: authUser.id,
+            email: authUser.email || email,
+            role: 'CUSTOMER',
+          }
+        });
+      }
+    } else {
+      user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email,
+            role: 'CUSTOMER',
+          }
+        });
+      }
     }
 
     const orderMetadata = {

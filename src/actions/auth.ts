@@ -1,42 +1,59 @@
-'use server'
+'use server';
 
-import { createClient } from '@/utils/supabase/server'
-import prisma from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { createClient } from '@/utils/supabase/server';
+import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function loginUser(formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  if (!email || !password) {
-    return { error: 'L\'email et le mot de passe sont requis.' }
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`login_${ip}`, 5, 300); // 5 attempts per 5 mins
+  if (!rl.success) {
+    return { error: 'Trop de tentatives de connexion. Veuillez patienter 5 minutes.' };
   }
 
-  const supabase = await createClient()
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const password = String(formData.get('password') || '');
+
+  if (!email || !password) {
+    return { error: 'L\'email et le mot de passe sont requis.' };
+  }
+
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
-  })
+  });
 
   if (error) {
-    return { error: 'Incorrect credentials.' }
+    return { error: 'Identifiants incorrects.' };
   }
 
-  revalidatePath('/', 'layout')
-  return { success: true }
+  revalidatePath('/', 'layout');
+  return { success: true };
 }
 
 export async function registerUser(formData: FormData) {
-  const username = formData.get('username') as string
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-
-  if (!email || !password || !username) {
-    return { error: 'All fields are required.' }
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`register_${ip}`, 5, 1800); // 5 registrations per 30 mins
+  if (!rl.success) {
+    return { error: 'Trop de tentatives d’inscription. Veuillez patienter plus tard.' };
   }
 
-  const supabase = await createClient()
+  const username = String(formData.get('username') || '').trim();
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const password = String(formData.get('password') || '');
+
+  if (!email || !password || !username) {
+    return { error: 'Tous les champs sont requis.' };
+  }
+
+  if (password.length < 8) {
+    return { error: 'Le mot de passe doit comporter au moins 8 caractères.' };
+  }
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -46,54 +63,71 @@ export async function registerUser(formData: FormData) {
         username: username,
       }
     }
-  })
+  });
 
   if (error) {
-    return { error: error.message }
+    console.warn('[Register] Supabase signup error:', error.message);
+    // Generic sanitized error to avoid account enumeration
+    if (error.message.toLowerCase().includes('already registered')) {
+      return { error: 'Un compte existe déjà avec cette adresse e-mail ou les données sont invalides.' };
+    }
+    return { error: 'Erreur lors de l’inscription. Veuillez vérifier vos informations.' };
   }
 
   if (data.user) {
     try {
-      // Check if user exists in Prisma first (shouldn't happen on fresh signup)
       const existingUser = await prisma.user.findUnique({
-        where: { email: data.user.email }
-      })
+        where: { email: data.user.email || email }
+      });
 
       if (!existingUser) {
         await prisma.user.create({
           data: {
-            id: data.user.id, // On utilise l'ID de Supabase pour faire le lien direct
+            id: data.user.id,
             email: data.user.email || email,
             role: 'CUSTOMER'
           }
-        })
+        });
+      } else if (existingUser.id !== data.user.id) {
+        // Link any prior guest orders/reviews/notifications to the registered Supabase ID
+        await prisma.$transaction([
+          prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
+          prisma.review.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
+          prisma.notification.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
+          prisma.user.delete({ where: { id: existingUser.id } }),
+          prisma.user.create({
+            data: {
+              id: data.user.id,
+              email: data.user.email || email,
+              role: existingUser.role || 'CUSTOMER',
+            }
+          })
+        ]);
       }
     } catch (e) {
-      console.error("Error syncing Prisma user:", e)
-      // We don't return a critical error here, the user is still created in Supabase Auth
+      console.error("Error syncing Prisma user on signup:", e);
     }
   }
 
-  revalidatePath('/', 'layout')
+  revalidatePath('/', 'layout');
   
   if (!data.session) {
-    return { success: true, message: "Registration successful! Please check your email to confirm your account before logging in." }
+    return { success: true, message: "Inscription réussie ! Veuillez vérifier vos e-mails pour confirmer votre compte avant de vous connecter." };
   }
   
-  return { success: true }
+  return { success: true };
 }
 
 export async function logoutUser() {
-  const supabase = await createClient()
-  // Logs user out from all devices and invalidates server-side tokens
-  await supabase.auth.signOut({ scope: 'global' })
-  revalidatePath('/', 'layout')
-  return { success: true }
+  const supabase = await createClient();
+  await supabase.auth.signOut({ scope: 'global' });
+  revalidatePath('/', 'layout');
+  return { success: true };
 }
 
 export async function setupAdmin(formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const password = String(formData.get('password') || '');
 
   if (!email || !password) {
     return { error: 'All fields are required.' };
@@ -119,7 +153,6 @@ export async function setupAdmin(formData: FormData) {
   }
 
   if (data.user) {
-    // Upsert the user as ADMIN in Prisma
     await prisma.user.upsert({
       where: { email: data.user.email || email },
       update: { role: 'ADMIN', id: data.user.id },
@@ -136,8 +169,14 @@ export async function setupAdmin(formData: FormData) {
 }
 
 export async function loginAdmin(formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`login_admin_${ip}`, 5, 900); // 5 attempts per 15 mins
+  if (!rl.success) {
+    return { error: 'Trop de tentatives de connexion administrateur. Accès temporairement suspendu.' };
+  }
+
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const password = String(formData.get('password') || '');
 
   if (!email || !password) {
     return { error: 'L\'email et le mot de passe sont requis.' };
@@ -150,15 +189,14 @@ export async function loginAdmin(formData: FormData) {
   });
 
   if (error) {
-    return { error: 'Incorrect credentials.' };
+    return { error: 'Identifiants incorrects.' };
   }
 
   if (data.user) {
-    // Verify role in Prisma
     const user = await prisma.user.findUnique({ where: { id: data.user.id } });
     if (!user || user.role !== 'ADMIN') {
       await supabase.auth.signOut({ scope: 'global' });
-      return { error: 'Access denied. You are not an administrator.' };
+      return { error: 'Accès refusé. Vous n’êtes pas administrateur.' };
     }
   }
 
@@ -179,4 +217,3 @@ export async function getUserRole() {
   }
   return null;
 }
-

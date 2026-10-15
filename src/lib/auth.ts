@@ -1,4 +1,4 @@
-'use server';
+// Server-only authorization helpers (internal, not client-callable server actions)
 
 import { createClient } from '@/utils/supabase/server';
 import prisma from '@/lib/prisma';
