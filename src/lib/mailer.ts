@@ -970,3 +970,62 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
   }
 }
 
+// 7. Supervision Live Admin Alert Email
+export async function sendAdminAlertEmail({
+  title,
+  message,
+  details,
+}: {
+  title: string;
+  message: string;
+  details?: Record<string, any>;
+}) {
+  try {
+    const settingsDb = await prisma.setting.findMany({
+      where: { key: { in: ['CONTACT_RECEIVER_EMAIL', 'SMTP_USER'] } }
+    });
+    const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'info@topkaminbrennstoffe.com';
+
+    let detailsHtml = '';
+    if (details && Object.keys(details).length > 0) {
+      detailsHtml = `
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-top: 15px;">
+          <table style="width: 100%; font-size: 13px; color: #334155;">
+            ${Object.entries(details).map(([k, v]) => `
+              <tr>
+                <td style="padding: 4px 8px; font-weight: bold; width: 140px; vertical-align: top;">${escapeHtml(k)}:</td>
+                <td style="padding: 4px 8px; font-family: monospace;">${escapeHtml(typeof v === 'object' ? JSON.stringify(v) : String(v))}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      `;
+    }
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1e293b;">
+        <div style="background-color: #ef4444; color: white; padding: 12px 20px; border-radius: 6px 6px 0 0; font-size: 16px; font-weight: bold;">
+          ⚠️ Supervision Live Shop : ${escapeHtml(title)}
+        </div>
+        <div style="border: 1px solid #e2e8f0; border-top: none; padding: 20px; border-radius: 0 0 6px 6px; background: white;">
+          <p style="font-size: 14px; line-height: 1.6; margin-top: 0;">${escapeHtml(message)}</p>
+          ${detailsHtml}
+          <p style="font-size: 12px; color: #64748b; margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+            Alerte automatique générée par le système de supervision live.
+          </p>
+        </div>
+      </div>
+    `;
+
+    return sendEmail({
+      to: recipient,
+      subject: `🚨 [Alerte Shop] ${title}`,
+      html,
+    });
+  } catch (err) {
+    console.error('Failed to send admin alert email:', err);
+  }
+}
+
+

@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import DeliveryTracker from '@/components/admin/DeliveryTracker';
+import OrderCustomerManager from '@/components/admin/OrderCustomerManager';
 import Price from '@/components/Price';
 import { getTranslations } from 'next-intl/server';
 import Image from "next/image";
@@ -78,9 +79,38 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">{t('order_number')}{order.id.split('-')[0]}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">{t('order_number')}{order.id.split('-')[0]}</h1>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+            order.paymentMethod === 'BANK_TRANSFER' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+            order.paymentMethod === 'STRIPE' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+            'bg-sky-100 text-sky-800 border border-sky-200'
+          }`}>
+            💳 {order.paymentMethod}
+          </span>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+            order.status === 'PAID' ? 'bg-green-100 text-green-800' :
+            order.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+            order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+            'bg-blue-100 text-blue-800'
+          }`}>
+            {t('status_label')}: {t(`status_${order.status.toLowerCase()}`)}
+          </span>
+        </div>
         <a href="/admin/orders" className="text-sm font-medium text-gray-600 hover:text-gray-900">{t('back_to_orders')}</a>
       </div>
+
+      {order.status === 'PENDING' && order.paymentMethod !== 'BANK_TRANSFER' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-900 flex items-start gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <p className="font-semibold">{t('pending_online_payment_title', { method: order.paymentMethod })}</p>
+            <p className="text-xs text-amber-800 mt-1">
+              {t('pending_online_payment_desc')}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── ROW 1 : Articles (gauche) + Infos client (droite) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -260,6 +290,13 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                 </div>
               </div>
             )}
+
+            <OrderCustomerManager
+              orderId={order.id}
+              initialCustomerEmail={billing?.email || order.user?.email || ''}
+              initialBilling={billing || {}}
+              initialShipping={shipping || null}
+            />
           </div>
         </div>
       </div>

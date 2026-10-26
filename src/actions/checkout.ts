@@ -254,7 +254,86 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       couponCode: couponCode || null,
     };
 
-    // Create the order with SERVER-VERIFIED total (status PENDING for all methods)
+    // Fetch settings once for currency and payment config
+    const allSettings = await prisma.setting.findMany();
+    const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+    const storeCurrencyCode = settingsMap.currency || 'EUR';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
+
+    // Helper to determine the best active fallback payment method
+    const getFallbackPayment = () => {
+      if (settingsMap.ENABLE_BANK_TRANSFER !== 'false') return 'BANK_TRANSFER';
+      if (settingsMap.ENABLE_STRIPE !== 'false' && settingsMap.STRIPE_SECRET_KEY) return 'STRIPE';
+      if (settingsMap.ENABLE_PAYPAL !== 'false' && settingsMap.PAYPAL_CLIENT_ID && settingsMap.PAYPAL_SECRET) return 'PAYPAL';
+      return null;
+    };
+
+    // ===== PRE-VALIDATE PAYMENT GATEWAY CONFIGURATION BEFORE CREATING ORDER =====
+    // If a gateway is missing credentials, do NOT create a ghost order in DB!
+    if (paymentMethod === 'STRIPE') {
+      const stripeSecretKey = settingsMap['STRIPE_SECRET_KEY'];
+      if (!stripeSecretKey) {
+        // Trigger live supervision alert (email + in-app)
+        const { sendAdminAlertEmail } = await import('@/lib/mailer');
+        const { createNotification } = await import('@/lib/notifications');
+        sendAdminAlertEmail({
+          title: "Tentative de paiement Carte (Stripe non configuré)",
+          message: `Un client (${email}) a tenté de payer une commande de ${verifiedTotal} € par Carte Bancaire, mais Stripe n'est pas encore configuré dans l'administration.`,
+          details: { Client: email, Montant: `${verifiedTotal} €`, Pays: effectiveCountry }
+        }).catch(e => console.error('[Supervision Live] Email alert error:', e));
+
+        createNotification({
+          isAdmin: true,
+          type: 'SYSTEM',
+          message: JSON.stringify({
+            key: 'gateway_not_configured',
+            gateway: 'Stripe (Carte)',
+            email,
+            amount: `${verifiedTotal} €`
+          }),
+          link: '/admin/settings/payments'
+        }).catch(e => console.error('[Supervision Live] Admin notif error:', e));
+
+        return {
+          error: "payment_unavailable",
+          unavailableMethod: 'STRIPE',
+          fallbackPaymentMethod: getFallbackPayment(),
+        };
+      }
+    } else if (paymentMethod === 'PAYPAL') {
+      const paypalClientId = settingsMap['PAYPAL_CLIENT_ID'];
+      const paypalSecret = settingsMap['PAYPAL_SECRET'];
+      if (!paypalClientId || !paypalSecret) {
+        // Trigger live supervision alert (email + in-app)
+        const { sendAdminAlertEmail } = await import('@/lib/mailer');
+        const { createNotification } = await import('@/lib/notifications');
+        sendAdminAlertEmail({
+          title: "Tentative de paiement PayPal (Non configuré)",
+          message: `Un client (${email}) a tenté de payer une commande de ${verifiedTotal} € via PayPal, mais PayPal n'est pas encore configuré dans l'administration.`,
+          details: { Client: email, Montant: `${verifiedTotal} €`, Pays: effectiveCountry }
+        }).catch(e => console.error('[Supervision Live] Email alert error:', e));
+
+        createNotification({
+          isAdmin: true,
+          type: 'SYSTEM',
+          message: JSON.stringify({
+            key: 'gateway_not_configured',
+            gateway: 'PayPal',
+            email,
+            amount: `${verifiedTotal} €`
+          }),
+          link: '/admin/settings/payments'
+        }).catch(e => console.error('[Supervision Live] Admin notif error:', e));
+
+        return {
+          error: "payment_unavailable",
+          unavailableMethod: 'PAYPAL',
+          fallbackPaymentMethod: getFallbackPayment(),
+        };
+      }
+    }
+
+    // Create the order with SERVER-VERIFIED total ONLY after confirming gateway validity
     const order = await prisma.order.create({
       data: {
         userId: user.id,
@@ -274,23 +353,9 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       }
     });
 
-    // Fetch settings once for currency and payment config
-    const allSettings = await prisma.setting.findMany();
-    const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-    const storeCurrencyCode = settingsMap.currency || 'EUR';
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
-
     // ===== PAYMENT METHOD HANDLING =====
-    // For STRIPE and PAYPAL: finalization (emails, stock, notifications) is deferred
-    // to the webhook/capture handler AFTER payment is confirmed.
-    // For BANK_TRANSFER: finalize immediately since no online payment is needed.
-
     if (paymentMethod === 'STRIPE') {
       const stripeSecretKey = settingsMap['STRIPE_SECRET_KEY'];
-      if (!stripeSecretKey) {
-        return { error: "Card payment (Stripe) has not been configured by the administrator yet." };
-      }
-
       const { default: Stripe } = await import('stripe');
       const stripe = new Stripe(stripeSecretKey);
       const currency = storeCurrencyCode.toLowerCase();
@@ -307,7 +372,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         quantity: item.quantity,
       }));
 
-      // Charge shipping (previously missing -> amount paid != order total)
+      // Charge shipping (amount paid == order total)
       if (shippingRate > 0) {
         lineItems.push({
           price_data: {
@@ -349,17 +414,11 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         data: { stripeSessionId: session.id }
       });
 
-      // NOTE: Emails, stock, notifications will be handled by the Stripe webhook
-      // at /api/stripe/webhook after payment confirmation.
       return { success: true, orderId: order.id, redirectUrl: session.url };
     } 
     else if (paymentMethod === 'PAYPAL') {
       const paypalClientId = settingsMap['PAYPAL_CLIENT_ID'];
       const paypalSecret = settingsMap['PAYPAL_SECRET'];
-      
-      if (!paypalClientId || !paypalSecret) {
-        return { error: "PayPal payment has not been configured by the administrator yet." };
-      }
       
       const auth = Buffer.from(`${paypalClientId}:${paypalSecret}`).toString('base64');
       const tokenRes = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
@@ -392,8 +451,6 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
             }
           }],
           application_context: {
-            // Redirect to capture route instead of success page
-            // The capture route will verify payment before showing success
             return_url: `${baseUrl}/api/paypal/capture?orderId=${order.id}`,
             cancel_url: `${baseUrl}/checkout`
           }
@@ -404,8 +461,6 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       const approveLink = orderData.links?.find((l: any) => l.rel === 'approve');
       
       if (approveLink) {
-        // NOTE: Emails, stock, notifications will be handled by the PayPal capture
-        // route at /api/paypal/capture after payment confirmation.
         return { success: true, orderId: order.id, redirectUrl: approveLink.href };
       } else {
         return { error: "Unable to create PayPal payment session." };

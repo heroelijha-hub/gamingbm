@@ -96,6 +96,18 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     }
   };
 
+  const [fallbackModal, setFallbackModal] = useState<{
+    unavailableMethod: string;
+    fallbackMethod: string;
+  } | null>(null);
+
+  const getPaymentMethodName = (method: string) => {
+    if (method === 'BANK_TRANSFER') return t('direct_bank_transfer');
+    if (method === 'STRIPE') return t('credit_card_stripe');
+    if (method === 'PAYPAL') return t('paypal');
+    return method;
+  };
+
   const handleCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -105,6 +117,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     }
     
     setIsProcessing(true);
+    setFallbackModal(null);
     
     const formData = new FormData(e.currentTarget);
     if (coupon) {
@@ -114,6 +127,14 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     const res = await processCheckout(formData, cart, finalTotal, paymentMethod as any);
     
     if (res.error) {
+      if (res.error === 'payment_unavailable' && res.fallbackPaymentMethod) {
+        setFallbackModal({
+          unavailableMethod: res.unavailableMethod || paymentMethod,
+          fallbackMethod: res.fallbackPaymentMethod,
+        });
+        setIsProcessing(false);
+        return;
+      }
       alert(res.error);
       setIsProcessing(false);
       return;
@@ -129,6 +150,16 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     }
     
     setIsProcessing(false);
+  };
+
+  const handleSwitchToFallback = (fallbackMethod: string) => {
+    setPaymentMethod(fallbackMethod);
+    setFallbackModal(null);
+    // Smooth scroll to payment section
+    const elem = document.getElementById('payment-methods-section');
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const captureAbandonedCart = (e: React.FocusEvent<HTMLFormElement>) => {
@@ -158,7 +189,51 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+      {/* Modal / Alerte Fallback Mode de Paiement */}
+      {fallbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-gray-100 text-left">
+            <div className="w-14 h-14 mx-auto rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-5 text-2xl">
+              ⚠️
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+              {t('payment_unavailable_title')}
+            </h3>
+            
+            <p className="text-sm text-gray-600 text-center mb-6 leading-relaxed">
+              {fallbackModal.unavailableMethod === 'STRIPE'
+                ? t('payment_unavailable_stripe')
+                : t('payment_unavailable_paypal')}
+              <br />
+              <span className="font-semibold text-gray-800 mt-2 block">
+                {t('payment_fallback_suggestion', { method: getPaymentMethodName(fallbackModal.fallbackMethod) })}
+              </span>
+            </p>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => handleSwitchToFallback(fallbackModal.fallbackMethod)}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2"
+              >
+                <span>✓</span>
+                <span>{t('continue_with_fallback', { method: getPaymentMethodName(fallbackModal.fallbackMethod) })}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFallbackModal(null)}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-4 rounded-xl text-sm transition"
+              >
+                {t('remove_btn') || 'Annuler'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleCheckout} onBlurCapture={captureAbandonedCart} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
         {/* Colonne de Gauche : Formulaire de Facturation */}
@@ -415,7 +490,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
             </div>
 
             {/* Payment method accordion */}
-            <div className="space-y-4 mb-8">
+            <div id="payment-methods-section" className="space-y-4 mb-8">
               {!enableBankTransfer && !enableStripe && !enablePaypal && (
                 <div className="p-4 bg-red-50 text-red-600 rounded text-sm text-center font-medium">
                   {t('no_payment_method')}

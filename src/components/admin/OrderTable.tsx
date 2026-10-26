@@ -44,7 +44,16 @@ export default function OrderTable({ orders }: { orders: any[] }) {
           ) : (
             orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id.split('-')[0]}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  #{order.id.split('-')[0]}
+                  <span className={`ml-2 inline-block text-[10px] font-semibold px-2 py-0.5 rounded ${
+                    order.paymentMethod === 'BANK_TRANSFER' ? 'bg-amber-100 text-amber-800' :
+                    order.paymentMethod === 'STRIPE' ? 'bg-indigo-100 text-indigo-800' :
+                    'bg-sky-100 text-sky-800'
+                  }`}>
+                    {order.paymentMethod}
+                  </span>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString(locale)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.user?.email || t('guest')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900"><Price amount={order.total} showTax={false} /></td>

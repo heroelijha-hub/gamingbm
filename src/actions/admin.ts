@@ -692,6 +692,154 @@ export async function updateOrderStatus(orderId: string, status: any) {
   }
 }
 
+/**
+ * Met à jour les informations client (nom, email, téléphone)
+ * et les adresses de facturation et de livraison d'une commande.
+ */
+export async function updateOrderCustomerDetails(
+  orderId: string,
+  payload: {
+    customerEmail?: string;
+    billing: {
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    shipping?: {
+      firstName?: string;
+      lastName?: string;
+      company?: string;
+      phone?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    } | null;
+  }
+) {
+  await requireAdmin();
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { user: true }
+    });
+
+    if (!order) {
+      return { error: "Commande introuvable." };
+    }
+
+    // Récupérer et mettre à jour les métadonnées stockées dans destinationAddress
+    let metadata: any = {};
+    if (order.destinationAddress) {
+      try {
+        metadata = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
+      } catch (e) {
+        metadata = {};
+      }
+    }
+
+    const newEmail = payload.customerEmail?.trim().toLowerCase() || order.user?.email;
+
+    metadata.billing = {
+      ...(metadata.billing || {}),
+      ...payload.billing,
+      email: newEmail,
+    };
+
+    if (payload.shipping) {
+      metadata.shipping = {
+        ...(metadata.shipping || {}),
+        ...payload.shipping,
+      };
+    } else {
+      metadata.shipping = null;
+    }
+
+    // Mettre à jour la commande
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        destinationAddress: JSON.stringify(metadata),
+      }
+    });
+
+    // Si l'e-mail a changé et qu'un utilisateur est lié, synchroniser l'email si possible
+    if (newEmail && order.user && order.user.email !== newEmail) {
+      const existing = await prisma.user.findUnique({ where: { email: newEmail } });
+      if (!existing) {
+        await prisma.user.update({
+          where: { id: order.userId },
+          data: { email: newEmail }
+        }).catch(() => {});
+      }
+    }
+
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath('/admin/orders');
+    return { success: true };
+  } catch (err: any) {
+    console.error('Failed to update order customer details:', err);
+    return { error: "Une erreur est survenue lors de la mise à jour des coordonnées." };
+  }
+}
+
+/**
+ * Renvoie l'e-mail de confirmation de commande au client avec sa facture PDF à jour
+ */
+export async function resendOrderConfirmationEmail(orderId: string) {
+  await requireAdmin();
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: true,
+        orderItems: { include: { product: true } }
+      }
+    });
+
+    if (!order) {
+      return { error: "Commande introuvable." };
+    }
+
+    let customerName = 'Kunde';
+    let customerEmail = order.user?.email || '';
+
+    if (order.destinationAddress) {
+      try {
+        const metadata = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
+        const billing = metadata?.billing || metadata?.shipping;
+        if (billing) {
+          customerName = `${billing.firstName || ''} ${billing.lastName || ''}`.trim() || customerName;
+          customerEmail = billing.email || customerEmail;
+        }
+      } catch (e) {}
+    }
+
+    if (!customerEmail) {
+      return { error: "Aucune adresse e-mail trouvée pour ce client." };
+    }
+
+    const { sendClientOrderConfirmation } = await import('@/lib/mailer');
+    const result = await sendClientOrderConfirmation(order, customerEmail, customerName);
+
+    if (result && result.success === false) {
+      return { error: "L'envoi de l'e-mail a échoué. Vérifiez la configuration SMTP." };
+    }
+
+    return { success: true, emailSentTo: customerEmail };
+  } catch (err: any) {
+    console.error('Failed to resend order confirmation:', err);
+    return { error: "Erreur lors du renvoi de la confirmation de commande." };
+  }
+}
+
+
 // --- COUPONS ---
 export async function getCoupons() {
   await requireAdmin();

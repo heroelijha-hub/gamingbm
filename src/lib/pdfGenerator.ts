@@ -1,4 +1,7 @@
 import PDFDocument from 'pdfkit';
+import prisma from '@/lib/prisma';
+import fs from 'fs';
+import path from 'path';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(price);
@@ -8,7 +11,46 @@ const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' }).format(date);
 };
 
-export function generateInvoicePDF(order: any): Promise<Buffer> {
+export async function generateInvoicePDF(order: any): Promise<Buffer> {
+  // Fetch store logo and name from DB
+  let logoBuffer: Buffer | null = null;
+  let storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Top Kaminbrennstoffe';
+  
+  try {
+    const settingsDb = await prisma.setting.findMany({
+      where: { key: { in: ['HEADER_LOGO_IMAGE', 'NEXT_PUBLIC_STORE_NAME'] } }
+    });
+    const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+    if (sMap.NEXT_PUBLIC_STORE_NAME) storeName = sMap.NEXT_PUBLIC_STORE_NAME;
+
+    const logoSetting = sMap['HEADER_LOGO_IMAGE'];
+    if (logoSetting && /^https?:\/\//i.test(logoSetting)) {
+      try {
+        const res = await fetch(logoSetting);
+        if (res.ok) {
+          const ab = await res.arrayBuffer();
+          logoBuffer = Buffer.from(ab);
+        }
+      } catch (err) {
+        console.error('Failed to fetch remote logo for PDF', err);
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // Fallback to local logo in public/ if no remote logo could be loaded
+  if (!logoBuffer) {
+    try {
+      const localLogoPath = path.join(process.cwd(), 'public', 'logo.jpg');
+      if (fs.existsSync(localLogoPath)) {
+        logoBuffer = fs.readFileSync(localLogoPath);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 50 });
@@ -30,7 +72,9 @@ export function generateInvoicePDF(order: any): Promise<Buffer> {
           if (billing) {
             customerName = `${billing.firstName || ''} ${billing.lastName || ''}`.trim();
             customerEmail = billing.email || customerEmail;
-            customerAddress = `${billing.address || ''}\n${billing.zipCode || ''} ${billing.city || ''}\n${billing.country || ''}`.trim();
+            const street = [billing.address1, billing.address2, billing.address].filter(Boolean).join(', ');
+            const cityPostal = [billing.postalCode, billing.zipCode, billing.city].filter(Boolean).join(' ');
+            customerAddress = [street, cityPostal, billing.country].filter(Boolean).join('\n').trim();
           }
         } catch (e) {
           // ignore
@@ -38,7 +82,7 @@ export function generateInvoicePDF(order: any): Promise<Buffer> {
       }
 
       // Generate content
-      generateHeader(doc);
+      generateHeader(doc, logoBuffer, storeName);
       generateCustomerInformation(doc, order, customerName, customerEmail, customerAddress);
       generateInvoiceTable(doc, order);
       generateFooter(doc);
@@ -50,14 +94,37 @@ export function generateInvoicePDF(order: any): Promise<Buffer> {
   });
 }
 
-function generateHeader(doc: typeof PDFDocument) {
+function generateHeader(doc: typeof PDFDocument, logoBuffer: Buffer | null, storeName: string) {
+  let headerTop = 45;
+
+  if (logoBuffer) {
+    try {
+      doc.image(logoBuffer, 50, headerTop, { width: 140, height: 45, fit: [140, 45] });
+    } catch (e) {
+      doc
+        .fillColor('#ea580c')
+        .fontSize(20)
+        .font('Helvetica-Bold')
+        .text(storeName, 50, headerTop + 10);
+    }
+  } else {
+    doc
+      .fillColor('#ea580c')
+      .fontSize(20)
+      .font('Helvetica-Bold')
+      .text(storeName, 50, headerTop + 10);
+  }
+
   doc
-    .fillColor('#444444')
-    .fontSize(24)
-    .text('RECHNUNG', 50, 57)
-    .fontSize(10)
-    .text('Top Kaminbrennstoffe', 200, 65, { align: 'right' })
-    // If they have an address, you can add it here, or just keep it simple
+    .fillColor('#1e293b')
+    .font('Helvetica-Bold')
+    .fontSize(20)
+    .text('RECHNUNG', 200, headerTop + 5, { align: 'right' })
+    .font('Helvetica')
+    .fontSize(9)
+    .fillColor('#64748b')
+    .text(storeName, 200, headerTop + 30, { align: 'right' })
+    .text('DÜNNENRIEDE 3, 30853 LANGENHAGEN, DEUTSCHLAND', 200, headerTop + 43, { align: 'right' })
     .moveDown();
 }
 

@@ -28,38 +28,29 @@ export async function getSettings() {
     await requireAdmin();
     isAdmin = true;
   } catch {
-    isAdmin = false;
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+        if (dbUser?.role === 'ADMIN') {
+          isAdmin = true;
+        }
+      }
+    } catch {
+      isAdmin = false;
+    }
   }
 
   // Liste des clés secrètes à ne jamais exposer au public
-  const hiddenKeys = ['STRIPE_SECRET_KEY', 'PAYPAL_SECRET', 'CRON_SECRET', 'SMTP_PASSWORD'];
+  const hiddenKeys = ['STRIPE_SECRET_KEY', 'PAYPAL_SECRET', 'CRON_SECRET', 'SMTP_PASSWORD', 'SMTP_PASS'];
 
   settings.forEach(s => {
     // Si l'utilisateur est admin, on envoie tout. Sinon, on filtre les clés secrètes.
-    if (isAdmin || !hiddenKeys.includes(s.key)) {
+    if (isAdmin || (!hiddenKeys.includes(s.key) && !SENSITIVE_KEYS.has(s.key))) {
       settingsMap[s.key] = s.value;
     }
   });
-
-  let isAdmin = false;
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-      if (dbUser?.role === 'ADMIN') {
-        isAdmin = true;
-      }
-    }
-  } catch {
-    isAdmin = false;
-  }
-
-  if (!isAdmin) {
-    for (const key of SENSITIVE_KEYS) {
-      delete settingsMap[key];
-    }
-  }
 
   return settingsMap;
 }
