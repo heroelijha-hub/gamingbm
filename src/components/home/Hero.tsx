@@ -283,111 +283,110 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     </div>
   );
 
-  const isStyle2 = settings.HERO_LAYOUT === 'STYLE_2';
+  const isStyle2 = settings.HERO_LAYOUT !== 'STYLE_1';
 
   const block1Style2 = (
     <div 
-      className="rounded-xl overflow-hidden relative p-6 sm:p-10 md:p-12 flex-col justify-center h-full min-h-[400px] border border-gray-100 group flex w-full"
+      className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_1_BG_COLOR || '#f0f4f8',
+        backgroundColor: settings.STYLE2_HERO_1_BG_COLOR || '#f8f9fa',
       }}
     >
-      
       {settings.STYLE2_HERO_1_BG_IMAGE && settings.STYLE2_HERO_1_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.STYLE2_HERO_1_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_1_BG_OVERLAY || '40', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={settings.STYLE2_HERO_1_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_1_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
-      <div className="z-20 w-full sm:w-[85%] md:w-3/4 lg:w-2/3 h-full flex flex-col justify-between">
+
+      {/* Left Text Content */}
+      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-between h-full">
         <div>
-          {settings.STYLE2_HERO_1_SUBTITLE && (
-            <span 
-              className="inline-block bg-red-600 text-white font-bold tracking-wider mb-6 px-4 py-2 relative text-responsive"
-              style={{
-                ...getResponsiveVars('STYLE2_HERO_1_SUBTITLE', {m: '14px', t: '16px', d: '18px'}),
-                clipPath: 'polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%)'
-              }}
-            >
-              {settings.STYLE2_HERO_1_SUBTITLE || t('hero_1_subtitle')}
-            </span>
-          )}
-          <h1 
-            className="font-black italic tracking-wide leading-relaxed mb-6 text-responsive drop-shadow-md" 
-            style={{
-              ...getResponsiveVars('STYLE2_HERO_1_TITLE', {m: '28px', t: '36px', d: '46px'}),
-              WebkitTextStroke: '2px white',
-              paintOrder: 'stroke fill'
-            }}
-          >
-            <span className="text-[#107c41] leading-[1.6]" style={{ color: settings.STYLE2_HERO_1_TEXT_COLOR || '#107c41' }}>
-               {settings.STYLE2_HERO_1_TITLE || t('hero_1_title')}
-            </span>
+          {/* Subtitle / Sale Offer */}
+          <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+            {settings.STYLE2_HERO_1_SUBTITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE) }} />
+            ) : (
+              <span>Sale Offer <span className="text-[#e01b1b] font-bold">Black Friday</span> This Week</span>
+            )}
+          </div>
+
+          {/* Big Title */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6">
+            {settings.STYLE2_HERO_1_TITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE) }} />
+            ) : (
+              <>Work Desk<br />Surface Studio 2018</>
+            )}
           </h1>
+
+          {/* Price */}
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-8">
+            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_PRICE || '$824.00'}</span>
+          </div>
         </div>
-        <div className="mt-8">
+
+        {/* Yellow Button */}
+        <div>
           <Link 
-            href={settings.STYLE2_HERO_1_LINK || '/#'} 
-            className="inline-block bg-white hover:bg-gray-50 text-gray-900 font-bold px-8 py-3.5 rounded-full shadow-lg transition-transform transform hover:scale-105"
-            style={{
-              backgroundColor: settings.STYLE2_HERO_1_BTN_BG_COLOR || '#ffffff',
-              color: settings.STYLE2_HERO_1_BTN_TEXT_COLOR || '#111827'
-            }}
+            href={settings.STYLE2_HERO_1_LINK || '/shop'} 
+            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all text-xs tracking-wider uppercase cursor-pointer"
           >
-            {settings.STYLE2_HERO_1_CTA || t('shop_now')}
+            {settings.STYLE2_HERO_1_CTA || 'SHOP NOW'}
           </Link>
         </div>
       </div>
+
+      {/* Hero 1 Image */}
       {settings.STYLE2_HERO_1_IMAGE && settings.STYLE2_HERO_1_SHOW_IMAGE !== 'false' && (
-        <Image src={settings.STYLE2_HERO_1_IMAGE} alt="Hero 1" width={800} height={800} className="absolute right-0 bottom-0 w-3/4 md:w-2/3 lg:w-[55%] h-[90%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none" />
+        <Image 
+          src={settings.STYLE2_HERO_1_IMAGE} 
+          alt="Hero Product" 
+          width={800} 
+          height={800} 
+          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none" 
+        />
       )}
+
+      {/* Slider dots pagination indicator */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-20">
+        <span className="w-2.5 h-2.5 rounded-full bg-[#fed700]"></span>
+        <span className="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+      </div>
+
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={1} />}
     </div>
   );
 
   const block2Style2 = (
     <div 
-      className="rounded-xl overflow-hidden relative p-6 sm:p-8 flex items-center border border-gray-100 group h-full w-full"
+      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_2_BG_COLOR || '#f5ebeb',
+        backgroundColor: settings.STYLE2_HERO_2_BG_COLOR || '#f8f9fa',
       }}
     >
-      
       {settings.STYLE2_HERO_2_BG_IMAGE && settings.STYLE2_HERO_2_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.STYLE2_HERO_2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_2_BG_OVERLAY || '40', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={settings.STYLE2_HERO_2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_2_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
-      <div className="z-20 w-[55%] flex flex-col h-full justify-center">
-        <h2 
-          className="font-bold text-red-600 mb-2 leading-tight text-responsive" 
-          style={{...getResponsiveVars('STYLE2_HERO_2_TITLE', {m: '18px', t: '20px', d: '22px'}), color: settings.STYLE2_HERO_2_TEXT_COLOR || '#dc2626'}}
-        >
-          {settings.STYLE2_HERO_2_TITLE || t('hero_2_title')}
+
+      <div className="z-20 w-[60%] flex flex-col justify-center">
+        <span className="text-sky-600 font-semibold text-xs md:text-sm mb-2">
+          {settings.STYLE2_HERO_2_CATEGORY || 'Full HD Display'}
+        </span>
+        <h2 className="font-bold text-gray-900 text-lg md:text-xl mb-3 leading-snug">
+          {settings.STYLE2_HERO_2_TITLE || 'Smartphone Meizu M5 New Color Green'}
         </h2>
-        <p 
-          className="font-black text-slate-900 mb-5 text-responsive" 
-          style={getResponsiveVars('STYLE2_HERO_2_SUBTITLE', {m: '22px', t: '26px', d: '30px'})}
-        >
-          {settings.STYLE2_HERO_2_SUBTITLE || t('hero_2_subtitle')}
+        <p className="text-[#e01b1b] font-bold text-sm md:text-base">
+          {settings.STYLE2_HERO_2_SUBTITLE || 'Sale 20% Off'}
         </p>
-        <div>
-          <Link 
-            href={settings.STYLE2_HERO_2_LINK || '/#'} 
-            className="inline-block bg-white hover:bg-gray-50 text-gray-900 font-bold px-6 py-2.5 rounded-full shadow-md transition-transform transform hover:scale-105"
-            style={{
-              backgroundColor: settings.STYLE2_HERO_2_BTN_BG_COLOR || '#ffffff',
-              color: settings.STYLE2_HERO_2_BTN_TEXT_COLOR || '#111827'
-            }}
-          >
-            {settings.STYLE2_HERO_2_CTA || t('shop_now')}
-          </Link>
-        </div>
       </div>
+
       {settings.STYLE2_HERO_2_IMAGE && settings.STYLE2_HERO_2_SHOW_IMAGE !== 'false' && (
-        <div className="absolute right-0 h-full w-1/2 p-2 sm:p-4 flex items-center justify-end z-10 pointer-events-none">
-          <Image src={settings.STYLE2_HERO_2_IMAGE} alt="Hero 2" width={800} height={800} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute right-0 top-0 bottom-0 w-[45%] p-3 flex items-center justify-end z-10 pointer-events-none">
+          <Image src={settings.STYLE2_HERO_2_IMAGE} alt="Hero 2" width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={2} />}
@@ -396,47 +395,33 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
   const block3Style2 = (
     <div 
-      className="rounded-xl overflow-hidden relative p-6 sm:p-8 flex items-center border border-gray-100 group h-full w-full"
+      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_3_BG_COLOR || '#f3ebd6',
+        backgroundColor: settings.STYLE2_HERO_3_BG_COLOR || '#f8f9fa',
       }}
     >
-      
       {settings.STYLE2_HERO_3_BG_IMAGE && settings.STYLE2_HERO_3_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.STYLE2_HERO_3_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_3_BG_OVERLAY || '40', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={settings.STYLE2_HERO_3_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_3_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
-      <div className="z-20 w-[55%] flex flex-col h-full justify-center">
-        <h2 
-          className="font-bold text-red-600 mb-2 leading-tight text-responsive" 
-          style={{...getResponsiveVars('STYLE2_HERO_3_TITLE', {m: '18px', t: '20px', d: '22px'}), color: settings.STYLE2_HERO_3_TEXT_COLOR || '#dc2626'}}
-        >
-          {settings.STYLE2_HERO_3_TITLE || t('hero_3_title')}
+
+      <div className="z-20 w-[60%] flex flex-col justify-center">
+        <span className="text-sky-600 font-semibold text-xs md:text-sm mb-2">
+          {settings.STYLE2_HERO_3_CATEGORY || 'Sale 20% Off All Store'}
+        </span>
+        <h2 className="font-bold text-gray-900 text-lg md:text-xl mb-3 leading-snug">
+          {settings.STYLE2_HERO_3_TITLE || 'Playstaytion VR Plus Network 2018'}
         </h2>
-        <p 
-          className="font-black text-slate-900 mb-5 text-responsive" 
-          style={getResponsiveVars('STYLE2_HERO_3_SUBTITLE', {m: '22px', t: '26px', d: '30px'})}
-        >
-          {settings.STYLE2_HERO_3_SUBTITLE || t('hero_3_subtitle')}
+        <p className="text-[#e01b1b] font-bold text-sm md:text-base">
+          {settings.STYLE2_HERO_3_SUBTITLE || 'Sale 20% Off'}
         </p>
-        <div>
-          <Link 
-            href={settings.STYLE2_HERO_3_LINK || '/#'} 
-            className="inline-block bg-white hover:bg-gray-50 text-gray-900 font-bold px-6 py-2.5 rounded-full shadow-md transition-transform transform hover:scale-105"
-            style={{
-              backgroundColor: settings.STYLE2_HERO_3_BTN_BG_COLOR || '#ffffff',
-              color: settings.STYLE2_HERO_3_BTN_TEXT_COLOR || '#111827'
-            }}
-          >
-            {settings.STYLE2_HERO_3_CTA || t('shop_now')}
-          </Link>
-        </div>
       </div>
+
       {settings.STYLE2_HERO_3_IMAGE && settings.STYLE2_HERO_3_SHOW_IMAGE !== 'false' && (
-        <div className="absolute right-0 h-full w-1/2 p-2 sm:p-4 flex items-center justify-end z-10 pointer-events-none">
-          <Image src={settings.STYLE2_HERO_3_IMAGE} alt="Hero 3" width={800} height={800} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute right-0 top-0 bottom-0 w-[45%] p-3 flex items-center justify-end z-10 pointer-events-none">
+          <Image src={settings.STYLE2_HERO_3_IMAGE} alt="Hero 3" width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={3} />}

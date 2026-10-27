@@ -132,7 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   const storeSettings = {
     announcement: settingsMap.HEADER_ANNOUNCEMENT || `Welcome to ${storeName}`,
-    logoImage: settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
+    logoImage: settingsMap.HEADER_LOGO_IMAGE || '/logo.png',
     supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '+08 9229 8228',
     supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'support@mystore.com',
     menuLinks: menuLinks,
