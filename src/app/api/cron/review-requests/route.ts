@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, message: 'No eligible orders found' });
     }
 
-    const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
+    const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.gamingbm.com';
     let processedCount = 0;
 
     for (const order of eligibleOrders) {

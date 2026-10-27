@@ -102,7 +102,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from.match(/<(.+)>/);
-    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@topkaminbrennstoffe.com";
+    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@gamingbm.com";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -480,7 +480,7 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
     
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
     const storeEmailMatch = from?.match(/<(.+)>/);
-    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@topkaminbrennstoffe.com";
+    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@gamingbm.com";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -985,7 +985,7 @@ export async function sendAdminAlertEmail({
       where: { key: { in: ['CONTACT_RECEIVER_EMAIL', 'SMTP_USER'] } }
     });
     const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'info@topkaminbrennstoffe.com';
+    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'info@gamingbm.com';
 
     let detailsHtml = '';
     if (details && Object.keys(details).length > 0) {

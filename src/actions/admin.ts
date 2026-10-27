@@ -927,7 +927,7 @@ export async function sendRecoveryEmail(id: string) {
     if (!cart.email) return { error: "Email non fourni pour ce panier." };
 
     const { sendAbandonedCartRecoveryEmail } = await import('@/lib/mailer');
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.topkaminbrennstoffe.com';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com';
     const checkoutUrl = `${baseUrl}/checkout`;
 
     const name = cart.firstName ? `${cart.firstName} ${cart.lastName || ''}`.trim() : '';

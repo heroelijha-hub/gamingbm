@@ -87,7 +87,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     sku: product.id.split('-')[0].toUpperCase(),
     offers: {
       '@type': 'Offer',
-      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://topkaminbrennstoffe.com'}/product/${product.slug}`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.gamingbm.com'}/product/${product.slug}`,
       priceCurrency: 'EUR',
       price: product.price,
       itemCondition: 'https://schema.org/NewCondition',
@@ -187,19 +187,19 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   '@type': 'ListItem',
                   position: 1,
                   name: 'Home',
-                  item: process.env.NEXT_PUBLIC_SITE_URL || 'https://topkaminbrennstoffe.com',
+                  item: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com',
                 },
                 ...((product as any).categories && (product as any).categories.length > 0 ? [{
                   '@type': 'ListItem',
                   position: 2,
                   name: (product as any).categories[0].name,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://topkaminbrennstoffe.com'}/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`,
+                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com'}/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`,
                 }] : []),
                 {
                   '@type': 'ListItem',
                   position: (product as any).categories && (product as any).categories.length > 0 ? 3 : 2,
                   name: product.title,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://topkaminbrennstoffe.com'}/product/${product.slug}`,
+                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com'}/product/${product.slug}`,
                 },
               ],
             })

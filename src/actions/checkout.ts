@@ -258,7 +258,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     const allSettings = await prisma.setting.findMany();
     const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
     const storeCurrencyCode = settingsMap.currency || 'EUR';
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.topkaminbrennstoffe.com';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://www.gamingbm.com';
 
     // Helper to determine the best active fallback payment method
     const getFallbackPayment = () => {

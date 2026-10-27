@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     await sendNewsletterWelcomeEmail(email).catch(console.error);
 
     // 3. Redirect back to site with a success message
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.topkaminbrennstoffe.com';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com';
     return NextResponse.redirect(`${baseUrl}/?newsletter=success`);
   } catch (err) {
     console.error('Confirm newsletter error:', err);
