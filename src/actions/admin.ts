@@ -946,12 +946,6 @@ export async function testSmtpConnection(targetEmail: string) {
   }
 }
 
-  await requireAdmin();
-  return await prisma.abandonedCart.findMany({
-    orderBy: { lastActive: 'desc' }
-  });
-}
-
 export async function sendRecoveryEmail(id: string) {
   await requireAdmin();
   try {

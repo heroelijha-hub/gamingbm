@@ -8,13 +8,13 @@ import { testSmtpConnection } from '@/actions/admin';
 export default function SmtpForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const tSettings = useTranslations('AdminSettings');
   const router = useRouter();
-  
+
   const [smtpHost, setSmtpHost] = useState(initialSettings.SMTP_HOST || '');
   const [smtpPort, setSmtpPort] = useState(initialSettings.SMTP_PORT || '');
   const [smtpUser, setSmtpUser] = useState(initialSettings.SMTP_USER || '');
   const [smtpPass, setSmtpPass] = useState(initialSettings.SMTP_PASS || '');
   const [smtpFrom, setSmtpFrom] = useState(initialSettings.SMTP_FROM || '');
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [testEmail, setTestEmail] = useState('');
@@ -50,7 +50,7 @@ export default function SmtpForm({ initialSettings }: { initialSettings: Record<
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     await updateSettingsBatch({
       SMTP_HOST: smtpHost,
       SMTP_PORT: smtpPort,
