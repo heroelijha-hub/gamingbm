@@ -919,6 +919,39 @@ export async function getAbandonedCarts() {
   });
 }
 
+export async function testSmtpConnection(targetEmail: string) {
+  await requireAdmin();
+  try {
+    const { sendEmail } = await import('@/lib/mailer');
+    const result = await sendEmail({
+      to: targetEmail,
+      subject: 'Test de configuration SMTP - Gaming BM',
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #ea580c;">Test de transmission SMTP réussi !</h2>
+          <p>Ce message confirme que votre serveur SMTP et l'envoi d'emails transactionnels pour <strong>Gaming BM</strong> fonctionnent parfaitement.</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <small style="color: #777;">Envoyé depuis l'administration Gaming BM à ${new Date().toLocaleString('fr-FR')}</small>
+        </div>
+      `
+    });
+
+    if (!result.success) {
+      return { success: false, error: (result.error as any)?.message || 'Échec de l\'envoi du message de test.' };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Erreur inattendue lors du test SMTP.' };
+  }
+}
+
+  await requireAdmin();
+  return await prisma.abandonedCart.findMany({
+    orderBy: { lastActive: 'desc' }
+  });
+}
+
 export async function sendRecoveryEmail(id: string) {
   await requireAdmin();
   try {
