@@ -462,9 +462,6 @@ export default function Header({
                     className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black"
                   >
                     <span>{link.label}</span>
-                    <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                    </svg>
                   </Link>
                 </div>
               ))
@@ -472,7 +469,6 @@ export default function Header({
               <>
                 <Link href="/" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
                   <span>HOME</span>
-                  <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                 </Link>
                 <div className="relative group" ref={bottomCategoryRef}>
                   <button 
@@ -480,7 +476,6 @@ export default function Header({
                     className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black uppercase cursor-pointer"
                   >
                     <span>CATALOG</span>
-                    <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {isBottomCategoryOpen && (
                     <div className="absolute top-full left-0 w-64 bg-white border border-gray-200 shadow-xl rounded-md z-40 py-2 normal-case font-normal">
@@ -499,15 +494,12 @@ export default function Header({
                 </div>
                 <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
                   <span>FEATURED PRODUCTS</span>
-                  <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                 </Link>
                 <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
                   <span>PRODUCT PAGES</span>
-                  <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                 </Link>
                 <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
                   <span>PAGES</span>
-                  <svg className="w-3.5 h-3.5 ml-1 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                 </Link>
                 <Link href="/pages/faq" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
                   <span>FAQ PAGE</span>

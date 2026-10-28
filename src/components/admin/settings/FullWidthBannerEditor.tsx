@@ -154,19 +154,19 @@ export default function FullWidthBannerEditor({
               {/* Title Typography & Color */}
               <div className="pb-4 border-b border-gray-100">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Titre Principal</h4>
-                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'BANNER_TITLE', 'BANNER_TITLE_COLOR', 'Typographie Titre', '#111827')}
+                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'Typographie Titre', 'BANNER_TITLE', 'BANNER_TITLE_COLOR', '#111827')}
               </div>
 
               {/* Subtitle Typography & Color */}
               <div className="pb-4 border-b border-gray-100">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Sous-Titre</h4>
-                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'BANNER_SUBTITLE', 'BANNER_SUBTITLE_COLOR', 'Typographie Sous-titre', '#4b5563')}
+                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'Typographie Sous-titre', 'BANNER_SUBTITLE', 'BANNER_SUBTITLE_COLOR', '#4b5563')}
               </div>
 
               {/* Price Typography & Color */}
               <div className="pb-4 border-b border-gray-100">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Prix</h4>
-                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'BANNER_PRICE', 'BANNER_PRICE_COLOR', 'Typographie Prix', '#e01b1b')}
+                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'Typographie Prix', 'BANNER_PRICE', 'BANNER_PRICE_COLOR', '#e01b1b')}
 
                 <div className="mt-3">
                   <label className="block text-xs font-medium mb-1 text-gray-600">Couleur libellé prix ("Starting at")</label>
@@ -184,7 +184,7 @@ export default function FullWidthBannerEditor({
               {/* Button Styling */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Bouton CTA</h4>
-                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'BANNER_CTA', 'BANNER_BTN_TEXT_COLOR', 'Typographie & Couleur Texte', '#111827')}
+                {renderDesignTextControls(section, updateSectionSettings, previewMode, 'Typographie & Couleur Texte', 'BANNER_CTA', 'BANNER_BTN_TEXT_COLOR', '#111827')}
                 
                 <div className="mt-3">
                   <label className="block text-xs font-medium mb-1 text-gray-600">Couleur de fond du bouton</label>
