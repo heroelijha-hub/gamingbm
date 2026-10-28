@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import StoreFeaturesForm from '@/components/admin/settings/StoreFeaturesForm';
 
 export const metadata = {
-  title: 'Store features Settings | Top Kaminbrennstoffe Admin',
+  title: 'Store features Settings | Gaming BM Admin',
 };
 
 export default async function StoreFeaturesSettingsPage() {

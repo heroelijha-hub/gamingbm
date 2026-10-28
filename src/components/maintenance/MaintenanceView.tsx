@@ -55,7 +55,7 @@ export default function MaintenanceView({ title, message, image, logoImage }: Ma
       </main>
       
       <footer className="w-full text-center py-6 text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} Top Kaminbrennstoffe. All rights reserved.
+        &copy; {new Date().getFullYear()} Gaming BM. All rights reserved.
       </footer>
     </div>
   );

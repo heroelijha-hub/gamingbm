@@ -5,7 +5,7 @@ import { getTrashedProducts, getTrashedMedia } from '@/actions/trash';
 export async function generateMetadata() {
   const t = await getTranslations('AdminTrash');
   return {
-    title: `${t('title')} | Top Kaminbrennstoffe Admin`,
+    title: `${t('title')} | Gaming BM Admin`,
   };
 }
 

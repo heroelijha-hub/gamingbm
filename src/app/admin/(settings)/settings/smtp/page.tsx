@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import SmtpForm from '@/components/admin/settings/SmtpForm';
 
 export const metadata = {
-  title: 'Email server (SMTP) Settings | Top Kaminbrennstoffe Admin',
+  title: 'Email server (SMTP) Settings | Gaming BM Admin',
 };
 
 export default async function SmtpSettingsPage() {

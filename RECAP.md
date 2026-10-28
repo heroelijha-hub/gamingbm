@@ -1,6 +1,6 @@
-# Récapitulatif du Projet : Top Kaminbrennstoffe
+# Récapitulatif du Projet : Gaming BM
 
-Ce document liste toutes les fonctionnalités et configurations qui ont été mises en place jusqu'à présent sur la boutique E-commerce **Top Kaminbrennstoffe**.
+Ce document liste toutes les fonctionnalités et configurations qui ont été mises en place jusqu'à présent sur la boutique E-commerce **Gaming BM**.
 
 ## 🛠 Stack Technique
 - **Framework** : Next.js 16.3.1 (App Router)
@@ -96,7 +96,7 @@ Ce document liste toutes les fonctionnalités et configurations qui ont été mi
   - **Catégories de produits**
 - **Traductions intégrées** : Les labels et descriptions des champs SEO dans l'espace Administrateur sont 100% traduits dans toutes les langues supportées (via `next-intl`).
 - **Google Search Console** : Ajout d'un champ dynamique dans les paramètres SEO pour renseigner la clé de vérification du site, injectée automatiquement via la balise meta correspondante dans le `<head>`.
-- **Titres dynamiques et propres** : Suppression complète des titres suffixés en dur (ex: "My Store"). Le système priorise désormais strictement le champ `metaTitle` défini en base de données, avec un fallback pertinent ("Top Kaminbrennstoffe").
+- **Titres dynamiques et propres** : Suppression complète des titres suffixés en dur (ex: "My Store"). Le système priorise désormais strictement le champ `metaTitle` défini en base de données, avec un fallback pertinent ("Gaming BM").
 
 ---
 

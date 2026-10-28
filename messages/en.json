@@ -1,6 +1,6 @@
 {
   "Frontend": {
-    "welcome": "Welcome to Top Kaminbrennstoffe",
+    "welcome": "Welcome to Gaming BM",
     "shop": "Shop Now",
     "cart": "Your Cart"
   },
@@ -432,7 +432,7 @@
     "newsletter_placeholder": "Enter your email...",
     "call_us": "Call Us Now",
     "email": "Email",
-    "copyright": "© 2026 Top Kaminbrennstoffe All rights reserved."
+    "copyright": "© 2026 Gaming BM All rights reserved."
   },
   "Messages": {
     "success": "Action successful",
@@ -570,7 +570,7 @@
     "logging_in": "Logging in..."
   },
   "AdminLayout": {
-    "title": "Top Kaminbrennstoffe Admin",
+    "title": "Gaming BM Admin",
     "dashboard": "Dashboard",
     "products": "Products",
     "categories": "Categories",

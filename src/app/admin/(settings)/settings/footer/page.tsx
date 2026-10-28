@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import FooterForm from '@/components/admin/settings/FooterForm';
 
 export const metadata = {
-  title: 'Footer Settings | Top Kaminbrennstoffe Admin',
+  title: 'Footer Settings | Gaming BM Admin',
 };
 
 export default async function FooterSettingsPage() {

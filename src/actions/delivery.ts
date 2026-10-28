@@ -12,7 +12,7 @@ async function geocodeCity(city: string, country: string): Promise<{ lat: number
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Top Kaminbrennstoffe-Tracking-System/1.0',
+        'User-Agent': 'Gaming BM-Tracking-System/1.0',
       },
     });
     

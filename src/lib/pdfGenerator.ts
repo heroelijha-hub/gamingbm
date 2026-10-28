@@ -14,7 +14,7 @@ const formatDate = (date: Date) => {
 export async function generateInvoicePDF(order: any): Promise<Buffer> {
   // Fetch store logo and name from DB
   let logoBuffer: Buffer | null = null;
-  let storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Top Kaminbrennstoffe';
+  let storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
   
   try {
     const settingsDb = await prisma.setting.findMany({

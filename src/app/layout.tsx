@@ -20,7 +20,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({

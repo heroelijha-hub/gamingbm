@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const updates = [
-  { id: "c31b2562-a914-42c2-a57c-0f5d33633e5c", metaTitle: "JUSTUS Usedom 5D Kaminofen Gussgrau 5kW | Top Kaminbrennstoffe", metaDescription: "Kaufen Sie den JUSTUS Usedom 5D Kaminofen in Gussgrau. 5,5 kW Nennleistung, Energieeffizienz A und 88 m³ Raumheizvermögen für effizientes Heizen." },
+  { id: "c31b2562-a914-42c2-a57c-0f5d33633e5c", metaTitle: "JUSTUS Usedom 5D Kaminofen Gussgrau 5kW | Gaming BM", metaDescription: "Kaufen Sie den JUSTUS Usedom 5D Kaminofen in Gussgrau. 5,5 kW Nennleistung, Energieeffizienz A und 88 m³ Raumheizvermögen für effizientes Heizen." },
   { id: "69d1926f-50cb-4f89-8350-4a4cd2e18e69", metaTitle: "JUSTUS Usedom 5 Kaminofen Schwarz (5,5 kW) Kaufen", metaDescription: "Entdecken Sie den JUSTUS Usedom 5 Kaminofen (Stahl Schwarz, 5,5 kW). Hoher Wirkungsgrad über 80% (Holz & Kohle) und umweltfreundliche Verbrennung." },
   { id: "723164ce-295d-4e1b-a6b3-92a1c3291673", metaTitle: "Nemaxx P6 Pelletofen (6 kW, Rot, WiFi-Ready) | A+ Effizienz", metaDescription: "Bestellen Sie den roten Nemaxx P6 Pelletofen (6 kW). WiFi-Ready, ECO-Modus, geringe Ascheproduktion und Energieeffizienzklasse A+ für Ihr Zuhause." },
   { id: "3017eb77-4924-4bb3-aa59-c9625590a503", metaTitle: "Nemaxx P12 Pelletofen (13,6 kW, Weiß, WiFi) Kaufen", metaDescription: "Weißer Nemaxx P12 Pelletofen mit 13,6 kW Leistung. Hohe Effizienz, WiFi-Ready, herausnehmbarer Aschekasten und edles Design." },

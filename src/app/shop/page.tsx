@@ -6,7 +6,7 @@ import ShopPagination from '@/components/shop/ShopPagination';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
 export async function generateMetadata({
   searchParams,
@@ -14,7 +14,7 @@ export async function generateMetadata({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams;
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Top Kaminbrennstoffe";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
   
   // Extract category
   const categoryParams = params.category;

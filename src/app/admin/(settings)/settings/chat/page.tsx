@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import ChatForm from '@/components/admin/settings/ChatForm';
 
 export const metadata = {
-  title: 'Customer chat Settings | Top Kaminbrennstoffe Admin',
+  title: 'Customer chat Settings | Gaming BM Admin',
 };
 
 export default async function ChatSettingsPage() {
