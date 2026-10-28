@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     }
 
     const settings = await getSettings();
-    const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'admin@mystore.com';
+    const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'info@gamingbm.com';
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
 
     // 1. Send notification to admin

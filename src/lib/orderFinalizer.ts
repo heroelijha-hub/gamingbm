@@ -67,7 +67,7 @@ export async function finalizeOrder(orderId: string) {
       (acc, s) => ({ ...acc, [s.key]: s.value }),
       {} as Record<string, string>
     );
-    const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'admin@mystore.com';
+    const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'info@gamingbm.com';
 
     // 3. Send emails (non-blocking)
     try {
