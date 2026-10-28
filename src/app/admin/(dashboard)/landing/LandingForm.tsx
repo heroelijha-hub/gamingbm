@@ -8,9 +8,10 @@ import HeroSectionEditor from '@/components/admin/settings/HeroSectionEditor';
 import ProductGridEditor from '@/components/admin/settings/ProductGridEditor';
 import PromoBannersEditor from '@/components/admin/settings/PromoBannersEditor';
 import LatestBlogsEditor from '@/components/admin/settings/LatestBlogsEditor';
+import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEditor';
 import Cookies from 'js-cookie';
 
-export type SectionType = 'Hero' | 'BestDeals' | 'BestSeller' | 'LatestBlogs' | 'Newsletter' | 'PromoBanners' | 'ProductGrid';
+export type SectionType = 'Hero' | 'BestDeals' | 'BestSeller' | 'LatestBlogs' | 'Newsletter' | 'PromoBanners' | 'ProductGrid' | 'FullWidthBanner';
 
 export interface SectionConfig {
   id: string;
@@ -261,6 +262,18 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         />
       );
     }
+
+    if (section.type === 'FullWidthBanner') {
+      return (
+        <FullWidthBannerEditor
+          section={section}
+          previewMode={previewMode}
+          updateSectionSettings={updateSectionSettings}
+          handleUpload={handleUpload}
+          goBack={() => setEditingId(null)}
+        />
+      );
+    }
     
     return null;
   };
@@ -366,6 +379,10 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
                   <button onClick={() => addSection('Newsletter')} className="border rounded bg-gray-50 hover:bg-gray-100 p-1.5 text-center text-[10px] flex flex-col items-center gap-1 transition text-gray-600 hover:text-gray-900 hover:border-gray-300">
                     <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     Newsletter
+                  </button>
+                  <button onClick={() => addSection('FullWidthBanner')} className="border rounded bg-gray-50 hover:bg-gray-100 p-1.5 text-center text-[10px] flex flex-col items-center gap-1 transition text-gray-600 hover:text-gray-900 hover:border-gray-300">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2zM3 9h18M3 15h18" /></svg>
+                    Large Banner
                   </button>
                 </div>
               </div>

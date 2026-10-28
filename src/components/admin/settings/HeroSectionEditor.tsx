@@ -135,9 +135,43 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
       <div className="space-y-4 mt-4">
         {renderContentInput('Title', `${prefix}_TITLE`, titlePlaceholder)}
         {renderContentInput('Subtitle / badge', `${prefix}_SUBTITLE`, subtitlePlaceholder)}
-        {!isStyle2 && blockNum === 1 && renderContentInput('Price/Text', 'HERO_1_PRICE', 'from $349.99')}
+        {((!isStyle2 && blockNum === 1) || (isStyle2 && blockNum === 1)) && renderContentInput('Price/Text', isStyle2 ? 'STYLE2_HERO_1_PRICE' : 'HERO_1_PRICE', isStyle2 ? '$824.00' : 'from $349.99')}
         {renderContentInput('Button Text', `${prefix}_CTA`, ctaPlaceholder)}
         {renderContentInput('Button Link', `${prefix}_LINK`, '/shop')}
+
+        {isStyle2 && blockNum === 1 && (
+          <div className="pt-6 mt-6 border-t border-gray-200 space-y-4">
+            <h4 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#fed700]"></span>
+              Slide 2 (Auto-Slide)
+            </h4>
+            {renderContentInput('Slide 2 Title', 'STYLE2_HERO_1_SLIDE2_TITLE', 'Samsung\nGalaxy S9 | S9+')}
+            {renderContentInput('Slide 2 Subtitle / badge', 'STYLE2_HERO_1_SLIDE2_SUBTITLE', 'Sale Offer -20% Off This Week')}
+            {renderContentInput('Slide 2 Price/Text', 'STYLE2_HERO_1_SLIDE2_PRICE', '$1209.00')}
+            {renderContentInput('Slide 2 Button Text', 'STYLE2_HERO_1_SLIDE2_CTA', 'SHOP NOW')}
+            {renderContentInput('Slide 2 Button Link', 'STYLE2_HERO_1_SLIDE2_LINK', '/shop')}
+
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Slide 2 Product Image</label>
+              <div className="border-2 border-dashed border-gray-200 bg-gray-50 rounded-xl p-4 flex flex-col items-center justify-center relative min-h-[120px] transition hover:bg-gray-100">
+                {section.settings['STYLE2_HERO_1_SLIDE2_IMAGE'] ? (
+                  <>
+                    <Image width={800} height={800} src={section.settings['STYLE2_HERO_1_SLIDE2_IMAGE']} className="absolute inset-0 w-full h-full object-contain p-2 rounded-xl" alt="" />
+                    <div className="relative z-10 flex gap-2 opacity-0 hover:opacity-100 bg-white/80 p-2 rounded-lg transition">
+                      <button type="button" onClick={() => handleUpload(section.id, 'STYLE2_HERO_1_SLIDE2_IMAGE')} className="bg-white text-gray-700 px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm border">Edit</button>
+                      <button type="button" onClick={() => updateSectionSettings(section.id, 'STYLE2_HERO_1_SLIDE2_IMAGE', '')} className="bg-red-500 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm">Remove</button>
+                    </div>
+                  </>
+                ) : (
+                  <button type="button" onClick={() => handleUpload(section.id, 'STYLE2_HERO_1_SLIDE2_IMAGE')} className="flex flex-col items-center text-gray-500 hover:text-gray-600 transition">
+                    <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
+                    <span className="text-xs font-medium">Add Slide 2 Image</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import HeroMobileSliderWrapper from './HeroMobileSliderWrapper';
+import HeroBlockSlider from './HeroBlockSlider';
 import { getTranslations } from 'next-intl/server';
 import HeroPreviewEditButton from '@/components/admin/HeroPreviewEditButton';
 import { basicSanitizeHtml } from '@/lib/security';
@@ -285,7 +286,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
   const isStyle2 = settings.HERO_LAYOUT !== 'STYLE_1';
 
-  const block1Style2 = (
+  const block1Slide1Style2 = (
     <div 
       className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
       style={{
@@ -348,14 +349,82 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         />
       )}
 
-      {/* Slider dots pagination indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-20">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#fed700]"></span>
-        <span className="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+      {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={1} />}
+    </div>
+  );
+
+  const block1Slide2Style2 = (
+    <div 
+      className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
+      style={{
+        backgroundColor: settings.STYLE2_HERO_1_SLIDE2_BG_COLOR || settings.STYLE2_HERO_1_BG_COLOR || '#f8f9fa',
+      }}
+    >
+      {settings.STYLE2_HERO_1_SLIDE2_BG_IMAGE && settings.STYLE2_HERO_1_SLIDE2_SHOW_BG_IMAGE !== 'false' && (
+        <>
+          <Image src={settings.STYLE2_HERO_1_SLIDE2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_1_SLIDE2_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
+        </>
+      )}
+
+      {/* Left Text Content */}
+      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-between h-full">
+        <div>
+          {/* Subtitle / Sale Offer */}
+          <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+            {settings.STYLE2_HERO_1_SLIDE2_SUBTITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_SUBTITLE) }} />
+            ) : (
+              <span>Sale Offer <span className="text-[#e01b1b] font-bold">-20% Off</span> This Week</span>
+            )}
+          </div>
+
+          {/* Big Title */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6">
+            {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
+            ) : (
+              <>Samsung<br />Galaxy S9 | S9+</>
+            )}
+          </h1>
+
+          {/* Price */}
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-8">
+            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_SLIDE2_PRICE || '$1209.00'}</span>
+          </div>
+        </div>
+
+        {/* Yellow Button */}
+        <div>
+          <Link 
+            href={settings.STYLE2_HERO_1_SLIDE2_LINK || settings.STYLE2_HERO_1_LINK || '/shop'} 
+            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all text-xs tracking-wider uppercase cursor-pointer"
+          >
+            {settings.STYLE2_HERO_1_SLIDE2_CTA || 'SHOP NOW'}
+          </Link>
+        </div>
       </div>
+
+      {/* Hero 1 Slide 2 Image */}
+      {(settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE) && settings.STYLE2_HERO_1_SLIDE2_SHOW_IMAGE !== 'false' && (
+        <Image 
+          src={settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE} 
+          alt="Hero Product" 
+          width={800} 
+          height={800} 
+          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none" 
+        />
+      )}
 
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={1} />}
     </div>
+  );
+
+  const block1Style2 = (
+    <HeroBlockSlider 
+      slide1={block1Slide1Style2} 
+      slide2={block1Slide2Style2} 
+    />
   );
 
   const block2Style2 = (

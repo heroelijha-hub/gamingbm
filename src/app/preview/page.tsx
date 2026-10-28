@@ -5,6 +5,7 @@ import LatestBlogs from '@/components/home/LatestBlogs';
 import Newsletter from '@/components/home/Newsletter';
 import PromoBanners from '@/components/home/PromoBanners';
 import ProductGrid from '@/components/home/ProductGrid';
+import FullWidthBanner from '@/components/home/FullWidthBanner';
 import { SectionConfig, SectionType } from '@/app/admin/(dashboard)/landing/LandingForm';
 import PreviewSectionWrapper from '@/components/admin/PreviewSectionWrapper';
 import { cookies } from 'next/headers';
@@ -60,6 +61,9 @@ export default async function PreviewPage() {
         break;
       case 'ProductGrid':
         content = <ProductGrid config={section.settings} />;
+        break;
+      case 'FullWidthBanner':
+        content = <FullWidthBanner config={section.settings} />;
         break;
       default:
         return null;
