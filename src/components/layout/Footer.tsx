@@ -39,7 +39,7 @@ type FooterProps = {
 
 export default function Footer({ 
   supportPhone = '+08 9229 8228', 
-  supportEmail = 'info@maca.topgartengeraete.de',
+  supportEmail = 'info@gamingbm.com',
   footerBgColor = '#278a54',
   footerTextColor = '#ffffff',
   footerAddress1 = '17 Rue des Marronniers, 31240 L\'Union, FRANCE',

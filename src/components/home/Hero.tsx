@@ -497,6 +497,20 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     </div>
   );
 
+  // Style 2: Mobile / Tablet visibility flags
+  const showBlock1Style2 = settings.STYLE2_HERO_1_HIDE_MOBILE !== 'true';
+  const showBlock2Style2 = settings.STYLE2_HERO_2_HIDE_MOBILE !== 'true';
+  const showBlock3Style2 = settings.STYLE2_HERO_3_HIDE_MOBILE !== 'true';
+  const hasSideBlocksStyle2 = showBlock2Style2 || showBlock3Style2;
+
+  const style2ChildCount = (showBlock1Style2 ? 1 : 0) + (hasSideBlocksStyle2 ? 1 : 0);
+
+  // Style 1: Mobile / Tablet visibility flags
+  const showBlock1Style1 = settings.HERO_1_HIDE_MOBILE !== 'true';
+  const showBlock2Style1 = settings.HERO_2_HIDE_MOBILE !== 'true';
+  const showBlock3Style1 = settings.HERO_3_HIDE_MOBILE !== 'true';
+  const showBlock4Style1 = settings.HERO_4_HIDE_MOBILE !== 'true';
+
   return (
     <section className="max-w-7xl mx-auto px-4 w-full py-6 font-sans">
       {/* DESKTOP VIEW */}
@@ -531,28 +545,32 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         </div>
       )}
 
-      {/* MOBILE VIEW (AutoSlider) */}
+      {/* MOBILE / TABLET VIEW (AutoSlider) */}
       {isStyle2 ? (
-        <HeroMobileSliderWrapper childCount={2}>
-          <div className="w-full h-full flex-shrink-0 snap-center relative">
-            {block1Style2}
-          </div>
-          <div className="w-full h-full flex-shrink-0 snap-center relative flex flex-col gap-4">
-            <div className="flex-1 min-h-[250px]">{block2Style2}</div>
-            <div className="flex-1 min-h-[250px]">{block3Style2}</div>
-          </div>
+        <HeroMobileSliderWrapper childCount={style2ChildCount}>
+          {showBlock1Style2 && (
+            <div className="w-full h-full flex-shrink-0 snap-center relative">
+              {block1Style2}
+            </div>
+          )}
+          {hasSideBlocksStyle2 && (
+            <div className="w-full h-full flex-shrink-0 snap-center relative flex flex-col gap-4">
+              {showBlock2Style2 && <div className="flex-1 min-h-[250px]">{block2Style2}</div>}
+              {showBlock3Style2 && <div className="flex-1 min-h-[250px]">{block3Style2}</div>}
+            </div>
+          )}
         </HeroMobileSliderWrapper>
       ) : (
         <HeroMobileSliderWrapper childCount={[
-          settings.HERO_1_HIDE_MOBILE !== 'true',
-          settings.HERO_2_HIDE_MOBILE !== 'true',
-          settings.HERO_3_HIDE_MOBILE !== 'true',
-          settings.HERO_4_HIDE_MOBILE !== 'true'
+          showBlock1Style1,
+          showBlock2Style1,
+          showBlock3Style1,
+          showBlock4Style1
         ].filter(Boolean).length}>
-          {settings.HERO_1_HIDE_MOBILE !== 'true' && <div className="w-full h-full flex-shrink-0 snap-center relative">{block1}</div>}
-          {settings.HERO_2_HIDE_MOBILE !== 'true' && <div className="w-full h-full flex-shrink-0 snap-center relative">{block2}</div>}
-          {settings.HERO_3_HIDE_MOBILE !== 'true' && <div className="w-full h-full flex-shrink-0 snap-center relative">{block3}</div>}
-          {settings.HERO_4_HIDE_MOBILE !== 'true' && <div className="w-full h-full flex-shrink-0 snap-center relative">{block4}</div>}
+          {showBlock1Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block1}</div>}
+          {showBlock2Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block2}</div>}
+          {showBlock3Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block3}</div>}
+          {showBlock4Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block4}</div>}
         </HeroMobileSliderWrapper>
       )}
     </section>
