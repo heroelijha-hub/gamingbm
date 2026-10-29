@@ -136,7 +136,12 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
       <div className="space-y-4 mt-4">
         {renderContentInput('Title', `${prefix}_TITLE`, titlePlaceholder)}
         {renderContentInput('Subtitle / badge', `${prefix}_SUBTITLE`, subtitlePlaceholder)}
-        {((!isStyle2 && blockNum === 1) || (isStyle2 && blockNum === 1)) && renderContentInput('Price/Text', isStyle2 ? 'STYLE2_HERO_1_PRICE' : 'HERO_1_PRICE', isStyle2 ? '$824.00' : 'from $349.99')}
+        {((!isStyle2 && blockNum === 1) || (isStyle2 && blockNum === 1)) && (
+          <>
+            {renderContentInput('Price Label (ex: Starting at)', isStyle2 ? 'STYLE2_HERO_1_PRICE_LABEL' : 'HERO_1_PRICE_LABEL', 'Starting at')}
+            {renderContentInput('Price/Text', isStyle2 ? 'STYLE2_HERO_1_PRICE' : 'HERO_1_PRICE', isStyle2 ? '$824.00' : 'from $349.99')}
+          </>
+        )}
         {renderContentInput('Button Text', `${prefix}_CTA`, ctaPlaceholder)}
         {renderContentInput('Button Link', `${prefix}_LINK`, '/shop')}
 
@@ -148,6 +153,7 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
             </h4>
             {renderContentInput('Slide 2 Title', 'STYLE2_HERO_1_SLIDE2_TITLE', 'Samsung\nGalaxy S9 | S9+')}
             {renderContentInput('Slide 2 Subtitle / badge', 'STYLE2_HERO_1_SLIDE2_SUBTITLE', 'Sale Offer -20% Off This Week')}
+            {renderContentInput('Slide 2 Price Label', 'STYLE2_HERO_1_SLIDE2_PRICE_LABEL', 'Starting at')}
             {renderContentInput('Slide 2 Price/Text', 'STYLE2_HERO_1_SLIDE2_PRICE', '$1209.00')}
             {renderContentInput('Slide 2 Button Text', 'STYLE2_HERO_1_SLIDE2_CTA', 'SHOP NOW')}
             {renderContentInput('Slide 2 Button Link', 'STYLE2_HERO_1_SLIDE2_LINK', '/shop')}

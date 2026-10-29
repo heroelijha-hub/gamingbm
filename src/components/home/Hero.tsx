@@ -306,33 +306,36 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       {/* Left Text Content */}
-      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-between h-full">
-        <div>
-          {/* Subtitle / Sale Offer */}
-          <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
-            {settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE) }} />
-            ) : (
-              <span>Sale Offer <span className="text-[#e01b1b] font-bold">Black Friday</span> This Week</span>
-            )}
-          </div>
-
-          {/* Big Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6">
-            {settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE) }} />
-            ) : (
-              <>Work Desk<br />Surface Studio 2018</>
-            )}
-          </h1>
-
-          {/* Price */}
-          <div className="text-lg md:text-xl text-gray-700 font-medium mb-8">
-            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '$824.00'}</span>
-          </div>
+      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-start">
+        {/* Subtitle / Sale Offer */}
+        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+          {settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE ? (
+            <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE) }} />
+          ) : (
+            <span>Sale Offer <span className="text-[#e01b1b] font-bold">Black Friday</span> This Week</span>
+          )}
         </div>
 
-        {/* Yellow Button */}
+        {/* Big Title */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5">
+          {settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE ? (
+            <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE) }} />
+          ) : (
+            <>Work Desk<br />Surface Studio 2018</>
+          )}
+        </h1>
+
+        {/* Price & Label */}
+        {((settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE) || (settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL)) && (
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1">
+            <span>{settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL || 'Starting at'}</span>
+            <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
+              {settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '$824.00'}
+            </span>
+          </div>
+        )}
+
+        {/* Yellow Button (placed right under price) */}
         <div>
           <Link 
             href={settings.STYLE2_HERO_1_LINK || settings.HERO_1_LINK || '/shop'} 
@@ -373,33 +376,36 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       {/* Left Text Content */}
-      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-between h-full">
-        <div>
-          {/* Subtitle / Sale Offer */}
-          <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
-            {settings.STYLE2_HERO_1_SLIDE2_SUBTITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_SUBTITLE) }} />
-            ) : (
-              <span>Sale Offer <span className="text-[#e01b1b] font-bold">-20% Off</span> This Week</span>
-            )}
-          </div>
-
-          {/* Big Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6">
-            {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
-            ) : (
-              <>Samsung<br />Galaxy S9 | S9+</>
-            )}
-          </h1>
-
-          {/* Price */}
-          <div className="text-lg md:text-xl text-gray-700 font-medium mb-8">
-            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_SLIDE2_PRICE || '$1209.00'}</span>
-          </div>
+      <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-start">
+        {/* Subtitle / Sale Offer */}
+        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+          {settings.STYLE2_HERO_1_SLIDE2_SUBTITLE ? (
+            <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_SUBTITLE) }} />
+          ) : (
+            <span>Sale Offer <span className="text-[#e01b1b] font-bold">-20% Off</span> This Week</span>
+          )}
         </div>
 
-        {/* Yellow Button */}
+        {/* Big Title */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5">
+          {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
+            <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
+          ) : (
+            <>Samsung<br />Galaxy S9 | S9+</>
+          )}
+        </h1>
+
+        {/* Price & Label */}
+        {(settings.STYLE2_HERO_1_SLIDE2_PRICE || settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL) && (
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1">
+            <span>{settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL || 'Starting at'}</span>
+            <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
+              {settings.STYLE2_HERO_1_SLIDE2_PRICE || '$1209.00'}
+            </span>
+          </div>
+        )}
+
+        {/* Yellow Button (placed right under price) */}
         <div>
           <Link 
             href={settings.STYLE2_HERO_1_SLIDE2_LINK || settings.STYLE2_HERO_1_LINK || '/shop'} 
