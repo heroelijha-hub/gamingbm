@@ -9,6 +9,7 @@ type FooterProps = {
   supportEmail?: string;
   footerBgColor?: string;
   footerTextColor?: string;
+  footerHeadingColor?: string;
   footerAddress1?: string;
   footerAddress2?: string;
   footerLocationsTitle?: string;
@@ -42,6 +43,7 @@ export default function Footer({
   supportEmail = 'info@gamingbm.com',
   footerBgColor = '#278a54',
   footerTextColor = '#ffffff',
+  footerHeadingColor = '#ffffff',
   footerAddress1 = '17 Rue des Marronniers, 31240 L\'Union, FRANCE',
   footerAddress2 = '',
   footerLocationsTitle = 'Our Locations',
@@ -124,7 +126,7 @@ export default function Footer({
           {footerColumns && footerColumns.length > 0 ? (
             footerColumns.map((col, idx) => (
               <div key={idx} className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6 text-white">{col.title}</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>{col.title}</h3>
                 <ul className="space-y-4 text-sm opacity-90">
                   {col.links.map((link, linkIdx) => (
                     <li key={linkIdx}>
@@ -140,7 +142,7 @@ export default function Footer({
             <>
               {/* Column 2: Rechtliche Links (Fallback) */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6 text-white">Rechtliche Links</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Rechtliche Links</h3>
                 <ul className="space-y-4 text-sm opacity-90">
                   <li><Link href="/pages/agb" className="hover:text-yellow-400 transition">AGB</Link></li>
                   <li><Link href="/pages/about" className="hover:text-yellow-400 transition">Über uns</Link></li>
@@ -154,7 +156,7 @@ export default function Footer({
 
               {/* Column 3: Kunde (Fallback) */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6 text-white">Kunde</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Kunde</h3>
                 <ul className="space-y-4 text-sm opacity-90">
                   <li><Link href="/account" className="hover:text-yellow-400 transition">Mein konto</Link></li>
                   <li><Link href="/cart" className="hover:text-yellow-400 transition">Warenkorb</Link></li>
@@ -166,7 +168,7 @@ export default function Footer({
               </div>
               {/* Column 4: Alle Kategorien (Fallback) */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6 text-white">Alle Kategorien</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Alle Kategorien</h3>
                 <ul className="space-y-4 text-sm uppercase opacity-90 tracking-wide">
                   {categories && categories.length > 0 ? (
                     categories.slice(0, 10).map((cat) => (
@@ -197,7 +199,7 @@ export default function Footer({
 
           {/* Column 5: Newsletter */}
           <div className="lg:col-span-1">
-            <h3 className="font-bold text-lg mb-6 text-white">{footerNewsletterTitle}</h3>
+            <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>{footerNewsletterTitle}</h3>
             <p className="text-sm mb-6 leading-relaxed opacity-90">
               {footerNewsletterText}
             </p>

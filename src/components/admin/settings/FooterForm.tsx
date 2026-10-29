@@ -12,6 +12,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
   
   const [footerBgColor, setFooterBgColor] = useState(initialSettings.FOOTER_BG_COLOR || '#0B162C');
   const [footerTextColor, setFooterTextColor] = useState(initialSettings.FOOTER_TEXT_COLOR || '#d1d5db');
+  const [footerHeadingColor, setFooterHeadingColor] = useState(initialSettings.FOOTER_HEADING_COLOR || '#ffffff');
   const [footerDescription, setFooterDescription] = useState(initialSettings.FOOTER_DESCRIPTION || 'Unsere Verpflichtungen...');
   const [footerShowAddress, setFooterShowAddress] = useState(initialSettings.FOOTER_SHOW_ADDRESS !== 'false');
   const [footerShowEmail, setFooterShowEmail] = useState(initialSettings.FOOTER_SHOW_EMAIL !== 'false');
@@ -51,6 +52,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
     await updateSettingsBatch({
       FOOTER_BG_COLOR: footerBgColor,
       FOOTER_TEXT_COLOR: footerTextColor,
+      FOOTER_HEADING_COLOR: footerHeadingColor,
       FOOTER_DESCRIPTION: footerDescription,
       FOOTER_SHOW_ADDRESS: footerShowAddress.toString(),
       FOOTER_SHOW_EMAIL: footerShowEmail.toString(),
@@ -79,14 +81,36 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
       {message && <div className="bg-green-50 text-green-700 p-4 rounded-md border border-green-200">{message}</div>}
 
       <div className="space-y-6 pt-4 border-t border-gray-100">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">{tSettings('bg_color_label') || 'Background Color'}</label>
-            <div className="relative w-10 h-10">  <input type="color" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />  <div className="w-10 h-10 rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: footerBgColor }} /></div>
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <input type="color" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                <div className="w-10 h-10 rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: footerBgColor }} />
+              </div>
+              <span className="text-xs text-gray-500 font-mono uppercase">{footerBgColor}</span>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">{tSettings('text_color_label') || 'Text Color'}</label>
-            <div className="relative w-10 h-10">  <input type="color" value={footerTextColor} onChange={(e) => setFooterTextColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />  <div className="w-10 h-10 rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: footerTextColor }} /></div>
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <input type="color" value={footerTextColor} onChange={(e) => setFooterTextColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                <div className="w-10 h-10 rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: footerTextColor }} />
+              </div>
+              <span className="text-xs text-gray-500 font-mono uppercase">{footerTextColor}</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{tSettings('heading_color_label') || 'Couleur des titres'}</label>
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <input type="color" value={footerHeadingColor} onChange={(e) => setFooterHeadingColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                <div className="w-10 h-10 rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: footerHeadingColor }} />
+              </div>
+              <span className="text-xs text-gray-500 font-mono uppercase">{footerHeadingColor}</span>
+            </div>
           </div>
         </div>
         

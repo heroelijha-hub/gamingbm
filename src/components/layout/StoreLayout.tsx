@@ -22,6 +22,7 @@ type StoreLayoutProps = {
     adminDashboardText?: string;
     footerBgColor: string;
     footerTextColor: string;
+    footerHeadingColor?: string;
     footerAddress1: string;
     footerAddress2: string;
     footerLocationsTitle: string;
@@ -136,6 +137,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
         supportEmail={settings.supportEmail} 
         footerBgColor={settings.footerBgColor}
         footerTextColor={settings.footerTextColor}
+        footerHeadingColor={settings.footerHeadingColor}
         footerAddress1={settings.footerAddress1}
         footerAddress2={settings.footerAddress2}
         footerLocationsTitle={settings.footerLocationsTitle}

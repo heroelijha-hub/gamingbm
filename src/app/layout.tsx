@@ -144,6 +144,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     topBarTextColor: settingsMap.TOP_BAR_TEXT_COLOR || '#4b5563',
     footerBgColor: settingsMap.FOOTER_BG_COLOR || '#0B162C',
     footerTextColor: settingsMap.FOOTER_TEXT_COLOR || '#d1d5db',
+    footerHeadingColor: settingsMap.FOOTER_HEADING_COLOR || '#ffffff',
     footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? '2972 Westheimer Rd. Illinois 85486',
     footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? '17 Princess Road, London, Greater London NW1 8JR, UK',
     footerLocationsTitle: settingsMap.FOOTER_LOCATIONS_TITLE || 'Our Locations',
