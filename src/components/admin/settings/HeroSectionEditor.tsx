@@ -12,7 +12,8 @@ interface HeroSectionEditorProps {
 }
 
 export default function HeroSectionEditor({ section, previewMode, updateSectionSettings, handleUpload, editingBlockNum }: HeroSectionEditorProps) {
-  const isStyle2 = section.settings.HERO_LAYOUT === 'STYLE_2';
+  // If not set, default is Style 2 (3 blocks with slider)
+  const isStyle2 = section.settings.HERO_LAYOUT !== 'STYLE_1';
   const totalBlocks = isStyle2 ? 3 : 4;
   
   const [activeBlock, setActiveBlock] = useState<number>(editingBlockNum || 0);
@@ -166,6 +167,26 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
                   <button type="button" onClick={() => handleUpload(section.id, 'STYLE2_HERO_1_SLIDE2_IMAGE')} className="flex flex-col items-center text-gray-500 hover:text-gray-600 transition">
                     <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
                     <span className="text-xs font-medium">Add Slide 2 Image</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Slide 2 Background Image (Optional)</label>
+              <div className="border-2 border-dashed border-gray-200 bg-gray-50 rounded-xl p-4 flex flex-col items-center justify-center relative min-h-[120px] transition hover:bg-gray-100">
+                {section.settings['STYLE2_HERO_1_SLIDE2_BG_IMAGE'] ? (
+                  <>
+                    <Image width={800} height={800} src={section.settings['STYLE2_HERO_1_SLIDE2_BG_IMAGE']} className="absolute inset-0 w-full h-full object-cover rounded-xl opacity-60" alt="" />
+                    <div className="relative z-10 flex gap-2">
+                      <button type="button" onClick={() => handleUpload(section.id, 'STYLE2_HERO_1_SLIDE2_BG_IMAGE')} className="bg-white text-gray-700 px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm border">Edit</button>
+                      <button type="button" onClick={() => updateSectionSettings(section.id, 'STYLE2_HERO_1_SLIDE2_BG_IMAGE', '')} className="bg-red-500 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm">Remove</button>
+                    </div>
+                  </>
+                ) : (
+                  <button type="button" onClick={() => handleUpload(section.id, 'STYLE2_HERO_1_SLIDE2_BG_IMAGE')} className="flex flex-col items-center text-gray-500 hover:text-gray-600 transition">
+                    <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
+                    <span className="text-xs font-medium">Add Slide 2 Background Image</span>
                   </button>
                 )}
               </div>

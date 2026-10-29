@@ -310,8 +310,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         <div>
           {/* Subtitle / Sale Offer */}
           <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
-            {settings.STYLE2_HERO_1_SUBTITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE) }} />
+            {settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE) }} />
             ) : (
               <span>Sale Offer <span className="text-[#e01b1b] font-bold">Black Friday</span> This Week</span>
             )}
@@ -319,8 +319,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
           {/* Big Title */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-6">
-            {settings.STYLE2_HERO_1_TITLE ? (
-              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE) }} />
+            {settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE ? (
+              <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE) }} />
             ) : (
               <>Work Desk<br />Surface Studio 2018</>
             )}
@@ -328,25 +328,25 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
           {/* Price */}
           <div className="text-lg md:text-xl text-gray-700 font-medium mb-8">
-            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_PRICE || '$824.00'}</span>
+            Starting at <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">{settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '$824.00'}</span>
           </div>
         </div>
 
         {/* Yellow Button */}
         <div>
           <Link 
-            href={settings.STYLE2_HERO_1_LINK || '/shop'} 
+            href={settings.STYLE2_HERO_1_LINK || settings.HERO_1_LINK || '/shop'} 
             className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all text-xs tracking-wider uppercase cursor-pointer"
           >
-            {settings.STYLE2_HERO_1_CTA || 'SHOP NOW'}
+            {settings.STYLE2_HERO_1_CTA || settings.HERO_1_CTA || 'SHOP NOW'}
           </Link>
         </div>
       </div>
 
       {/* Hero 1 Image */}
-      {settings.STYLE2_HERO_1_IMAGE && settings.STYLE2_HERO_1_SHOW_IMAGE !== 'false' && (
+      {(settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE) && (settings.STYLE2_HERO_1_SHOW_IMAGE !== 'false' && settings.HERO_1_SHOW_IMAGE !== 'false') && (
         <Image 
-          src={settings.STYLE2_HERO_1_IMAGE} 
+          src={settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE} 
           alt="Hero Product" 
           width={800} 
           height={800} 
