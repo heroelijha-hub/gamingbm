@@ -286,17 +286,22 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
   const isStyle2 = settings.HERO_LAYOUT !== 'STYLE_1';
 
+  const block1Slide1BgImage = settings.STYLE2_HERO_1_BG_IMAGE || settings.HERO_1_BG_IMAGE;
+  const block1Slide1ShowBg = settings.STYLE2_HERO_1_SHOW_BG_IMAGE !== 'false' && settings.HERO_1_SHOW_BG_IMAGE !== 'false';
+  const block1Slide1BgOverlay = settings.STYLE2_HERO_1_BG_OVERLAY || settings.HERO_1_BG_OVERLAY || '0';
+  const block1Slide1BgColor = settings.STYLE2_HERO_1_BG_COLOR || settings.HERO_1_BG_COLOR || '#f8f9fa';
+
   const block1Slide1Style2 = (
     <div 
       className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_1_BG_COLOR || '#f8f9fa',
+        backgroundColor: block1Slide1BgColor,
       }}
     >
-      {settings.STYLE2_HERO_1_BG_IMAGE && settings.STYLE2_HERO_1_SHOW_BG_IMAGE !== 'false' && (
+      {block1Slide1BgImage && block1Slide1ShowBg && (
         <>
-          <Image src={settings.STYLE2_HERO_1_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_1_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={block1Slide1BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block1Slide1BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
 
@@ -427,17 +432,22 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     />
   );
 
+  const block2BgImage = settings.STYLE2_HERO_2_BG_IMAGE || settings.HERO_2_BG_IMAGE;
+  const block2ShowBg = settings.STYLE2_HERO_2_SHOW_BG_IMAGE !== 'false' && settings.HERO_2_SHOW_BG_IMAGE !== 'false';
+  const block2BgOverlay = settings.STYLE2_HERO_2_BG_OVERLAY || settings.HERO_2_BG_OVERLAY || '0';
+  const block2BgColor = settings.STYLE2_HERO_2_BG_COLOR || settings.HERO_2_BG_COLOR || '#f8f9fa';
+
   const block2Style2 = (
     <div 
       className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_2_BG_COLOR || '#f8f9fa',
+        backgroundColor: block2BgColor,
       }}
     >
-      {settings.STYLE2_HERO_2_BG_IMAGE && settings.STYLE2_HERO_2_SHOW_BG_IMAGE !== 'false' && (
+      {block2BgImage && block2ShowBg && (
         <>
-          <Image src={settings.STYLE2_HERO_2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_2_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={block2BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block2BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
 
@@ -462,17 +472,22 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     </div>
   );
 
+  const block3BgImage = settings.STYLE2_HERO_3_BG_IMAGE || settings.HERO_3_BG_IMAGE;
+  const block3ShowBg = settings.STYLE2_HERO_3_SHOW_BG_IMAGE !== 'false' && settings.HERO_3_SHOW_BG_IMAGE !== 'false';
+  const block3BgOverlay = settings.STYLE2_HERO_3_BG_OVERLAY || settings.HERO_3_BG_OVERLAY || '0';
+  const block3BgColor = settings.STYLE2_HERO_3_BG_COLOR || settings.HERO_3_BG_COLOR || '#f8f9fa';
+
   const block3Style2 = (
     <div 
       className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
       style={{
-        backgroundColor: settings.STYLE2_HERO_3_BG_COLOR || '#f8f9fa',
+        backgroundColor: block3BgColor,
       }}
     >
-      {settings.STYLE2_HERO_3_BG_IMAGE && settings.STYLE2_HERO_3_SHOW_BG_IMAGE !== 'false' && (
+      {block3BgImage && block3ShowBg && (
         <>
-          <Image src={settings.STYLE2_HERO_3_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
-          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_3_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
+          <Image src={block3BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block3BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
 
