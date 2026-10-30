@@ -247,6 +247,25 @@ export default function Header({
           <span>{announcement && announcement !== 'Welcome to My Store' ? announcement : 'Telephone Enquiry: 123456789'}</span>
         </div>
         <div className="flex items-center space-x-6 text-xs">
+          {topBarLinks && topBarLinks.length > 0 && (
+            <div className="hidden lg:flex items-center space-x-5">
+              {topBarLinks.map((link, idx) => (
+                <Link 
+                  key={idx} 
+                  href={link.url} 
+                  className="flex items-center hover:opacity-75 transition font-medium"
+                >
+                  {renderIcon(link.icon)}
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {topBarLinks && topBarLinks.length > 0 && (
+            <div className="hidden lg:block h-3 w-px bg-gray-300"></div>
+          )}
+
           {/* Currency dropdown placeholder / selector */}
           <div className="flex items-center space-x-1 cursor-pointer hover:text-gray-900 transition">
             <span>Currency:</span>
@@ -303,7 +322,7 @@ export default function Header({
           <form onSubmit={handleSearchSubmit} className="flex items-center w-full rounded-md border border-gray-300 bg-white h-11 relative z-20 focus-within:border-gray-400 shadow-sm">
             <input 
               type="text" 
-              placeholder={searchPlaceholder === 'Search products...' ? 'Search entire store here...' : searchPlaceholder} 
+              placeholder={searchPlaceholder || t('search_placeholder')} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => { if (searchQuery.length > 1) setShowSearchResults(true); }}
