@@ -423,9 +423,32 @@ export default function Header({
             </span>
 
             {/* Trash/Bag icon */}
-            <div className="mr-3">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            <div className="mr-3 flex items-center justify-center">
+              <svg 
+                className="w-5 h-5 text-white" 
+                viewBox="0 0 64 64" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Anses du panier en diagonale */}
+                <path d="M18 10 L30 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                <path d="M46 10 L34 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                
+                {/* Rebord supérieur arrondi du panier */}
+                <rect x="6" y="22" width="52" height="7" rx="3.5" fill="currentColor" />
+                
+                {/* Corps trapézoïdal du panier */}
+                <path 
+                  d="M10 29 L15 54 C15.4 56.2 17.3 58 19.5 58 L44.5 58 C46.7 58 48.6 56.2 49 54 L54 29 Z" 
+                  fill="currentColor" 
+                />
+                
+                {/* Les 5 fentes verticales blanches caractéristiques */}
+                <rect x="18" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                <rect x="25" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                <rect x="32" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                <rect x="39" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                <rect x="46" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
               </svg>
             </div>
 

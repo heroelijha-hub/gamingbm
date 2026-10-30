@@ -81,9 +81,15 @@ export default function NotificationBell({ isAdmin = false, userId }: Notificati
         setIsOpen(false);
       }
     };
-    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      // Automatically mark all unread notifications as read when the user opens the notification panel
+      if (unreadCount > 0) {
+        handleMarkAllAsRead();
+      }
+    }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, unreadCount]);
 
   const handleMarkAsRead = async (id: string) => {
     await markAsRead(id);
@@ -129,7 +135,11 @@ export default function NotificationBell({ isAdmin = false, userId }: Notificati
             ) : (
               <ul className="divide-y divide-gray-100">
                 {notifications.map(n => (
-                  <li key={n.id} className={`p-4 transition ${n.isRead ? 'bg-white' : 'bg-orange-50/50'}`}>
+                  <li 
+                    key={n.id} 
+                    onClick={() => { if (!n.isRead) handleMarkAsRead(n.id); }}
+                    className={`p-4 transition cursor-pointer ${n.isRead ? 'bg-white hover:bg-gray-50' : 'bg-orange-50/60 hover:bg-orange-50'}`}
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -145,7 +155,11 @@ export default function NotificationBell({ isAdmin = false, userId }: Notificati
                         {n.link && (
                           <Link
                             href={n.link}
-                            onClick={() => { if (!n.isRead) handleMarkAsRead(n.id); setIsOpen(false); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!n.isRead) handleMarkAsRead(n.id);
+                              setIsOpen(false);
+                            }}
                             className="text-xs text-orange-700 hover:underline mt-2 inline-block font-medium"
                           >
                             {t('view_details')} &rarr;
@@ -154,7 +168,10 @@ export default function NotificationBell({ isAdmin = false, userId }: Notificati
                       </div>
                       {!n.isRead && (
                         <button
-                          onClick={() => handleMarkAsRead(n.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkAsRead(n.id);
+                          }}
                           className="w-2 h-2 rounded-full bg-orange-600 mt-1 ml-3 flex-shrink-0"
                           title={t('mark_all_read')}
                         />
