@@ -165,7 +165,9 @@ export default function DeliveryTracker({
     : [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Colonne gauche : Automatisches Tracking + Versandinformationen empilés l'un sous l'autre */}
+      <div className="space-y-6">
 
       {/* ══════════════════════════════════════════════════
           SECTION 1 — MODE AUTOMATIQUE "EN PRÉPARATION"
@@ -348,6 +350,8 @@ export default function DeliveryTracker({
             {loadingBase ? t('saving') : t('save')}
           </button>
         </form>
+      </div>
+
       </div>
 
       {/* ══════════════════════════════════════════════════
