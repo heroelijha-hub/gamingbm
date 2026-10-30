@@ -518,80 +518,137 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     </div>
   );
 
-  // Style 2: Mobile / Tablet visibility flags
-  const showBlock1Style2 = settings.STYLE2_HERO_1_HIDE_MOBILE !== 'true';
-  const showBlock2Style2 = settings.STYLE2_HERO_2_HIDE_MOBILE !== 'true';
-  const showBlock3Style2 = settings.STYLE2_HERO_3_HIDE_MOBILE !== 'true';
-  const hasSideBlocksStyle2 = showBlock2Style2 || showBlock3Style2;
+  // Style 2: Visibility flags per device breakpoint
+  const showBlock1DeskStyle2 = settings.STYLE2_HERO_1_HIDE_DESKTOP !== 'true';
+  const showBlock2DeskStyle2 = settings.STYLE2_HERO_2_HIDE_DESKTOP !== 'true';
+  const showBlock3DeskStyle2 = settings.STYLE2_HERO_3_HIDE_DESKTOP !== 'true';
+  const hasDeskSideBlocksStyle2 = showBlock2DeskStyle2 || showBlock3DeskStyle2;
+  const anyDeskBlockStyle2 = showBlock1DeskStyle2 || hasDeskSideBlocksStyle2;
 
-  const style2ChildCount = (showBlock1Style2 ? 1 : 0) + (hasSideBlocksStyle2 ? 1 : 0);
+  // Tablet flags
+  const showBlock1TabStyle2 = settings.STYLE2_HERO_1_HIDE_TABLET !== 'true';
+  const showBlock2TabStyle2 = settings.STYLE2_HERO_2_HIDE_TABLET !== 'true';
+  const showBlock3TabStyle2 = settings.STYLE2_HERO_3_HIDE_TABLET !== 'true';
 
-  // Style 1: Mobile / Tablet visibility flags
-  const showBlock1Style1 = settings.HERO_1_HIDE_MOBILE !== 'true';
-  const showBlock2Style1 = settings.HERO_2_HIDE_MOBILE !== 'true';
-  const showBlock3Style1 = settings.HERO_3_HIDE_MOBILE !== 'true';
-  const showBlock4Style1 = settings.HERO_4_HIDE_MOBILE !== 'true';
+  // Mobile flags (check HIDE_MOBILE or fallback to existing STYLE2_HERO_X_HIDE_MOBILE)
+  const showBlock1MobStyle2 = settings.STYLE2_HERO_1_HIDE_MOBILE !== 'true';
+  const showBlock2MobStyle2 = settings.STYLE2_HERO_2_HIDE_MOBILE !== 'true';
+  const showBlock3MobStyle2 = settings.STYLE2_HERO_3_HIDE_MOBILE !== 'true';
+
+  // Mobile / Tablet item count
+  const hasSideBlocksStyle2 = showBlock2MobStyle2 || showBlock3MobStyle2 || showBlock2TabStyle2 || showBlock3TabStyle2;
+  const style2ChildCount = (showBlock1MobStyle2 || showBlock1TabStyle2 ? 1 : 0) + (hasSideBlocksStyle2 ? 1 : 0);
+
+  // Style 1: Visibility flags per device breakpoint
+  const showBlock1DeskStyle1 = settings.HERO_1_HIDE_DESKTOP !== 'true';
+  const showBlock2DeskStyle1 = settings.HERO_2_HIDE_DESKTOP !== 'true';
+  const showBlock3DeskStyle1 = settings.HERO_3_HIDE_DESKTOP !== 'true';
+  const showBlock4DeskStyle1 = settings.HERO_4_HIDE_DESKTOP !== 'true';
+
+  const showBlock1TabStyle1 = settings.HERO_1_HIDE_TABLET !== 'true';
+  const showBlock2TabStyle1 = settings.HERO_2_HIDE_TABLET !== 'true';
+  const showBlock3TabStyle1 = settings.HERO_3_HIDE_TABLET !== 'true';
+  const showBlock4TabStyle1 = settings.HERO_4_HIDE_TABLET !== 'true';
+
+  const showBlock1MobStyle1 = settings.HERO_1_HIDE_MOBILE !== 'true';
+  const showBlock2MobStyle1 = settings.HERO_2_HIDE_MOBILE !== 'true';
+  const showBlock3MobStyle1 = settings.HERO_3_HIDE_MOBILE !== 'true';
+  const showBlock4MobStyle1 = settings.HERO_4_HIDE_MOBILE !== 'true';
 
   return (
     <section className="max-w-7xl mx-auto px-4 w-full py-6 font-sans">
       {/* DESKTOP VIEW */}
       {isStyle2 ? (
-        <div className="hidden lg:grid grid-cols-12 gap-6 h-[600px]">
-          <div className="col-span-8 h-full">
-            {block1Style2}
+        anyDeskBlockStyle2 && (
+          <div className="hidden lg:grid grid-cols-12 gap-6 h-[600px]">
+            {showBlock1DeskStyle2 && (
+              <div className={`${hasDeskSideBlocksStyle2 ? 'col-span-8' : 'col-span-12'} h-full`}>
+                {block1Style2}
+              </div>
+            )}
+            {hasDeskSideBlocksStyle2 && (
+              <div className={`${showBlock1DeskStyle2 ? 'col-span-4' : 'col-span-12'} flex flex-col gap-6 h-full`}>
+                {showBlock2DeskStyle2 && (
+                  <div className={showBlock3DeskStyle2 ? 'h-[48%]' : 'h-full'}>
+                    {block2Style2}
+                  </div>
+                )}
+                {showBlock3DeskStyle2 && (
+                  <div className={`${showBlock2DeskStyle2 ? 'h-[48%] mt-auto' : 'h-full'}`}>
+                    {block3Style2}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <div className="col-span-4 flex flex-col gap-6 h-full">
-            <div className="h-[48%]">
-              {block2Style2}
-            </div>
-            <div className="h-[48%] mt-auto">
-              {block3Style2}
-            </div>
-          </div>
-        </div>
+        )
       ) : (
         <div className="hidden lg:grid grid-cols-12 gap-6 h-[600px]">
-          <div className="col-span-4 h-full">
-            {block1}
-          </div>
-          <div className="col-span-8 flex flex-col gap-6 h-full">
-            <div className="grid grid-cols-2 gap-6 h-[50%]">
-              {block2}
-              {block3}
+          {showBlock1DeskStyle1 && (
+            <div className={`${(showBlock2DeskStyle1 || showBlock3DeskStyle1 || showBlock4DeskStyle1) ? 'col-span-4' : 'col-span-12'} h-full`}>
+              {block1}
             </div>
-            <div className="h-[50%]">
-              {block4}
+          )}
+          {(showBlock2DeskStyle1 || showBlock3DeskStyle1 || showBlock4DeskStyle1) && (
+            <div className={`${showBlock1DeskStyle1 ? 'col-span-8' : 'col-span-12'} flex flex-col gap-6 h-full`}>
+              {(showBlock2DeskStyle1 || showBlock3DeskStyle1) && (
+                <div className={`grid ${showBlock2DeskStyle1 && showBlock3DeskStyle1 ? 'grid-cols-2' : 'grid-cols-1'} gap-6 ${showBlock4DeskStyle1 ? 'h-[50%]' : 'h-full'}`}>
+                  {showBlock2DeskStyle1 && block2}
+                  {showBlock3DeskStyle1 && block3}
+                </div>
+              )}
+              {showBlock4DeskStyle1 && (
+                <div className={(showBlock2DeskStyle1 || showBlock3DeskStyle1) ? 'h-[50%]' : 'h-full'}>
+                  {block4}
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       )}
 
       {/* MOBILE / TABLET VIEW (AutoSlider) */}
       {isStyle2 ? (
         <HeroMobileSliderWrapper childCount={style2ChildCount}>
-          {showBlock1Style2 && (
-            <div className="w-full h-full flex-shrink-0 snap-center relative">
+          {(showBlock1MobStyle2 || showBlock1TabStyle2) && (
+            <div className={`w-full h-full flex-shrink-0 snap-center relative ${!showBlock1MobStyle2 ? 'hidden md:block' : !showBlock1TabStyle2 ? 'block md:hidden' : ''}`}>
               {block1Style2}
             </div>
           )}
           {hasSideBlocksStyle2 && (
             <div className="w-full h-full flex-shrink-0 snap-center relative flex flex-col gap-4">
-              {showBlock2Style2 && <div className="flex-1 min-h-[250px]">{block2Style2}</div>}
-              {showBlock3Style2 && <div className="flex-1 min-h-[250px]">{block3Style2}</div>}
+              {(showBlock2MobStyle2 || showBlock2TabStyle2) && (
+                <div className={`flex-1 min-h-[250px] ${!showBlock2MobStyle2 ? 'hidden md:block' : !showBlock2TabStyle2 ? 'block md:hidden' : ''}`}>
+                  {block2Style2}
+                </div>
+              )}
+              {(showBlock3MobStyle2 || showBlock3TabStyle2) && (
+                <div className={`flex-1 min-h-[250px] ${!showBlock3MobStyle2 ? 'hidden md:block' : !showBlock3TabStyle2 ? 'block md:hidden' : ''}`}>
+                  {block3Style2}
+                </div>
+              )}
             </div>
           )}
         </HeroMobileSliderWrapper>
       ) : (
         <HeroMobileSliderWrapper childCount={[
-          showBlock1Style1,
-          showBlock2Style1,
-          showBlock3Style1,
-          showBlock4Style1
+          (showBlock1MobStyle1 || showBlock1TabStyle1),
+          (showBlock2MobStyle1 || showBlock2TabStyle1),
+          (showBlock3MobStyle1 || showBlock3TabStyle1),
+          (showBlock4MobStyle1 || showBlock4TabStyle1)
         ].filter(Boolean).length}>
-          {showBlock1Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block1}</div>}
-          {showBlock2Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block2}</div>}
-          {showBlock3Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block3}</div>}
-          {showBlock4Style1 && <div className="w-full h-full flex-shrink-0 snap-center relative">{block4}</div>}
+          {(showBlock1MobStyle1 || showBlock1TabStyle1) && (
+            <div className={`w-full h-full flex-shrink-0 snap-center relative ${!showBlock1MobStyle1 ? 'hidden md:block' : !showBlock1TabStyle1 ? 'block md:hidden' : ''}`}>{block1}</div>
+          )}
+          {(showBlock2MobStyle1 || showBlock2TabStyle1) && (
+            <div className={`w-full h-full flex-shrink-0 snap-center relative ${!showBlock2MobStyle1 ? 'hidden md:block' : !showBlock2TabStyle1 ? 'block md:hidden' : ''}`}>{block2}</div>
+          )}
+          {(showBlock3MobStyle1 || showBlock3TabStyle1) && (
+            <div className={`w-full h-full flex-shrink-0 snap-center relative ${!showBlock3MobStyle1 ? 'hidden md:block' : !showBlock3TabStyle1 ? 'block md:hidden' : ''}`}>{block3}</div>
+          )}
+          {(showBlock4MobStyle1 || showBlock4TabStyle1) && (
+            <div className={`w-full h-full flex-shrink-0 snap-center relative ${!showBlock4MobStyle1 ? 'hidden md:block' : !showBlock4TabStyle1 ? 'block md:hidden' : ''}`}>{block4}</div>
+          )}
         </HeroMobileSliderWrapper>
       )}
     </section>

@@ -25,6 +25,27 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
     }
   }, [editingBlockNum]);
 
+  // Determine visibility for active block or main section
+  const currentDeviceKey = previewMode.toUpperCase(); // 'DESKTOP' | 'TABLET' | 'MOBILE'
+  const activePrefix = isStyle2 ? `STYLE2_HERO_${activeBlock}` : `HERO_${activeBlock}`;
+  const blockHideKey = `${activePrefix}_HIDE_${currentDeviceKey}`;
+  // For backwards compatibility on mobile, also check STYLE2_HERO_X_HIDE_MOBILE
+  const isBlockHiddenOnCurrentDevice = activeBlock > 0
+    ? (section.settings[blockHideKey] === 'true' || (previewMode === 'mobile' && section.settings[`${activePrefix}_HIDE_MOBILE`] === 'true'))
+    : false;
+
+  const toggleActiveBlockVisibility = () => {
+    if (activeBlock === 0) return;
+    const nextHidden = !isBlockHiddenOnCurrentDevice;
+    const updates: Record<string, string> = {
+      [blockHideKey]: nextHidden ? 'true' : 'false'
+    };
+    if (previewMode === 'mobile') {
+      updates[`${activePrefix}_HIDE_MOBILE`] = nextHidden ? 'true' : 'false';
+    }
+    updateSectionSettings(section.id, updates);
+  };
+
   const renderContentInput = (label: string, baseKey: string, placeholder: string) => {
     return (
       <div className="mb-4">
@@ -439,12 +460,36 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
             {activeBlock === 0 ? 'Main Header' : `Block ${activeBlock}`}
           </h2>
         </div>
-        <button type="button" className="text-green-600 hover:text-green-800 transition bg-green-50 p-1.5 rounded-full">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        </button>
+        {activeBlock > 0 ? (
+          <button 
+            type="button" 
+            onClick={toggleActiveBlockVisibility}
+            title={isBlockHiddenOnCurrentDevice ? `Show Block ${activeBlock} on ${previewMode}` : `Hide Block ${activeBlock} on ${previewMode}`}
+            className={`transition p-1.5 rounded-full flex items-center justify-center ${
+              isBlockHiddenOnCurrentDevice 
+                ? 'text-gray-400 bg-gray-100 hover:bg-gray-200' 
+                : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100'
+            }`}
+          >
+            {isBlockHiddenOnCurrentDevice ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
+        ) : (
+          <div className="text-green-600 bg-green-50 p-1.5 rounded-full">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </div>
+        )}
       </div>
 
       <div className="p-5 lg:p-6 bg-gray-50/30 min-h-[500px]">
@@ -478,23 +523,65 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
               </div>
             </div>
 
-            {/* Mobile Display */}
+            {/* Device Display Settings */}
             <div>
-              <h3 className="font-bold text-sm text-gray-800 mb-3">Mobile display</h3>
+              <h3 className="font-bold text-sm text-gray-800 mb-3 flex items-center justify-between">
+                <span>Display by Device</span>
+                <span className="text-xs font-normal text-gray-500 capitalize">Active mode: {previewMode}</span>
+              </h3>
               <div className="flex flex-col gap-2">
                 {Array.from({ length: totalBlocks }).map((_, i) => {
                   const num = i + 1;
-                  const mobileHideKey = isStyle2 ? `STYLE2_HERO_${num}_HIDE_MOBILE` : `HERO_${num}_HIDE_MOBILE`;
+                  const prefix = isStyle2 ? `STYLE2_HERO_${num}` : `HERO_${num}`;
+                  
+                  const isHiddenDesk = section.settings[`${prefix}_HIDE_DESKTOP`] === 'true';
+                  const isHiddenTab = section.settings[`${prefix}_HIDE_TABLET`] === 'true';
+                  const isHiddenMob = section.settings[`${prefix}_HIDE_MOBILE`] === 'true';
+
                   return (
-                    <label key={num} className="flex items-center justify-between space-x-2 text-sm text-gray-700 cursor-pointer bg-white px-4 py-3 rounded-xl border border-gray-200 hover:border-gray-300 transition shadow-sm hover:shadow">
-                      <span className="font-medium">Block {num}</span>
-                      <input 
-                        type="checkbox" 
-                        checked={section.settings[mobileHideKey] !== 'true'} 
-                        onChange={e => updateSectionSettings(section.id, mobileHideKey, e.target.checked ? 'false' : 'true')}
-                        className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                      />
-                    </label>
+                    <div key={num} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between gap-3">
+                      <span className="font-medium text-sm text-gray-700">Block {num}</span>
+                      <div className="flex items-center gap-1.5">
+                        {/* Desktop toggle */}
+                        <button
+                          type="button"
+                          onClick={() => updateSectionSettings(section.id, `${prefix}_HIDE_DESKTOP`, isHiddenDesk ? 'false' : 'true')}
+                          title={isHiddenDesk ? 'Desktop: Hidden (click to show)' : 'Desktop: Visible (click to hide)'}
+                          className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition ${
+                            !isHiddenDesk ? 'bg-green-50 border-green-200 text-green-700 font-semibold' : 'bg-gray-100 border-gray-200 text-gray-400 line-through'
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                          <span className="hidden sm:inline">Desktop</span>
+                        </button>
+
+                        {/* Tablet toggle */}
+                        <button
+                          type="button"
+                          onClick={() => updateSectionSettings(section.id, `${prefix}_HIDE_TABLET`, isHiddenTab ? 'false' : 'true')}
+                          title={isHiddenTab ? 'Tablet: Hidden (click to show)' : 'Tablet: Visible (click to hide)'}
+                          className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition ${
+                            !isHiddenTab ? 'bg-green-50 border-green-200 text-green-700 font-semibold' : 'bg-gray-100 border-gray-200 text-gray-400 line-through'
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                          <span className="hidden sm:inline">Tablet</span>
+                        </button>
+
+                        {/* Mobile toggle */}
+                        <button
+                          type="button"
+                          onClick={() => updateSectionSettings(section.id, `${prefix}_HIDE_MOBILE`, isHiddenMob ? 'false' : 'true')}
+                          title={isHiddenMob ? 'Mobile: Hidden (click to show)' : 'Mobile: Visible (click to hide)'}
+                          className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition ${
+                            !isHiddenMob ? 'bg-green-50 border-green-200 text-green-700 font-semibold' : 'bg-gray-100 border-gray-200 text-gray-400 line-through'
+                          }`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                          <span className="hidden sm:inline">Mobile</span>
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

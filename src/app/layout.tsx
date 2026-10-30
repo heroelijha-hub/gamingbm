@@ -7,6 +7,7 @@ import { defaultCurrencyOptions } from "@/lib/formatPrice";
 import DeferredWidgets from "@/components/layout/DeferredWidgets";
 import StoreLayout from "@/components/layout/StoreLayout";
 import ThemeProvider from "@/components/layout/ThemeProvider";
+import ZoomController from "@/components/layout/ZoomController";
 import GoogleAnalytics from '@/components/layout/GoogleAnalytics';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
@@ -251,6 +252,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
         <ThemeProvider themeColor={settingsMap.THEME_COLOR || '#c2410c'} />
+        <ZoomController />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <PostHogProvider>
             <CurrencyProvider options={currencyOptions}>

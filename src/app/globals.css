@@ -4,6 +4,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  zoom: 0.9;
 }
 
 @theme inline {
