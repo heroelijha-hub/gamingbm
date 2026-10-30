@@ -30,18 +30,21 @@ export default function HeroBlockSlider({ slide1, slide2, autoSlideInterval = 50
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {slides.map((slide, idx) => (
-        <div
-          key={idx}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
-            idx === currentIndex 
-              ? 'opacity-100 pointer-events-auto z-10' 
-              : 'opacity-0 pointer-events-none z-0'
-          }`}
-        >
-          {slide}
-        </div>
-      ))}
+      {slides.map((slide, idx) => {
+        const isCurrent = idx === currentIndex;
+        return (
+          <div
+            key={idx}
+            className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out ${
+              isCurrent 
+                ? 'opacity-100 scale-100 pointer-events-auto z-10' 
+                : 'opacity-0 scale-98 pointer-events-none z-0'
+            }`}
+          >
+            {isCurrent && slide}
+          </div>
+        );
+      })}
 
       {/* Dots navigation */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-30">

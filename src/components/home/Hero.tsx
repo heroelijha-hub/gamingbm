@@ -10,11 +10,11 @@ import { basicSanitizeHtml } from '@/lib/security';
 export default async function Hero({ config, isPreview, sectionId }: { config?: any, isPreview?: boolean, sectionId?: string }) {
   const settingsDb = await prisma.setting.findMany();
   let settings = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-  
+
   if (config) {
     settings = { ...settings, ...config };
   }
-  
+
   const t = await getTranslations('Home');
 
   const getResponsiveVars = (baseKey: string, defaultSizes: { m: string, t: string, d: string }) => {
@@ -23,11 +23,11 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       '--sz-t': settings[`${baseKey}_SIZE_TABLET`] || defaultSizes.t,
       '--sz-d': settings[`${baseKey}_SIZE_DESKTOP`] || defaultSizes.d,
     };
-    
+
     if (settings[`${baseKey}_LINE_HEIGHT_MOBILE`]) vars['--lh-m'] = settings[`${baseKey}_LINE_HEIGHT_MOBILE`];
     if (settings[`${baseKey}_LINE_HEIGHT_TABLET`]) vars['--lh-t'] = settings[`${baseKey}_LINE_HEIGHT_TABLET`];
     if (settings[`${baseKey}_LINE_HEIGHT_DESKTOP`]) vars['--lh-d'] = settings[`${baseKey}_LINE_HEIGHT_DESKTOP`];
-    
+
     if (settings[`${baseKey}_LETTER_SPACING_MOBILE`]) vars['--ls-m'] = settings[`${baseKey}_LETTER_SPACING_MOBILE`];
     if (settings[`${baseKey}_LETTER_SPACING_TABLET`]) vars['--ls-t'] = settings[`${baseKey}_LETTER_SPACING_TABLET`];
     if (settings[`${baseKey}_LETTER_SPACING_DESKTOP`]) vars['--ls-d'] = settings[`${baseKey}_LETTER_SPACING_DESKTOP`];
@@ -81,7 +81,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
   const getBadgeStyle = (prefix: string, colorKey: string, defaultColor: string) => {
     const style = settings[`${prefix}_BADGE_STYLE`] || 'light';
-    const baseStyle: any = { ...getResponsiveVars(`${prefix}_SUBTITLE`, {m: '10px', t: '12px', d: '12px'}), color: settings[colorKey] || defaultColor };
+    const baseStyle: any = { ...getResponsiveVars(`${prefix}_SUBTITLE`, { m: '10px', t: '12px', d: '12px' }), color: settings[colorKey] || defaultColor };
     if (style === 'custom') {
       baseStyle.backgroundColor = settings[`${prefix}_BADGE_BG`] || '#ffffff';
     }
@@ -96,13 +96,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   };
 
   const block1 = (
-    <div 
+    <div
       className={`rounded-2xl overflow-hidden relative p-8 sm:p-10 flex-col h-full min-h-[400px] lg:min-h-0 border border-gray-100/10 group flex w-full shadow-lg ${getAlignFlexClass('HERO_1', 'center')} ${getVerticalAlignClass('HERO_1', 'bottom')}`}
       style={{
         backgroundColor: settings.HERO_1_BG_COLOR || '#111827',
       }}
     >
-      
+
       {settings.HERO_1_BG_IMAGE && settings.HERO_1_SHOW_BG_IMAGE !== 'false' && (
         <>
           <Image src={settings.HERO_1_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
@@ -112,30 +112,30 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       <div className={`z-10 relative flex flex-col w-full max-w-md ${getMarginClass('HERO_1', 'bottom')} ${getAlignFlexClass('HERO_1', 'center')}`}>
         {settings.HERO_1_SUBTITLE && (
-          <span 
+          <span
             className={getBadgeClasses('HERO_1')}
             style={getBadgeStyle('HERO_1', 'HERO_1_SUBTITLE_COLOR', '#e11d48')}
             dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_1_SUBTITLE) }}
           />
         )}
-        <h1 
-          className="font-extrabold tracking-tight mb-4 text-responsive drop-shadow-md" 
-          style={{...getResponsiveVars('HERO_1_TITLE', {m: '28px', t: '32px', d: '38px'}), color: settings.HERO_1_TEXT_COLOR || '#ffffff', lineHeight: '1.2'}}
+        <h1
+          className="font-extrabold tracking-tight mb-4 text-responsive drop-shadow-md"
+          style={{ ...getResponsiveVars('HERO_1_TITLE', { m: '28px', t: '32px', d: '38px' }), color: settings.HERO_1_TEXT_COLOR || '#ffffff', lineHeight: '1.2' }}
           dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_1_TITLE || t('hero_1_title')) }}
         />
         {settings.HERO_1_PRICE && (
-          <p 
-            className={getBadgeClasses('HERO_1', 'price')} 
+          <p
+            className={getBadgeClasses('HERO_1', 'price')}
             style={getBadgeStyle('HERO_1', 'HERO_1_PRICE_COLOR', '#ffffff')}
           >
             {settings.HERO_1_PRICE}
           </p>
         )}
-        <Link 
-          href={settings.HERO_1_LINK || '/#'} 
+        <Link
+          href={settings.HERO_1_LINK || '/#'}
           className={`inline-block font-bold px-8 py-3.5 shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-xl text-responsive ring-1 ring-white/20 w-full sm:w-auto text-center ${getBtnRadiusClass('HERO_1')}`}
           style={{
-            ...getResponsiveVars('HERO_1_CTA', {m: '15px', t: '16px', d: '16px'}),
+            ...getResponsiveVars('HERO_1_CTA', { m: '15px', t: '16px', d: '16px' }),
             backgroundColor: settings.HERO_1_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_1_BTN_TEXT_COLOR || '#ffffff'
           }}
@@ -150,13 +150,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   );
 
   const block2 = (
-    <div 
+    <div
       className={`rounded-2xl overflow-hidden relative p-8 flex-col h-full min-h-[300px] lg:min-h-0 flex w-full group border border-gray-100/10 shadow-md ${getAlignFlexClass('HERO_2', 'left')} ${getVerticalAlignClass('HERO_2', 'bottom')}`}
       style={{
         backgroundColor: settings.HERO_2_BG_COLOR || '#1f2937',
       }}
     >
-      
+
       {settings.HERO_2_BG_IMAGE && settings.HERO_2_SHOW_BG_IMAGE !== 'false' && (
         <>
           <Image src={settings.HERO_2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
@@ -165,22 +165,22 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
       <div className={`z-20 w-[65%] sm:w-[55%] relative flex flex-col ${getMarginClass('HERO_2', 'bottom')} ${getAlignFlexClass('HERO_2', 'left')} ${getAlignSelfClass('HERO_2', 'left')}`}>
         {settings.HERO_2_SUBTITLE && (
-          <span 
+          <span
             className={getBadgeClasses('HERO_2')}
             style={getBadgeStyle('HERO_2', 'HERO_2_SUBTITLE_COLOR', '#fca5a5')}
             dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_2_SUBTITLE) }}
           />
         )}
-        <h2 
-          className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
-          style={{...getResponsiveVars('HERO_2_TITLE', {m: '22px', t: '24px', d: '26px'}), color: settings.HERO_2_TEXT_COLOR || '#ffffff'}}
+        <h2
+          className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md"
+          style={{ ...getResponsiveVars('HERO_2_TITLE', { m: '22px', t: '24px', d: '26px' }), color: settings.HERO_2_TEXT_COLOR || '#ffffff' }}
           dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_2_TITLE || t('hero_2_title')) }}
         />
-        <Link 
-          href={settings.HERO_2_LINK || '/#'} 
+        <Link
+          href={settings.HERO_2_LINK || '/#'}
           className={`inline-block font-bold px-6 py-2.5 shadow-md transition-all transform hover:-translate-y-1 hover:shadow-lg text-responsive ring-1 ring-white/10 text-center ${getBtnRadiusClass('HERO_2')} ${settings.HERO_2_ALIGN === 'right' ? 'self-end' : settings.HERO_2_ALIGN === 'center' ? 'self-center' : 'self-start'}`}
           style={{
-            ...getResponsiveVars('HERO_2_CTA', {m: '13px', t: '14px', d: '14px'}),
+            ...getResponsiveVars('HERO_2_CTA', { m: '13px', t: '14px', d: '14px' }),
             backgroundColor: settings.HERO_2_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_2_BTN_TEXT_COLOR || '#ffffff'
           }}
@@ -195,13 +195,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   );
 
   const block3 = (
-    <div 
+    <div
       className={`rounded-2xl overflow-hidden relative p-8 flex-col h-full min-h-[300px] lg:min-h-0 flex w-full group border border-gray-100/10 shadow-md ${getAlignFlexClass('HERO_3', 'left')} ${getVerticalAlignClass('HERO_3', 'bottom')}`}
       style={{
         backgroundColor: settings.HERO_3_BG_COLOR || '#1f2937',
       }}
     >
-      
+
       {settings.HERO_3_BG_IMAGE && settings.HERO_3_SHOW_BG_IMAGE !== 'false' && (
         <>
           <Image src={settings.HERO_3_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
@@ -210,22 +210,22 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
       <div className={`z-20 w-[65%] sm:w-[55%] relative flex flex-col ${getMarginClass('HERO_3', 'bottom')} ${getAlignFlexClass('HERO_3', 'left')} ${getAlignSelfClass('HERO_3', 'left')}`}>
         {settings.HERO_3_SUBTITLE && (
-          <span 
+          <span
             className={getBadgeClasses('HERO_3')}
             style={getBadgeStyle('HERO_3', 'HERO_3_SUBTITLE_COLOR', '#fca5a5')}
             dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_3_SUBTITLE) }}
           />
         )}
-        <h2 
-          className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
-          style={{...getResponsiveVars('HERO_3_TITLE', {m: '22px', t: '24px', d: '26px'}), color: settings.HERO_3_TEXT_COLOR || '#ffffff'}}
+        <h2
+          className="font-extrabold mb-5 leading-snug whitespace-pre-line text-responsive drop-shadow-md"
+          style={{ ...getResponsiveVars('HERO_3_TITLE', { m: '22px', t: '24px', d: '26px' }), color: settings.HERO_3_TEXT_COLOR || '#ffffff' }}
           dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_3_TITLE || t('hero_3_title')) }}
         />
-        <Link 
-          href={settings.HERO_3_LINK || '/#'} 
+        <Link
+          href={settings.HERO_3_LINK || '/#'}
           className={`inline-block font-bold px-6 py-2.5 shadow-md transition-all transform hover:-translate-y-1 hover:shadow-lg text-responsive ring-1 ring-white/10 text-center ${getBtnRadiusClass('HERO_3')} ${settings.HERO_3_ALIGN === 'right' ? 'self-end' : settings.HERO_3_ALIGN === 'center' ? 'self-center' : 'self-start'}`}
           style={{
-            ...getResponsiveVars('HERO_3_CTA', {m: '13px', t: '14px', d: '14px'}),
+            ...getResponsiveVars('HERO_3_CTA', { m: '13px', t: '14px', d: '14px' }),
             backgroundColor: settings.HERO_3_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_3_BTN_TEXT_COLOR || '#ffffff'
           }}
@@ -240,13 +240,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   );
 
   const block4 = (
-    <div 
+    <div
       className={`rounded-2xl overflow-hidden relative p-8 sm:p-10 flex-col h-full min-h-[300px] lg:min-h-0 border border-gray-100/10 group flex w-full shadow-md ${getAlignFlexClass('HERO_4', 'left')} ${getVerticalAlignClass('HERO_4', 'bottom')}`}
       style={{
         backgroundColor: settings.HERO_4_BG_COLOR || '#111827',
       }}
     >
-      
+
       {settings.HERO_4_BG_IMAGE && settings.HERO_4_SHOW_BG_IMAGE !== 'false' && (
         <>
           <Image src={settings.HERO_4_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
@@ -254,23 +254,23 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         </>
       )}
       <div className={`z-20 w-[70%] sm:w-[60%] lg:w-[55%] relative flex flex-col ${getMarginClass('HERO_4', 'bottom')} ${getAlignFlexClass('HERO_4', 'left')} ${getAlignSelfClass('HERO_4', 'left')}`}>
-        <h2 
-          className="font-extrabold mb-3 leading-snug whitespace-pre-line text-responsive drop-shadow-md" 
-          style={{...getResponsiveVars('HERO_4_TITLE', {m: '24px', t: '28px', d: '32px'}), color: settings.HERO_4_TEXT_COLOR || '#ffffff'}}
+        <h2
+          className="font-extrabold mb-3 leading-snug whitespace-pre-line text-responsive drop-shadow-md"
+          style={{ ...getResponsiveVars('HERO_4_TITLE', { m: '24px', t: '28px', d: '32px' }), color: settings.HERO_4_TEXT_COLOR || '#ffffff' }}
           dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_4_TITLE || t('hero_4_title')) }}
         />
         {settings.HERO_4_SUBTITLE && (
-          <p 
-            className="mb-6 font-medium text-responsive drop-shadow" 
-            style={{...getResponsiveVars('HERO_4_SUBTITLE', {m: '14px', t: '16px', d: '16px'}), color: settings.HERO_4_SUBTITLE_COLOR || '#d1d5db'}}
+          <p
+            className="mb-6 font-medium text-responsive drop-shadow"
+            style={{ ...getResponsiveVars('HERO_4_SUBTITLE', { m: '14px', t: '16px', d: '16px' }), color: settings.HERO_4_SUBTITLE_COLOR || '#d1d5db' }}
             dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.HERO_4_SUBTITLE) }}
           />
         )}
-        <Link 
-          href={settings.HERO_4_LINK || '/#'} 
+        <Link
+          href={settings.HERO_4_LINK || '/#'}
           className={`inline-block font-bold px-8 py-3 shadow-md transition-all transform hover:-translate-y-1 hover:shadow-lg text-responsive ring-1 ring-white/20 text-center ${getBtnRadiusClass('HERO_4')} ${settings.HERO_4_ALIGN === 'right' ? 'self-end' : settings.HERO_4_ALIGN === 'center' ? 'self-center' : 'self-start'}`}
           style={{
-            ...getResponsiveVars('HERO_4_CTA', {m: '14px', t: '15px', d: '15px'}),
+            ...getResponsiveVars('HERO_4_CTA', { m: '14px', t: '15px', d: '15px' }),
             backgroundColor: settings.HERO_4_BTN_BG_COLOR || '#c2410c',
             color: settings.HERO_4_BTN_TEXT_COLOR || '#ffffff'
           }}
@@ -292,7 +292,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   const block1Slide1BgColor = settings.STYLE2_HERO_1_BG_COLOR || settings.HERO_1_BG_COLOR || '#f8f9fa';
 
   const block1Slide1Style2 = (
-    <div 
+    <div
       className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
       style={{
         backgroundColor: block1Slide1BgColor,
@@ -308,7 +308,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       {/* Left Text Content */}
       <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-start">
         {/* Subtitle / Sale Offer */}
-        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3 animate-hero-subtitle">
           {settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE) }} />
           ) : (
@@ -317,7 +317,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         </div>
 
         {/* Big Title */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5 animate-hero-title">
           {settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE) }} />
           ) : (
@@ -327,7 +327,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
         {/* Price & Label */}
         {((settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE) || (settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL)) && (
-          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1">
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1 animate-hero-price">
             <span>{settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL || 'Starting at'}</span>
             <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
               {settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '$824.00'}
@@ -336,10 +336,10 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         )}
 
         {/* Yellow Button (placed right under price) */}
-        <div>
-          <Link 
-            href={settings.STYLE2_HERO_1_LINK || settings.HERO_1_LINK || '/shop'} 
-            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all text-xs tracking-wider uppercase cursor-pointer"
+        <div className="animate-hero-btn">
+          <Link
+            href={settings.STYLE2_HERO_1_LINK || settings.HERO_1_LINK || '/shop'}
+            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
           >
             {settings.STYLE2_HERO_1_CTA || settings.HERO_1_CTA || 'SHOP NOW'}
           </Link>
@@ -348,12 +348,12 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {/* Hero 1 Image */}
       {(settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE) && (settings.STYLE2_HERO_1_SHOW_IMAGE !== 'false' && settings.HERO_1_SHOW_IMAGE !== 'false') && (
-        <Image 
-          src={settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE} 
-          alt="Hero Product" 
-          width={800} 
-          height={800} 
-          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none" 
+        <Image
+          src={settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE}
+          alt="Hero Product"
+          width={800}
+          height={800}
+          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none animate-hero-image"
         />
       )}
 
@@ -362,7 +362,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   );
 
   const block1Slide2Style2 = (
-    <div 
+    <div
       className="rounded-lg overflow-hidden relative p-8 sm:p-12 md:p-14 flex flex-col justify-between h-full min-h-[460px] border border-gray-200 group w-full bg-[#f8f9fa] shadow-sm"
       style={{
         backgroundColor: settings.STYLE2_HERO_1_SLIDE2_BG_COLOR || settings.STYLE2_HERO_1_BG_COLOR || '#f8f9fa',
@@ -378,7 +378,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       {/* Left Text Content */}
       <div className="z-20 w-full sm:w-[65%] md:w-[55%] flex flex-col justify-start">
         {/* Subtitle / Sale Offer */}
-        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3">
+        <div className="text-gray-600 text-sm md:text-base font-semibold mb-3 animate-hero-subtitle">
           {settings.STYLE2_HERO_1_SLIDE2_SUBTITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_SUBTITLE) }} />
           ) : (
@@ -387,7 +387,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         </div>
 
         {/* Big Title */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5 animate-hero-title">
           {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
           ) : (
@@ -397,7 +397,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
         {/* Price & Label */}
         {(settings.STYLE2_HERO_1_SLIDE2_PRICE || settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL) && (
-          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1">
+          <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1 animate-hero-price">
             <span>{settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL || 'Starting at'}</span>
             <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
               {settings.STYLE2_HERO_1_SLIDE2_PRICE || '$1209.00'}
@@ -406,10 +406,10 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         )}
 
         {/* Yellow Button (placed right under price) */}
-        <div>
-          <Link 
-            href={settings.STYLE2_HERO_1_SLIDE2_LINK || settings.STYLE2_HERO_1_LINK || '/shop'} 
-            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all text-xs tracking-wider uppercase cursor-pointer"
+        <div className="animate-hero-btn">
+          <Link
+            href={settings.STYLE2_HERO_1_SLIDE2_LINK || settings.STYLE2_HERO_1_LINK || '/shop'}
+            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
           >
             {settings.STYLE2_HERO_1_SLIDE2_CTA || 'SHOP NOW'}
           </Link>
@@ -418,12 +418,12 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {/* Hero 1 Slide 2 Image */}
       {(settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE) && settings.STYLE2_HERO_1_SLIDE2_SHOW_IMAGE !== 'false' && (
-        <Image 
-          src={settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE} 
-          alt="Hero Product" 
-          width={800} 
-          height={800} 
-          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none" 
+        <Image
+          src={settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE}
+          alt="Hero Product"
+          width={800}
+          height={800}
+          className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none animate-hero-image"
         />
       )}
 
@@ -432,9 +432,9 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   );
 
   const block1Style2 = (
-    <HeroBlockSlider 
-      slide1={block1Slide1Style2} 
-      slide2={block1Slide2Style2} 
+    <HeroBlockSlider
+      slide1={block1Slide1Style2}
+      slide2={block1Slide2Style2}
     />
   );
 
@@ -444,8 +444,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   const block2BgColor = settings.STYLE2_HERO_2_BG_COLOR || settings.HERO_2_BG_COLOR || '#f8f9fa';
 
   const block2Style2 = (
-    <div 
-      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
+    <div
+      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300"
       style={{
         backgroundColor: block2BgColor,
       }}
@@ -458,7 +458,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       <div className="z-20 w-[60%] flex flex-col justify-center">
-        <span 
+        <span
           className="font-semibold text-xs md:text-sm mb-2"
           style={{
             ...getResponsiveVars('STYLE2_HERO_2_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
@@ -467,7 +467,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         >
           {settings.STYLE2_HERO_2_CATEGORY || 'Full HD Display'}
         </span>
-        <h2 
+        <h2
           className="font-bold text-lg md:text-xl mb-2 leading-snug"
           style={{
             ...getResponsiveVars('STYLE2_HERO_2_TITLE', { m: '18px', t: '19px', d: '20px' }),
@@ -476,7 +476,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         >
           {settings.STYLE2_HERO_2_TITLE || 'Smartphone Meizu M5 New Color Green'}
         </h2>
-        <p 
+        <p
           className="font-bold text-sm md:text-base mb-3"
           style={{
             ...getResponsiveVars('STYLE2_HERO_2_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
@@ -489,8 +489,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         {/* CTA Button for Block 2 */}
         {settings.STYLE2_HERO_2_CTA && (
           <div>
-            <Link 
-              href={settings.STYLE2_HERO_2_LINK || '/shop'} 
+            <Link
+              href={settings.STYLE2_HERO_2_LINK || '/shop'}
               className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
               style={{
                 ...getResponsiveVars('STYLE2_HERO_2_CTA', { m: '11px', t: '11px', d: '11px' }),
@@ -519,8 +519,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
   const block3BgColor = settings.STYLE2_HERO_3_BG_COLOR || settings.HERO_3_BG_COLOR || '#f8f9fa';
 
   const block3Style2 = (
-    <div 
-      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm"
+    <div
+      className="rounded-lg overflow-hidden relative p-6 sm:p-7 flex flex-col justify-center border border-gray-200 group h-full w-full bg-[#f8f9fa] shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300"
       style={{
         backgroundColor: block3BgColor,
       }}
@@ -533,7 +533,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       <div className="z-20 w-[60%] flex flex-col justify-center">
-        <span 
+        <span
           className="font-semibold text-xs md:text-sm mb-2"
           style={{
             ...getResponsiveVars('STYLE2_HERO_3_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
@@ -542,7 +542,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         >
           {settings.STYLE2_HERO_3_CATEGORY || 'Sale 20% Off All Store'}
         </span>
-        <h2 
+        <h2
           className="font-bold text-lg md:text-xl mb-2 leading-snug"
           style={{
             ...getResponsiveVars('STYLE2_HERO_3_TITLE', { m: '18px', t: '19px', d: '20px' }),
@@ -551,7 +551,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         >
           {settings.STYLE2_HERO_3_TITLE || 'Playstaytion VR Plus Network 2018'}
         </h2>
-        <p 
+        <p
           className="font-bold text-sm md:text-base mb-3"
           style={{
             ...getResponsiveVars('STYLE2_HERO_3_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
@@ -564,8 +564,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         {/* CTA Button for Block 3 */}
         {settings.STYLE2_HERO_3_CTA && (
           <div>
-            <Link 
-              href={settings.STYLE2_HERO_3_LINK || '/shop'} 
+            <Link
+              href={settings.STYLE2_HERO_3_LINK || '/shop'}
               className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
               style={{
                 ...getResponsiveVars('STYLE2_HERO_3_CTA', { m: '11px', t: '11px', d: '11px' }),
