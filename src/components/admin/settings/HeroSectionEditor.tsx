@@ -155,6 +155,10 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
 
     return (
       <div className="space-y-4 mt-4">
+        {/* For Block 2 & 3 in Style 2, provide Category field (the blue text on top) */}
+        {isStyle2 && (blockNum === 2 || blockNum === 3) && (
+          renderContentInput('Category / Tagline (texte bleu)', `${prefix}_CATEGORY`, blockNum === 2 ? 'Full HD Display' : 'Sale 20% Off All Store')
+        )}
         {renderContentInput('Title', `${prefix}_TITLE`, titlePlaceholder)}
         {renderContentInput('Subtitle / badge', `${prefix}_SUBTITLE`, subtitlePlaceholder)}
         {((!isStyle2 && blockNum === 1) || (isStyle2 && blockNum === 1)) && (
@@ -405,6 +409,9 @@ export default function HeroSectionEditor({ section, previewMode, updateSectionS
         {/* Typographie & Couleurs des textes */}
         <div className="mt-8 border-t pt-6">
           <h4 className="text-sm font-semibold text-gray-800 mb-4">Typography & Colors</h4>
+          {isStyle2 && (blockNum === 2 || blockNum === 3) && (
+            renderDesignTextControls('Category / Tagline (texte haut)', `${prefix}_CATEGORY`, `${prefix}_CATEGORY_COLOR`, '#0284c7')
+          )}
           {renderDesignTextControls('Title', `${prefix}_TITLE`, `${prefix}_TEXT_COLOR`, '#1e293b')}
           {renderDesignTextControls('Subtitle', `${prefix}_SUBTITLE`, `${prefix}_SUBTITLE_COLOR`, '#ef4444')}
           {!isStyle2 && blockNum === 1 && renderDesignTextControls('Price/Text', 'HERO_1_PRICE', 'HERO_1_PRICE_COLOR', '#6b7280')}

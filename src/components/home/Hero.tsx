@@ -458,15 +458,50 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       <div className="z-20 w-[60%] flex flex-col justify-center">
-        <span className="text-sky-600 font-semibold text-xs md:text-sm mb-2">
+        <span 
+          className="font-semibold text-xs md:text-sm mb-2"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_2_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
+            color: settings.STYLE2_HERO_2_CATEGORY_COLOR || '#0284c7'
+          }}
+        >
           {settings.STYLE2_HERO_2_CATEGORY || 'Full HD Display'}
         </span>
-        <h2 className="font-bold text-gray-900 text-lg md:text-xl mb-3 leading-snug">
+        <h2 
+          className="font-bold text-lg md:text-xl mb-2 leading-snug"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_2_TITLE', { m: '18px', t: '19px', d: '20px' }),
+            color: settings.STYLE2_HERO_2_TEXT_COLOR || '#111827'
+          }}
+        >
           {settings.STYLE2_HERO_2_TITLE || 'Smartphone Meizu M5 New Color Green'}
         </h2>
-        <p className="text-[#e01b1b] font-bold text-sm md:text-base">
+        <p 
+          className="font-bold text-sm md:text-base mb-3"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_2_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
+            color: settings.STYLE2_HERO_2_SUBTITLE_COLOR || '#e01b1b'
+          }}
+        >
           {settings.STYLE2_HERO_2_SUBTITLE || 'Sale 20% Off'}
         </p>
+
+        {/* CTA Button for Block 2 */}
+        {settings.STYLE2_HERO_2_CTA && (
+          <div>
+            <Link 
+              href={settings.STYLE2_HERO_2_LINK || '/shop'} 
+              className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
+              style={{
+                ...getResponsiveVars('STYLE2_HERO_2_CTA', { m: '11px', t: '11px', d: '11px' }),
+                backgroundColor: settings.STYLE2_HERO_2_BTN_BG_COLOR || '#fed700',
+                color: settings.STYLE2_HERO_2_BTN_TEXT_COLOR || '#111827'
+              }}
+            >
+              {settings.STYLE2_HERO_2_CTA}
+            </Link>
+          </div>
+        )}
       </div>
 
       {settings.STYLE2_HERO_2_IMAGE && settings.STYLE2_HERO_2_SHOW_IMAGE !== 'false' && (
@@ -498,15 +533,50 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       )}
 
       <div className="z-20 w-[60%] flex flex-col justify-center">
-        <span className="text-sky-600 font-semibold text-xs md:text-sm mb-2">
+        <span 
+          className="font-semibold text-xs md:text-sm mb-2"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_3_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
+            color: settings.STYLE2_HERO_3_CATEGORY_COLOR || '#0284c7'
+          }}
+        >
           {settings.STYLE2_HERO_3_CATEGORY || 'Sale 20% Off All Store'}
         </span>
-        <h2 className="font-bold text-gray-900 text-lg md:text-xl mb-3 leading-snug">
+        <h2 
+          className="font-bold text-lg md:text-xl mb-2 leading-snug"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_3_TITLE', { m: '18px', t: '19px', d: '20px' }),
+            color: settings.STYLE2_HERO_3_TEXT_COLOR || '#111827'
+          }}
+        >
           {settings.STYLE2_HERO_3_TITLE || 'Playstaytion VR Plus Network 2018'}
         </h2>
-        <p className="text-[#e01b1b] font-bold text-sm md:text-base">
+        <p 
+          className="font-bold text-sm md:text-base mb-3"
+          style={{
+            ...getResponsiveVars('STYLE2_HERO_3_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
+            color: settings.STYLE2_HERO_3_SUBTITLE_COLOR || '#e01b1b'
+          }}
+        >
           {settings.STYLE2_HERO_3_SUBTITLE || 'Sale 20% Off'}
         </p>
+
+        {/* CTA Button for Block 3 */}
+        {settings.STYLE2_HERO_3_CTA && (
+          <div>
+            <Link 
+              href={settings.STYLE2_HERO_3_LINK || '/shop'} 
+              className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
+              style={{
+                ...getResponsiveVars('STYLE2_HERO_3_CTA', { m: '11px', t: '11px', d: '11px' }),
+                backgroundColor: settings.STYLE2_HERO_3_BTN_BG_COLOR || '#fed700',
+                color: settings.STYLE2_HERO_3_BTN_TEXT_COLOR || '#111827'
+              }}
+            >
+              {settings.STYLE2_HERO_3_CTA}
+            </Link>
+          </div>
+        )}
       </div>
 
       {settings.STYLE2_HERO_3_IMAGE && settings.STYLE2_HERO_3_SHOW_IMAGE !== 'false' && (
