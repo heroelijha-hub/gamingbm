@@ -176,22 +176,28 @@ export async function fetchWooCommerceProductsList(
       return { success: true, products: [], total: 0, totalPages: 0 };
     }
 
-    // Check which ones are already in local DB
-    const titles = prods.map(p => p.name);
+    // Check which ones are already in local DB (comparing both decoded and raw titles)
+    const rawTitles = prods.map(p => p.name);
+    const decodedTitles = prods.map(p => unescapeHtml(p.name));
+    const allTitlesToCheck = Array.from(new Set([...rawTitles, ...decodedTitles]));
+
     const existing = await prisma.product.findMany({
-      where: { title: { in: titles } },
+      where: { title: { in: allTitlesToCheck } },
       select: { title: true }
     });
     const existingTitles = new Set(existing.map(e => e.title));
 
-    const products = prods.map((p: any) => ({
-      id: p.id,
-      name: unescapeHtml(p.name),
-      price: p.price || p.regular_price || '0',
-      image: (p.images && p.images[0]?.src) ? p.images[0].src : null,
-      categories: (p.categories || []).map((c: any) => unescapeHtml(c.name)),
-      alreadyImported: existingTitles.has(p.name)
-    }));
+    const products = prods.map((p: any) => {
+      const decodedName = unescapeHtml(p.name);
+      return {
+        id: p.id,
+        name: decodedName,
+        price: p.price || p.regular_price || '0',
+        image: (p.images && p.images[0]?.src) ? p.images[0].src : null,
+        categories: (p.categories || []).map((c: any) => unescapeHtml(c.name)),
+        alreadyImported: existingTitles.has(decodedName) || existingTitles.has(p.name)
+      };
+    });
 
     return { success: true, products, total, totalPages };
   } catch (error: any) {
@@ -201,9 +207,15 @@ export async function fetchWooCommerceProductsList(
 }
 
 /**
- * Import categories from WooCommerce to create/update local category tree
+ * Import categories from WooCommerce to create/update local category tree.
+ * If categoryIds is provided, only those categories (and their parent hierarchy) are imported.
  */
-export async function importWooCommerceCategories(url: string, consumerKey: string, consumerSecret: string) {
+export async function importWooCommerceCategories(
+  url: string, 
+  consumerKey: string, 
+  consumerSecret: string,
+  categoryIds?: number[]
+) {
   await requireAdmin();
   const baseUrl = url.replace(/\/$/, '');
   const apiUrl = `${baseUrl}/wp-json/wc/v3/products/categories`;
@@ -245,10 +257,35 @@ export async function importWooCommerceCategories(url: string, consumerKey: stri
 
     if (allCategories.length === 0) return { success: true, count: 0 };
 
-    // 1st Pass: Create all categories to get their UUIDs
+    // If specific categoryIds were requested, filter down to only those categories and their ancestor hierarchy
+    let categoriesToImport = allCategories;
+    if (categoryIds && categoryIds.length > 0) {
+      const selectedIdSet = new Set<number>(categoryIds);
+      const catById = new Map<number, any>(allCategories.map(c => [c.id, c]));
+      const neededIds = new Set<number>();
+
+      // Traverse each selected category and include all its parents
+      for (const id of categoryIds) {
+        let curr = catById.get(id);
+        while (curr) {
+          neededIds.add(curr.id);
+          if (curr.parent && curr.parent > 0) {
+            curr = catById.get(curr.parent);
+          } else {
+            break;
+          }
+        }
+      }
+
+      categoriesToImport = allCategories.filter(c => neededIds.has(c.id));
+    }
+
+    if (categoriesToImport.length === 0) return { success: true, count: 0 };
+
+    // 1st Pass: Create all filtered categories to get their UUIDs
     const wcIdToUuidMap: Record<number, string> = {};
 
-    for (const wcCat of allCategories) {
+    for (const wcCat of categoriesToImport) {
       let category = await prisma.category.findUnique({
         where: { name: unescapeHtml(wcCat.name) }
       });
@@ -265,7 +302,7 @@ export async function importWooCommerceCategories(url: string, consumerKey: stri
     }
 
     // 2nd Pass: Link parents
-    for (const wcCat of allCategories) {
+    for (const wcCat of categoriesToImport) {
       if (wcCat.parent && wcCat.parent > 0) {
         const parentUuid = wcIdToUuidMap[wcCat.parent];
         const childUuid = wcIdToUuidMap[wcCat.id];
@@ -280,7 +317,7 @@ export async function importWooCommerceCategories(url: string, consumerKey: stri
     }
 
     revalidatePath('/admin/categories');
-    return { success: true, count: allCategories.length };
+    return { success: true, count: categoriesToImport.length };
 
   } catch (error: any) {
     console.error('Error importing categories from WooCommerce:', error);
@@ -338,14 +375,23 @@ async function processAndSaveWcProducts(
   products: any[], 
   apiUrl: string, 
   consumerKey: string, 
-  consumerSecret: string
+  consumerSecret: string,
+  allowedCategoryIds?: number[]
 ): Promise<number> {
   let importedCount = 0;
+  const allowedSet = (allowedCategoryIds && allowedCategoryIds.length > 0) ? new Set(allowedCategoryIds) : null;
 
   for (const wcProduct of products) {
-    // Check if product with same title already exists
+    const decodedTitle = unescapeHtml(wcProduct.name);
+
+    // Check if product with same title already exists (unescaped or raw)
     const existingProduct = await prisma.product.findFirst({
-      where: { title: wcProduct.name }
+      where: { 
+        OR: [
+          { title: decodedTitle },
+          { title: wcProduct.name }
+        ]
+      }
     });
 
     if (existingProduct) {
@@ -355,6 +401,11 @@ async function processAndSaveWcProducts(
     const categoryIds: string[] = [];
     if (wcProduct.categories && Array.isArray(wcProduct.categories)) {
       for (const wcCat of wcProduct.categories) {
+        // If an explicit category filter is active, only associate categories that are in the allowed filter
+        if (allowedSet && !allowedSet.has(wcCat.id)) {
+          continue;
+        }
+
         let category = await prisma.category.findUnique({
           where: { name: unescapeHtml(wcCat.name) }
         });
@@ -522,7 +573,7 @@ async function processAndSaveWcProducts(
 
     const createdProduct = await prisma.product.create({
       data: {
-        title: wcProduct.name,
+        title: decodedTitle,
         slug: uniqueSlug,
         description: wcProduct.description || '',
         shortDescription: wcProduct.short_description || '',
@@ -642,7 +693,7 @@ export async function importWooCommerceProductsBatch(
       return { success: true, count: 0 };
     }
 
-    const importedCount = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret);
+    const importedCount = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret, categoryIds);
 
     revalidatePath('/admin/products');
     revalidatePath('/');

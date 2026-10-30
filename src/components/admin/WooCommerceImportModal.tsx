@@ -146,9 +146,10 @@ export default function WooCommerceImportModal() {
     setTotalProducts(0);
 
     try {
-      // 0. Toujours synchroniser la hiérarchie des catégories au préalable
+      // 0. Synchroniser les catégories : si mode 'CATEGORIES', synchroniser uniquement les catégories sélectionnées
       setImportingCategories(true);
-      const catRes = await importWooCommerceCategories(url, consumerKey, consumerSecret);
+      const catIdsToSync = importMode === 'CATEGORIES' ? selectedCategoryIds : undefined;
+      const catRes = await importWooCommerceCategories(url, consumerKey, consumerSecret, catIdsToSync);
       setImportingCategories(false);
 
       if (!catRes.success) {
