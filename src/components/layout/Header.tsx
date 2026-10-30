@@ -244,7 +244,7 @@ export default function Header({
         style={{ backgroundColor: topBarBgColor, color: topBarTextColor }}
       >
         <div className="flex items-center space-x-2">
-          <span>{announcement && announcement !== 'Welcome to My Store' ? announcement : 'Telephone Enquiry: 123456789'}</span>
+          <span>{announcement || ''}</span>
         </div>
         <div className="flex items-center space-x-6 text-xs">
           {topBarLinks && topBarLinks.length > 0 && (
@@ -260,37 +260,6 @@ export default function Header({
                 </Link>
               ))}
             </div>
-          )}
-
-          {topBarLinks && topBarLinks.length > 0 && (
-            <div className="hidden lg:block h-3 w-px bg-gray-300"></div>
-          )}
-
-          {/* Currency dropdown placeholder / selector */}
-          <div className="flex items-center space-x-1 cursor-pointer hover:text-gray-900 transition">
-            <span>Currency:</span>
-            <span className="font-semibold text-gray-800">USD</span>
-            <svg className="w-3.5 h-3.5 ml-0.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-          </div>
-
-          <div className="h-3 w-px bg-gray-300"></div>
-
-          {actualUserRole ? (
-            <Link 
-              href={actualUserRole === 'ADMIN' ? '/admin' : '/account'}
-              className="flex items-center hover:text-yellow-600 transition font-medium text-gray-700"
-            >
-              {actualUserRole === 'ADMIN' ? (adminDashboardText || t('admin_dashboard')) : (myAccountText || 'My Account')}
-              <svg className="w-3.5 h-3.5 ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </Link>
-          ) : (
-            <button 
-              onClick={() => setIsLoginModalOpen(true)}
-              className="flex items-center hover:text-yellow-600 transition font-medium text-gray-700"
-            >
-              <span>{loginText || myAccountText || 'My Account'}</span>
-              <svg className="w-3.5 h-3.5 ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </button>
           )}
         </div>
       </div>
