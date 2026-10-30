@@ -11,6 +11,19 @@ const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' }).format(date);
 };
 
+const formatPaymentMethod = (method: string) => {
+  switch (method?.toUpperCase()) {
+    case 'BANK_TRANSFER':
+      return 'Banküberweisung';
+    case 'STRIPE':
+      return 'Kreditkarte';
+    case 'PAYPAL':
+      return 'PayPal';
+    default:
+      return method || 'N/A';
+  }
+};
+
 export async function generateInvoicePDF(order: any): Promise<Buffer> {
   // Fetch store logo and name from DB
   let logoBuffer: Buffer | null = null;
@@ -147,7 +160,7 @@ function generateCustomerInformation(doc: typeof PDFDocument, order: any, custom
     .text('Datum:', 50, customerInformationTop + 15)
     .text(formatDate(new Date(order.createdAt)), 150, customerInformationTop + 15)
     .text('Zahlungsart:', 50, customerInformationTop + 30)
-    .text(order.paymentMethod || 'N/A', 150, customerInformationTop + 30)
+    .text(formatPaymentMethod(order.paymentMethod), 150, customerInformationTop + 30)
 
     .text('Kunde:', 300, customerInformationTop)
     .font('Helvetica-Bold')
