@@ -62,9 +62,15 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [ogImage],
     },
     icons: faviconUrl ? {
-      icon: faviconUrl,
-      shortcut: faviconUrl,
-      apple: faviconUrl
+      icon: [
+        { url: faviconUrl },
+        { url: faviconUrl, type: 'image/png' },
+        { url: faviconUrl, type: 'image/x-icon' },
+      ],
+      shortcut: [faviconUrl],
+      apple: [
+        { url: faviconUrl },
+      ],
     } : undefined,
     verification: settingsMap['GOOGLE_SITE_VERIFICATION'] ? {
       google: settingsMap['GOOGLE_SITE_VERIFICATION']
@@ -213,6 +219,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <link rel="alternate" type="application/rss+xml" title={`${storeName} - Blog RSS`} href="/rss.xml" />
+        {settingsMap.FAVICON_IMAGE && (
+          <>
+            <link rel="icon" href={settingsMap.FAVICON_IMAGE} />
+            <link rel="shortcut icon" href={settingsMap.FAVICON_IMAGE} />
+            <link rel="apple-touch-icon" href={settingsMap.FAVICON_IMAGE} />
+          </>
+        )}
         {globalFont !== 'Inter' && (
           <>
             <link rel="preconnect" href="https://fonts.googleapis.com" />
