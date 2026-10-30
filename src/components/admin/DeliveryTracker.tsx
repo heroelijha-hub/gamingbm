@@ -165,9 +165,9 @@ export default function DeliveryTracker({
     : [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Colonne gauche : Automatisches Tracking + Versandinformationen empilés l'un sous l'autre */}
-      <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* Colonne Gauche : Automatisches Tracking */}
+      <div>
 
       {/* ══════════════════════════════════════════════════
           SECTION 1 — MODE AUTOMATIQUE "EN PRÉPARATION"
@@ -296,6 +296,10 @@ export default function DeliveryTracker({
           </div>
         )}
       </div>
+      </div>
+
+      {/* Colonne Droite : Versandinformationen + Lieferhistorie empilés l'un sous l'autre */}
+      <div className="space-y-6">
 
       {/* ══════════════════════════════════════════════════
           SECTION 3 — INFORMATIONS DE LIVRAISON (MANUEL)
@@ -352,8 +356,6 @@ export default function DeliveryTracker({
         </form>
       </div>
 
-      </div>
-
       {/* ══════════════════════════════════════════════════
           SECTION 4 — HISTORIQUE DES POSITIONS (MANUEL)
       ══════════════════════════════════════════════════ */}
@@ -399,6 +401,7 @@ export default function DeliveryTracker({
             {loadingPos ? t('adding') : t('add_position_btn')}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );
