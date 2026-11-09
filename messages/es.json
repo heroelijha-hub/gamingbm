@@ -824,11 +824,9 @@
     "first_name": "Nombre",
     "last_name": "Apellidos",
     "phone": "Teléfono",
-    "country": "País",
     "street_1": "Dirección (Línea 1)",
     "street_2": "Dirección (Línea 2 - Opcional)",
     "postal_code": "Código postal",
-    "city": "Ciudad",
     "shipping_address_title": "Dirección de entrega",
     "shipping_different_checkbox": "La dirección de entrega es diferente a la de facturación",
     "company_optional": "Empresa (Opcional)",
@@ -1417,10 +1415,22 @@
     "rss_after_placeholder": "El artículo {post_link} apareció por primera vez en {blog_link}."
   },
   "CookieConsent": {
-    "title": "Respetamos su privacidad",
-    "message": "Utilizamos cookies para mejorar su experiencia de navegación, mostrar anuncios o contenido personalizado y analizar nuestro tráfico. Al hacer clic en \"Aceptar todo\", usted acepta nuestro uso de cookies.",
+    "title": "Gestión de cookies",
+    "message": "Utilizamos cookies para garantizar el buen funcionamiento del sitio, asegurar sus compras, analizar el tráfico y ofrecerle la mejor experiencia de usuario.",
     "accept": "Aceptar todo",
-    "decline": "Rechazar"
+    "decline": "Rechazar todo",
+    "subtitle": "Respetamos su privacidad",
+    "customize": "Personalizar opciones",
+    "save_preferences": "Guardar mis preferencias",
+    "back": "Volver",
+    "cookie_settings": "Preferencias de cookies",
+    "necessary_title": "Cookies estrictamente necesarias",
+    "necessary_badge": "Siempre activas",
+    "necessary_desc": "Indispensables para navegar por el sitio, gestionar el carrito de compra y proteger su cuenta.",
+    "analytics_title": "Medición y analítica",
+    "analytics_desc": "Nos ayudan a comprender cómo se utiliza el sitio para optimizar su rendimiento y ergonomía.",
+    "marketing_title": "Personalización y marketing",
+    "marketing_desc": "Permiten mostrarle recomendaciones y ofertas adaptadas a sus intereses."
   },
   "Countries": {
     "Afghanistan": "Afganistán",

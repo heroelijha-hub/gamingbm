@@ -824,11 +824,9 @@
     "first_name": "First Name",
     "last_name": "Last Name",
     "phone": "Phone",
-    "country": "Country",
     "street_1": "Street Address (Line 1)",
     "street_2": "Street Address (Line 2 - Optional)",
     "postal_code": "Postal Code",
-    "city": "City",
     "shipping_address_title": "Shipping Address",
     "shipping_different_checkbox": "Shipping address is different from billing",
     "company_optional": "Company (Optional)",
@@ -1417,10 +1415,22 @@
     "rss_after_placeholder": "The article {post_link} first appeared on {blog_link}."
   },
   "CookieConsent": {
-    "title": "We value your privacy",
-    "message": "We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies.",
-    "accept": "Accept All",
-    "decline": "Decline"
+    "title": "Cookie Management",
+    "message": "We use cookies to ensure the website functions properly, secure your transactions, analyze traffic, and provide you with the best shopping experience.",
+    "accept": "Accept all",
+    "decline": "Decline all",
+    "subtitle": "We value your privacy",
+    "customize": "Customize choices",
+    "save_preferences": "Save my choices",
+    "back": "Back",
+    "cookie_settings": "Cookie Preferences",
+    "necessary_title": "Strictly necessary cookies",
+    "necessary_badge": "Always active",
+    "necessary_desc": "Essential for browsing the site, managing your shopping cart, and securing your account.",
+    "analytics_title": "Traffic & Analytics",
+    "analytics_desc": "Help us understand how visitors use the site in order to improve usability and performance.",
+    "marketing_title": "Personalization & Marketing",
+    "marketing_desc": "Used to provide you with relevant product recommendations and tailored offers."
   },
   "Countries": {
     "Afghanistan": "Afghanistan",

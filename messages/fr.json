@@ -824,11 +824,9 @@
     "first_name": "Prénom",
     "last_name": "Nom",
     "phone": "Téléphone",
-    "country": "Pays",
     "street_1": "Adresse (Ligne 1)",
     "street_2": "Adresse (Ligne 2 - Optionnel)",
     "postal_code": "Code postal",
-    "city": "Ville",
     "shipping_address_title": "Adresse de livraison",
     "shipping_different_checkbox": "Adresse différente de la facturation",
     "company_optional": "Entreprise (Optionnel)",
@@ -1417,10 +1415,22 @@
     "rss_after_placeholder": "L'article {post_link} est apparu en premier sur {blog_link}."
   },
   "CookieConsent": {
-    "title": "Nous respectons votre vie privée",
-    "message": "Nous utilisons des cookies pour améliorer votre expérience de navigation, diffuser des publicités ou des contenus personnalisés et analyser notre trafic. En cliquant sur \"Tout accepter\", vous consentez à notre utilisation des cookies.",
+    "title": "Gestion des cookies",
+    "message": "Nous utilisons des cookies pour assurer le bon fonctionnement du site, sécuriser vos transactions, mesurer l'audience et vous offrir la meilleure expérience d'achat.",
     "accept": "Tout accepter",
-    "decline": "Refuser"
+    "decline": "Continuer sans accepter",
+    "subtitle": "Respect de votre vie privée",
+    "customize": "Personnaliser mes choix",
+    "save_preferences": "Enregistrer mes choix",
+    "back": "Retour",
+    "cookie_settings": "Préférences cookies",
+    "necessary_title": "Cookies strictement nécessaires",
+    "necessary_badge": "Toujours actif",
+    "necessary_desc": "Indispensables pour naviguer sur le site, gérer votre panier d'achat et sécuriser votre compte.",
+    "analytics_title": "Mesure d'audience (Analytique)",
+    "analytics_desc": "Permettent d'analyser l'utilisation du site afin d'optimiser l'ergonomie, la rapidité et nos services.",
+    "marketing_title": "Personnalisation & Marketing",
+    "marketing_desc": "Utilisés pour vous présenter des recommandations et des offres adaptées à vos centres d'intérêt."
   },
   "Countries": {
     "Afghanistan": "Afghanistan",

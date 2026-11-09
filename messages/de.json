@@ -1415,10 +1415,22 @@
     "rss_after_placeholder": "Der Artikel {post_link} erschien zuerst auf {blog_link}."
   },
   "CookieConsent": {
-    "title": "Wir schätzen Ihre Privatsphäre",
-    "message": "Wir verwenden Cookies, um Ihr Surferlebnis zu verbessern, personalisierte Inhalte bereitzustellen und unseren Datenverkehr zu analysieren. Wenn Sie auf \"Alle akzeptieren\" klicken, stimmen Sie der Verwendung von Cookies zu.",
+    "title": "Cookie-Einstellungen",
+    "message": "Wir verwenden Cookies, um den ordnungsgemäßen Betrieb der Website zu gewährleisten, Transaktionen zu sichern, den Datenverkehr zu analysieren und Ihnen das beste Einkaufserlebnis zu bieten.",
     "accept": "Alle akzeptieren",
-    "decline": "Ablehnen"
+    "decline": "Alle ablehnen",
+    "subtitle": "Wir schätzen Ihre Privatsphäre",
+    "customize": "Einstellungen anpassen",
+    "save_preferences": "Auswahl speichern",
+    "back": "Zurück",
+    "cookie_settings": "Cookie-Präferenzen",
+    "necessary_title": "Unbedingt erforderliche Cookies",
+    "necessary_badge": "Immer aktiv",
+    "necessary_desc": "Unerlässlich für die Navigation, den Warenkorb und die Sicherheit Ihres Kontos.",
+    "analytics_title": "Statistik & Analyse",
+    "analytics_desc": "Helfen uns zu verstehen, wie Besucher die Website nutzen, um Benutzerfreundlichkeit und Leistung zu verbessern.",
+    "marketing_title": "Marketing & Personalisierung",
+    "marketing_desc": "Werden verwendet, um Ihnen relevante Empfehlungen und Angebote anzuzeigen."
   },
   "Countries": {
     "Afghanistan": "Afghanistan",
