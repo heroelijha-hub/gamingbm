@@ -128,6 +128,28 @@ export async function deleteMultipleMediaAction(ids: string[]) {
   }
 }
 
+async function uploadBufferToCloudinary(buffer: Buffer, mimeType: string): Promise<string> {
+  const options: any = {
+    folder: 'topkaminbrennstoffe/media',
+    resource_type: 'auto',
+  };
+
+  if (mimeType.startsWith('image/') && mimeType !== 'image/svg+xml' && mimeType !== 'image/gif') {
+    options.format = 'webp';
+    options.transformation = [{ width: 1600, crop: 'limit', quality: 'auto:good' }];
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error || !result) reject(error);
+        else resolve(result.secure_url);
+      }
+    ).end(buffer);
+  });
+}
+
 export async function uploadMediaAction(formData: FormData) {
   await requireAdmin();
   
@@ -151,15 +173,7 @@ export async function uploadMediaAction(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const secureUrl = await new Promise<string>((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: 'topkaminbrennstoffe/media' },
-        (error, result) => {
-          if (error || !result) reject(error);
-          else resolve(result.secure_url);
-        }
-      ).end(buffer);
-    });
+    const secureUrl = await uploadBufferToCloudinary(buffer, file.type);
 
     // Create media entry
     const media = await prisma.media.create({
@@ -211,15 +225,7 @@ export async function uploadMultipleMediaAction(formData: FormData) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        const secureUrl = await new Promise<string>((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            { folder: 'topkaminbrennstoffe/media' },
-            (error, result) => {
-              if (error || !result) reject(error);
-              else resolve(result.secure_url);
-            }
-          ).end(buffer);
-        });
+        const secureUrl = await uploadBufferToCloudinary(buffer, file.type);
 
         const media = await prisma.media.create({
           data: {
