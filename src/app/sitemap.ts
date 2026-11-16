@@ -5,6 +5,20 @@ import { getContactSettings } from '@/actions/contactSettings';
 
 import { SITE_URL } from '@/lib/site';
 
+function sanitizeSitemapImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  // Strip query parameters to avoid unescaped ampersands in XML (e.g. ?auto=format&fit=crop)
+  const cleanUrl = trimmed.split('?')[0];
+  return cleanUrl
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
   const contactSettings = await getContactSettings();
@@ -61,13 +75,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true, images: true },
   });
 
-  const productPages = products.map((product) => ({
-    url: `${baseUrl}/product/${product.slug}`,
-    lastModified: product.updatedAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-    images: product.images && product.images.length > 0 ? [product.images[0]] : undefined,
-  }));
+  const productPages = products.map((product) => {
+    const rawImage = product.images && product.images.length > 0 ? product.images[0] : null;
+    const cleanImage = sanitizeSitemapImageUrl(rawImage);
+    return {
+      url: `${baseUrl}/product/${product.slug}`,
+      lastModified: product.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+      images: cleanImage ? [cleanImage] : undefined,
+    };
+  });
 
   // 3. Articles de Blog dynamiques
   const articles = await prisma.article.findMany({
@@ -75,13 +93,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true, image: true },
   });
 
-  const articlePages = articles.map((article) => ({
-    url: `${baseUrl}/blog/${article.slug}`,
-    lastModified: article.updatedAt,
-    changeFrequency: 'weekly' as const,
-    priority: 0.75,
-    images: article.image ? [article.image] : undefined,
-  }));
+  const articlePages = articles.map((article) => {
+    const cleanImage = sanitizeSitemapImageUrl(article.image);
+    return {
+      url: `${baseUrl}/blog/${article.slug}`,
+      lastModified: article.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+      images: cleanImage ? [cleanImage] : undefined,
+    };
+  });
 
   // 4. Dynamic categories (landing pages e-commerce prioritaires)
   const categories = await prisma.category.findMany({

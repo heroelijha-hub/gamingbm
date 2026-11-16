@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settingsMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
   const faviconUrl = settingsMap['FAVICON_IMAGE'];
   const title = settingsMap['HOME_META_TITLE'] || `${storeName} | E-commerce`;
-  const description = settingsMap['HOME_META_DESCRIPTION'] || "Découvrez notre vaste sélection de produits de haute qualité sur notre boutique en ligne complète.";
+  const description = settingsMap['HOME_META_DESCRIPTION'] || "Gaming BM : Ihr führender Gaming-Online-Shop in Deutschland. Konsolen, Gaming-PCs, Smartphones und Zubehör.";
   const ogImage = settingsMap['HEADER_LOGO_IMAGE'] || '/logo.jpg';
 
   const baseUrl = SITE_URL;
@@ -181,7 +181,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     footerSocialLinkedin: settingsMap.FOOTER_SOCIAL_LINKEDIN || '#',
     footerColumns: footerColumns,
     footerLogoImage: settingsMap.FOOTER_LOGO_IMAGE || '',
-    footerDescription: settingsMap.FOOTER_DESCRIPTION || 'Unsere Verpflichtungen : Qualität : Produkte, die aufgrund ihrer Leistung und ihrer Übereinstimmung mit den Umweltstandards ausgewählt wurden. Ökologie : Nachhaltige und verantwortungsvolle Heizlösungen. Nähe : Ein Team, das auf Ihre Bedürfnisse hört und bereit ist, Sie bei Ihren Projekten zu beraten und zu begleiten. Service : Schnelle Lieferung und ein Kundenservice, der immer für Sie da ist.',
+    footerDescription: settingsMap.FOOTER_DESCRIPTION || 'Gaming BM ist Ihr führender Online-Shop für Gaming-PCs, Konsolen, Videospiele, Smartphones und Zubehör in Deutschland.',
     footerShowAddress: settingsMap.FOOTER_SHOW_ADDRESS !== 'false',
     footerShowEmail: settingsMap.FOOTER_SHOW_EMAIL !== 'false',
     footerShowPhone: settingsMap.FOOTER_SHOW_PHONE !== 'false',
