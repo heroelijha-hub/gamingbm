@@ -8,6 +8,10 @@ export async function generateMetadata() {
   return {
     title: `${t('page_title')} | ${storeName}`,
     description: t('page_description', { storeName }),
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

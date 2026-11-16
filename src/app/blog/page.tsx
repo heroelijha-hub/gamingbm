@@ -4,15 +4,51 @@ import BlogSidebar from '@/components/blog/BlogSidebar';
 import { getRecentComments } from '@/actions/blog';
 import { getTranslations, getLocale } from 'next-intl/server';
 import Image from "next/image";
+import { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
+  const query = String(q || '').trim();
+
+  const title = query ? `Suche: "${query}" | Blog ${storeName}` : `Blog & Experten-Kaufberater | ${storeName}`;
+  const description = `Entdecken Sie alle aktuellen Gaming-News, Kaufberater und Hardware-Tipps auf dem offiziellen Blog von ${storeName}.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: query ? `/blog?q=${encodeURIComponent(query)}` : '/blog',
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/blog`,
+      siteName: storeName,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>
 }) {
-  const query = searchParams.q || '';
+  const { q } = await searchParams;
+  const query = String(q || '').trim().slice(0, 100);
   const t = await getTranslations('Blog');
   const locale = await getLocale();
   
@@ -48,11 +84,11 @@ export default async function BlogIndexPage({
                 {t('no_articles')}{query ? ` ${t('for')} "${query}"` : ''}.
               </div>
             ) : (
-              articles.map(article => (
+              articles.map((article, index) => (
                 <div key={article.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm flex flex-col md:flex-row h-full md:h-64 group">
                   <div className="md:w-2/5 h-48 md:h-full bg-gray-100 flex-shrink-0 relative overflow-hidden">
                     {article.image ? (
-                       <Image width={800} height={800} src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                       <Image width={800} height={800} src={article.image} alt={article.title} priority={index === 0} loading={index === 0 ? undefined : 'lazy'} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-4xl text-gray-300">📝</div>
                     )}

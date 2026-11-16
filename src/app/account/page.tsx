@@ -3,8 +3,17 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import LogoutLink from '@/components/auth/LogoutLink';
 import { getTranslations } from 'next-intl/server';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Mon Compte',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AccountDashboard() {
   const supabase = await createClient();

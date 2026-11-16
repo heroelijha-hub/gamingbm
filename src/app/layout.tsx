@@ -19,13 +19,25 @@ import { SITE_URL } from '@/lib/site';
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({
-    where: { key: { in: ['FAVICON_IMAGE', 'HOME_META_TITLE', 'HOME_META_DESCRIPTION', 'HEADER_LOGO_IMAGE', 'GOOGLE_SITE_VERIFICATION'] } }
+    where: {
+      key: {
+        in: [
+          'FAVICON_IMAGE',
+          'HOME_META_TITLE',
+          'HOME_META_DESCRIPTION',
+          'HEADER_LOGO_IMAGE',
+          'GOOGLE_SITE_VERIFICATION',
+          'BING_SITE_VERIFICATION',
+        ],
+      },
+    },
   });
   
   const settingsMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
@@ -51,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
           width: 1200,
           height: 630,
           alt: `${storeName} preview`,
-        }
+        },
       ],
       type: 'website',
     },
@@ -72,9 +84,12 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: faviconUrl },
       ],
     } : undefined,
-    verification: settingsMap['GOOGLE_SITE_VERIFICATION'] ? {
-      google: settingsMap['GOOGLE_SITE_VERIFICATION']
-    } : undefined
+    verification: {
+      google: settingsMap['GOOGLE_SITE_VERIFICATION'] || undefined,
+      other: settingsMap['BING_SITE_VERIFICATION'] ? {
+        'msvalidate.01': [settingsMap['BING_SITE_VERIFICATION']],
+      } : undefined,
+    },
   };
 }
 
@@ -219,6 +234,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <link rel="alternate" type="application/rss+xml" title={`${storeName} - Blog RSS`} href="/rss.xml" />
+        {/* Preconnect & DNS-prefetch to critical media origins for LCP acceleration */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
         {settingsMap.FAVICON_IMAGE && (
           <>
             <link rel="icon" href={settingsMap.FAVICON_IMAGE} />
@@ -248,19 +268,38 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{
             __html: safeJsonLd({
               "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "name": storeName,
-              "image": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
-              "url": SITE_URL,
-              "telephone": settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE,
-              "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": settingsMap.FOOTER_ADDRESS_1 || '',
-                "addressCountry": settingsMap.STORE_COUNTRY || "DE",
-                "addressLocality": "Langenhagen"
-              },
-              "description": "Ihr zuverlässiger Partner für Kaminholz, Holzpellets und Holzbriketts."
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": `${SITE_URL}/#website`,
+                  "url": SITE_URL,
+                  "name": storeName,
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                      "@type": "EntryPoint",
+                      "urlTemplate": `${SITE_URL}/search?q={search_term_string}`
+                    },
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "OnlineStore",
+                  "@id": `${SITE_URL}/#organization`,
+                  "name": storeName,
+                  "url": SITE_URL,
+                  "image": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
+                  "logo": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
+                  "telephone": settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE,
+                  "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
+                  "address": settingsMap.FOOTER_ADDRESS_1 ? {
+                    "@type": "PostalAddress",
+                    "streetAddress": settingsMap.FOOTER_ADDRESS_1,
+                    "addressCountry": settingsMap.STORE_COUNTRY || "DE"
+                  } : undefined,
+                  "description": settingsMap.HOME_META_DESCRIPTION || `Offizieller Online-Shop ${storeName}.`
+                }
+              ]
             })
           }}
         />

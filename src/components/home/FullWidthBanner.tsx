@@ -32,7 +32,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
       '--sz-t': config?.[`${baseKey}_SIZE_TABLET`] || defaultSizes.t,
       '--sz-d': config?.[`${baseKey}_SIZE_DESKTOP`] || defaultSizes.d,
     };
-    
+
     if (config?.[`${baseKey}_LINE_HEIGHT_MOBILE`]) vars['--lh-m'] = config[`${baseKey}_LINE_HEIGHT_MOBILE`];
     else if (defaultLh) vars['--lh-m'] = defaultLh;
 
@@ -41,7 +41,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
 
     if (config?.[`${baseKey}_LINE_HEIGHT_DESKTOP`]) vars['--lh-d'] = config[`${baseKey}_LINE_HEIGHT_DESKTOP`];
     else if (defaultLh) vars['--lh-d'] = defaultLh;
-    
+
     if (config?.[`${baseKey}_LETTER_SPACING_MOBILE`]) vars['--ls-m'] = config[`${baseKey}_LETTER_SPACING_MOBILE`];
     if (config?.[`${baseKey}_LETTER_SPACING_TABLET`]) vars['--ls-t'] = config[`${baseKey}_LETTER_SPACING_TABLET`];
     if (config?.[`${baseKey}_LETTER_SPACING_DESKTOP`]) vars['--ls-d'] = config[`${baseKey}_LETTER_SPACING_DESKTOP`];
@@ -51,7 +51,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
 
   return (
     <section className="max-w-7xl mx-auto px-4 w-full py-6 font-sans">
-      <div 
+      <div
         className="rounded-xl overflow-hidden relative border border-gray-200 group w-full min-h-[300px] md:min-h-[340px] flex items-center shadow-sm p-8 sm:p-12 md:p-14"
         style={{
           backgroundColor: bgColor,
@@ -60,17 +60,17 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
         {/* Background image if provided */}
         {bgImage && (
           <>
-            <Image 
-              src={bgImage} 
-              alt="Background" 
-              fill 
-              priority 
-              className="object-cover object-center z-0" 
+            <Image
+              src={bgImage}
+              alt="" role="presentation"
+              fill
+              loading="lazy"
+              className="object-cover object-center z-0"
               sizes="100vw"
-              quality={80} 
+              quality={80}
             />
-            <div 
-              className="absolute inset-0 z-[1] transition-opacity duration-300" 
+            <div
+              className="absolute inset-0 z-[1] transition-opacity duration-300"
               style={{ backgroundColor: `rgba(0,0,0,${(parseInt(config?.BANNER_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}
             />
           </>
@@ -80,7 +80,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
         <div className="z-20 w-full sm:w-[65%] md:w-[50%] flex flex-col justify-center">
           {/* Subtitle */}
           {subtitle && (
-            <div 
+            <div
               className="text-responsive font-semibold mb-3"
               style={{
                 ...getResponsiveVars('BANNER_SUBTITLE', { m: '13px', t: '14px', d: '15px' }, '1.3'),
@@ -93,7 +93,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
 
           {/* Big Title */}
           {title && (
-            <h2 
+            <h2
               className="text-responsive font-extrabold tracking-tight mb-5"
               style={{
                 ...getResponsiveVars('BANNER_TITLE', { m: '24px', t: '32px', d: '40px' }, '1.18'),
@@ -106,7 +106,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
 
           {/* Price */}
           {(price || priceLabel) && (
-            <div 
+            <div
               className="text-responsive font-medium mb-7 flex items-baseline flex-wrap gap-1"
               style={{
                 ...getResponsiveVars('BANNER_PRICE_LABEL', { m: '15px', t: '16px', d: '18px' }),
@@ -115,7 +115,7 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
             >
               {priceLabel && <span>{priceLabel}</span>}
               {price && (
-                <span 
+                <span
                   className="font-bold ml-1 inline-block"
                   style={{
                     ...getResponsiveVars('BANNER_PRICE', { m: '22px', t: '26px', d: '30px' }),
@@ -130,8 +130,8 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
           {/* Button */}
           {ctaText && (
             <div>
-              <Link 
-                href={link} 
+              <Link
+                href={link}
                 className="inline-block font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-200 tracking-wider uppercase cursor-pointer hover:opacity-90 hover:scale-[1.02] text-responsive"
                 style={{
                   ...getResponsiveVars('BANNER_CTA', { m: '12px', t: '13px', d: '13px' }),
@@ -148,12 +148,13 @@ export default function FullWidthBanner({ config }: FullWidthBannerProps) {
         {/* Main Banner Image (Right-aligned / overflow visual) */}
         {mainImage && (
           <div className="absolute right-0 top-0 bottom-0 w-3/4 sm:w-3/5 md:w-1/2 lg:w-[55%] pointer-events-none z-10 flex items-center justify-end">
-            <Image 
-              src={mainImage} 
-              alt="Banner Product" 
-              width={1000} 
-              height={600} 
-              className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-700" 
+            <Image
+              src={mainImage}
+              alt={title || "Bannière promotionnelle"}
+              width={1000}
+              height={600}
+              loading="lazy"
+              className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-700"
             />
           </div>
         )}

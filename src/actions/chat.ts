@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { ChatSender, ChatSessionStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 // UUID validation helper
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -33,6 +33,14 @@ export async function getOrCreateSession(guestId: string, guestName?: string, gu
   });
 
   if (!session) {
+    // SECURITY: the guestId is client-chosen, so limit session creation per IP
+    // (prevents DB bloat and flooding of the admin notification bell).
+    const ip = await getClientIp();
+    const rlIp = await checkRateLimit(`chat_session_ip_${ip}`, 5, 3600); // 5 new sessions / hour / IP
+    if (!rlIp.success) {
+      throw new Error('Too many chat sessions created. Please try again later.');
+    }
+
     session = await prisma.chatSession.create({
       data: {
         guestId,
@@ -154,6 +162,14 @@ export async function sendMessage(sessionId: string, guestId: string, content: s
   const rl = await checkRateLimit(`chat_${guestId}`, 10, 60); // 10 messages per min
   if (!rl.success) {
     throw new Error('Too many messages sent. Please wait a moment.');
+  }
+
+  // SECURITY: also limit per IP (guestId can be rotated freely by an attacker);
+  // every customer message triggers an e-mail + push notification to the admin.
+  const ip = await getClientIp();
+  const rlIp = await checkRateLimit(`chat_msg_ip_${ip}`, 30, 3600); // 30 messages / hour / IP
+  if (!rlIp.success) {
+    throw new Error('Too many messages sent. Please try again later.');
   }
 
   await getOwnedSession(sessionId, guestId);

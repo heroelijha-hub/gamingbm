@@ -82,6 +82,31 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const baseUrl = SITE_URL;
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
 
+  // Calculate reading time
+  const textOnly = (article.content || '').replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+  const wordCount = textOnly ? textOnly.split(' ').length : 0;
+  const readingTimeMin = Math.max(1, Math.ceil(wordCount / 200));
+
+  // Extract Table of Contents from h2 tags
+  const headingRegex = /<h2[^>]*>(.*?)<\/h2>/gi;
+  const toc: { id: string; text: string }[] = [];
+  let hMatch;
+  let tocIdx = 0;
+  while ((hMatch = headingRegex.exec(article.content || '')) !== null) {
+    const rawText = hMatch[1].replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+    if (rawText) {
+      toc.push({ id: `section-${tocIdx++}`, text: rawText });
+    }
+  }
+
+  let processedHtml = article.content || '';
+  let insertIdx = 0;
+  processedHtml = processedHtml.replace(/<h2([^>]*)>(.*?)<\/h2>/gi, (match, attrs, inner) => {
+    if (attrs.includes('id=')) return match;
+    const id = `section-${insertIdx++}`;
+    return `<h2 id="${id}"${attrs}>${inner}</h2>`;
+  });
+
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -111,7 +136,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       {
         '@type': 'ListItem',
         position: 1,
-        name: 'Home',
+        name: 'Startseite',
         item: baseUrl,
       },
       {
@@ -169,6 +194,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                   {new Date(article.createdAt).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
                 <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {readingTimeMin} Min. Lesezeit
+                </span>
+                <span className="flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   {t('comments_count', { count: article.comments.length })}
                 </span>
@@ -177,15 +206,68 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               {/* Cover Image */}
               {article.image && (
                 <div className="w-full mb-8 rounded-xl overflow-hidden bg-gray-100 flex justify-center">
-                  <Image width={800} height={800} src={article.image} alt={article.title} className="max-h-[500px] object-cover" />
+                  <Image width={800} height={800} src={article.image} alt={article.title} priority fetchPriority="high" className="max-h-[500px] object-cover" />
                 </div>
+              )}
+
+              {/* Table of Contents */}
+              {toc.length >= 2 && (
+                <nav aria-label="Inhaltsverzeichnis" className="mb-8 p-6 bg-gradient-to-br from-orange-50/70 via-amber-50/30 to-white rounded-xl border border-orange-200/80 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4 text-orange-900 font-bold text-sm tracking-wide uppercase">
+                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
+                    Inhaltsverzeichnis
+                  </div>
+                  <ol className="space-y-2 text-sm">
+                    {toc.map((item, idx) => (
+                      <li key={item.id} className="flex items-baseline gap-2">
+                        <span className="text-orange-600 font-semibold text-xs">{idx + 1}.</span>
+                        <a href={`#${item.id}`} className="text-gray-700 hover:text-orange-600 hover:underline transition font-medium">
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
               )}
 
               {/* Rich Content */}
               <SafeHTML 
-                html={article.content}
+                html={processedHtml}
                 className="prose prose-orange max-w-none w-full overflow-hidden text-gray-700 leading-relaxed"
               />
+
+              {/* Commercial CTA Banner */}
+              <div className="my-10 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="space-y-2 text-center md:text-left">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-orange-100 bg-white/10 px-3 py-1 rounded-full inline-block">Gaming BM Spezialangebot</span>
+                  <h3 className="text-xl md:text-2xl font-black">Möchten Sie Ihr Setup zum besten Preis aufrüsten?</h3>
+                  <p className="text-sm text-orange-100 max-w-xl">
+                    Entdecken Sie unsere Konsolen, High-End Gaming-PCs und zertifiziertes Zubehör mit schnellem Versand und 2 Jahren Herstellergarantie.
+                  </p>
+                </div>
+                <Link 
+                  href="/shop" 
+                  className="px-6 py-3.5 bg-white text-orange-700 hover:bg-orange-50 font-bold text-sm rounded-xl shadow-md transition transform hover:-translate-y-0.5 whitespace-nowrap"
+                >
+                  Jetzt im Shop entdecken &rarr;
+                </Link>
+              </div>
+
+              {/* Author E-E-A-T Box */}
+              <div className="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                <div className="w-14 h-14 rounded-full bg-orange-600 text-white font-black text-xl flex items-center justify-center shrink-0 shadow-inner">
+                  {(article.authorName || 'GBM').substring(0, 2).toUpperCase()}
+                </div>
+                <div className="text-center sm:text-left space-y-1">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <h4 className="font-bold text-gray-900 text-base">{article.authorName || 'Gaming BM Redaktionsteam'}</h4>
+                    <span className="text-[11px] bg-green-100 text-green-800 font-semibold px-2 py-0.5 rounded-full">Verifizierter Experte</span>
+                  </div>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Spezialisten für Hardware, Next-Gen-Gaming und High-Tech-Ausrüstung. Unsere Kaufberater und Vergleichstests werden sorgfältig geprüft, um Ihnen die beste Hardware zum fairen Preis zu empfehlen.
+                  </p>
+                </div>
+              </div>
 
               {/* Footer / Links */}
               <div className="mt-12 pt-8 border-t border-gray-100">

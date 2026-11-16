@@ -9,22 +9,41 @@ const SENSITIVE_KEYS = new Set([
   'STRIPE_SECRET_KEY',
   'PAYPAL_SECRET',
   'SMTP_PASS',
+  'SMTP_PASSWORD',
+  'CRON_SECRET',
+  'SETUP_TOKEN',
 ]);
+
+const PUBLIC_HIDDEN_KEYS = new Set([
+  ...SENSITIVE_KEYS,
+  'SMTP_HOST',
+  'SMTP_USER',
+  'CONTACT_RECEIVER_EMAIL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+]);
+
+function maskSecret(value: string): string {
+  if (!value) return '';
+  return value.length > 4 ? `••••${value.slice(-4)}` : '••••';
+}
+
+function isMaskedSecret(value: string): boolean {
+  return /^••••.{0,4}$/.test(value);
+}
 
 /**
  * Fetch settings map.
  *
- * SECURITY: If called without an active ADMIN session, sensitive credentials
- * (Stripe Secret Key, PayPal Secret, SMTP Password) are stripped to prevent
- * unauthorized extraction through Next.js Server Action RPCs.
+ * SECURITY: Unauthenticated callers never receive private operational settings or secrets.
+ * Authenticated ADMIN callers receive masked placeholders for secret keys so raw credentials
+ * are never serialized into browser RSC props.
  */
 export async function getSettings() {
   const settings = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};
-  
+
   let isAdmin = false;
   try {
-    const { requireAdmin } = await import('@/lib/auth');
     await requireAdmin();
     isAdmin = true;
   } catch {
@@ -42,14 +61,11 @@ export async function getSettings() {
     }
   }
 
-  // Liste des clés secrètes à ne jamais exposer au public
-  const hiddenKeys = ['STRIPE_SECRET_KEY', 'PAYPAL_SECRET', 'CRON_SECRET', 'SMTP_PASSWORD', 'SMTP_PASS'];
-
   settings.forEach(s => {
-    // Si l'utilisateur est admin, on envoie tout. Sinon, on filtre les clés secrètes.
-    if (isAdmin || (!hiddenKeys.includes(s.key) && !SENSITIVE_KEYS.has(s.key))) {
-      settingsMap[s.key] = s.value;
+    if (!isAdmin && PUBLIC_HIDDEN_KEYS.has(s.key)) {
+      return;
     }
+    settingsMap[s.key] = SENSITIVE_KEYS.has(s.key) ? maskSecret(s.value) : s.value;
   });
 
   return settingsMap;
@@ -58,6 +74,9 @@ export async function getSettings() {
 export async function updateSetting(key: string, value: string) {
   await requireAdmin();
   try {
+    if (SENSITIVE_KEYS.has(key) && isMaskedSecret(value)) {
+      return { success: true };
+    }
     await prisma.setting.upsert({
       where: { key },
       update: { value },
@@ -74,17 +93,21 @@ export async function updateSetting(key: string, value: string) {
 export async function updateSettingsBatch(settingsMap: Record<string, string>) {
   await requireAdmin();
   try {
-    const transactions = Object.entries(settingsMap).map(([key, value]) => {
-      return prisma.setting.upsert({
-        where: { key },
-        update: { value },
-        create: { key, value }
+    const transactions = Object.entries(settingsMap)
+      .filter(([key, value]) => !(SENSITIVE_KEYS.has(key) && isMaskedSecret(value)))
+      .map(([key, value]) => {
+        return prisma.setting.upsert({
+          where: { key },
+          update: { value },
+          create: { key, value }
+        });
       });
-    });
-    
-    await prisma.$transaction(transactions);
-    revalidatePath('/', 'layout');
-    updateTag('settings');
+
+    if (transactions.length > 0) {
+      await prisma.$transaction(transactions);
+      revalidatePath('/', 'layout');
+      updateTag('settings');
+    }
     return { success: true };
   } catch (error: any) {
     return { error: error.message };

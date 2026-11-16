@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
-import { getSettings } from '@/actions/settings';
+import prisma from '@/lib/prisma';
 import { sendEmail, sendNewsletterWelcomeEmail } from '@/lib/mailer';
 import { escapeHtml } from '@/lib/security';
+import { verifyNewsletterToken } from '@/lib/newsletter';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,31 +15,21 @@ export async function GET(request: Request) {
   }
 
   try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [email, expiry, signature] = decoded.split('|');
-
-    if (!email || !expiry || !signature) {
-      return new NextResponse('Invalid token', { status: 400 });
+    const verification = verifyNewsletterToken(token);
+    if (!verification.valid) {
+      return new NextResponse(
+        verification.reason === 'expired' ? 'Token expired' : 'Invalid token',
+        { status: 400 }
+      );
     }
 
-    if (Date.now() > parseInt(expiry, 10)) {
-      return new NextResponse('Token expired', { status: 400 });
-    }
+    const { email } = verification;
 
-    // Strong secret resolution: use dedicated secret or server-side keys
-    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
-    const payload = `${email}|${expiry}`;
-    const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-
-    const expectedBuffer = Buffer.from(expectedSignature, 'hex');
-    const signatureBuffer = Buffer.from(signature, 'hex');
-
-    if (expectedBuffer.length !== signatureBuffer.length || !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)) {
-      return new NextResponse('Invalid signature', { status: 400 });
-    }
-
-    const settings = await getSettings();
-    const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'info@gamingbm.com';
+    const receiverSetting = await prisma.setting.findUnique({
+      where: { key: 'CONTACT_RECEIVER_EMAIL' },
+      select: { value: true }
+    });
+    const receiverEmail = receiverSetting?.value || 'info@gamingbm.com';
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
 
     // 1. Send notification to admin

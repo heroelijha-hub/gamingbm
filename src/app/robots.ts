@@ -3,11 +3,21 @@ import prisma from '@/lib/prisma';
 import { SITE_URL } from '@/lib/site';
 
 const DEFAULT_DISALLOW_PATHS = [
-  '/admin/', 
-  '/account/', 
-  '/checkout/', 
-  '/api/', 
-  '/categorie-produit/', 
+  '/admin/',
+  '/account/',
+  '/checkout/',
+  '/checkout',
+  '/cart/',
+  '/cart',
+  '/wishlist/',
+  '/wishlist',
+  '/compare/',
+  '/compare',
+  '/order-tracking/',
+  '/order-tracking',
+  '/search',
+  '/api/',
+  '/categorie-produit/',
   '/produit/',
   '/*?filter_cat=',
   '/*?column=',
@@ -16,7 +26,10 @@ const DEFAULT_DISALLOW_PATHS = [
   '/*?stock_status=',
   '/*?featured=',
   '/*?best_seller=',
-  '/*?add-to-cart='
+  '/*?add-to-cart=',
+  '/*?min_price=',
+  '/*?max_price=',
+  '/*?sort='
 ];
 
 export default async function robots(): Promise<MetadataRoute.Robots> {

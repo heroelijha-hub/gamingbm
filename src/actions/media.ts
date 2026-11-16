@@ -150,6 +150,82 @@ async function uploadBufferToCloudinary(buffer: Buffer, mimeType: string): Promi
   });
 }
 
+const ALLOWED_MEDIA_MIME_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
+  'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+  'application/pdf'
+]);
+
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+function validateMediaBuffer(buffer: Buffer, mimeType: string): string | null {
+  if (buffer.length === 0) return 'Fichier vide.';
+
+  switch (mimeType) {
+    case 'image/jpeg':
+      return buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff
+        ? null : 'Signature JPEG invalide.';
+    case 'image/png':
+      return buffer.length >= 8 && buffer.subarray(0, 8).equals(PNG_MAGIC)
+        ? null : 'Signature PNG invalide.';
+    case 'image/gif': {
+      const head = buffer.subarray(0, 6).toString('ascii');
+      return head === 'GIF87a' || head === 'GIF89a' ? null : 'Signature GIF invalide.';
+    }
+    case 'image/webp':
+      return buffer.length >= 12 &&
+        buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+        buffer.subarray(8, 12).toString('ascii') === 'WEBP'
+        ? null : 'Signature WebP invalide.';
+    case 'application/pdf':
+      return buffer.subarray(0, 5).toString('ascii') === '%PDF-' ? null : 'Signature PDF invalide.';
+    case 'video/webm':
+      return buffer.length >= 4 && buffer[0] === 0x1a && buffer[1] === 0x45 && buffer[2] === 0xdf && buffer[3] === 0xa3
+        ? null : 'Signature WebM invalide.';
+    case 'video/ogg':
+      return buffer.subarray(0, 4).toString('ascii') === 'OggS' ? null : 'Signature Ogg invalide.';
+    case 'video/mp4':
+    case 'video/quicktime':
+      return buffer.length >= 8 && buffer.subarray(4, 8).toString('ascii') === 'ftyp'
+        ? null : 'Signature vidéo MP4/MOV invalide.';
+    case 'image/svg+xml': {
+      const svgText = buffer.toString('utf8');
+      if (!/<svg[\s>]/i.test(svgText)) return 'Contenu SVG invalide.';
+      if (/<script\b|<foreignObject\b|<iframe\b|javascript:|vbscript:|data:text\/html|\bon[a-z]+\s*=/i.test(svgText)) {
+        return 'SVG rejeté : contenu actif ou script interdit.';
+      }
+      return null;
+    }
+    default:
+      return 'Type de fichier non supporté.';
+  }
+}
+
+async function processAndCreateMedia(file: File): Promise<{ url: string; media: any }> {
+  if (!ALLOWED_MEDIA_MIME_TYPES.has(file.type)) {
+    throw new Error('Type de fichier non autorisé. Formats acceptés : images, vidéos web et PDF.');
+  }
+  if (file.size <= 0 || file.size > 10 * 1024 * 1024) {
+    throw new Error('Taille de fichier invalide (max 10 Mo).');
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const magicErr = validateMediaBuffer(buffer, file.type);
+  if (magicErr) {
+    throw new Error(magicErr);
+  }
+
+  const secureUrl = await uploadBufferToCloudinary(buffer, file.type);
+  const safeTitle = String(file.name || 'media').slice(0, 200);
+  const media = await prisma.media.create({
+    data: {
+      url: secureUrl,
+      title: safeTitle,
+    }
+  });
+  return { url: secureUrl, media };
+}
+
 export async function uploadMediaAction(formData: FormData) {
   await requireAdmin();
   
@@ -157,37 +233,13 @@ export async function uploadMediaAction(formData: FormData) {
     const file = formData.get('file') as File;
     if (!file) return { error: 'Aucun fichier fourni' };
 
-    const ALLOWED_MIME_TYPES = new Set([
-      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
-      'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
-      'application/pdf'
-    ]);
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
-      return { error: 'Type de fichier non autorisé. Formats acceptés : images, vidéos web et PDF.' };
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      return { error: 'Fichier trop volumineux (max 10 Mo).' };
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const secureUrl = await uploadBufferToCloudinary(buffer, file.type);
-
-    // Create media entry
-    const media = await prisma.media.create({
-      data: {
-        url: secureUrl,
-        title: file.name,
-      }
-    });
+    const { url, media } = await processAndCreateMedia(file);
 
     revalidatePath('/admin/media');
-    return { success: true, url: secureUrl, media };
+    return { success: true, url, media };
   } catch (error: any) {
     console.error('Error uploading media:', error);
-    return { error: 'Erreur lors de l\'upload' };
+    return { error: error?.message || 'Erreur lors de l\'upload' };
   }
 }
 
@@ -200,44 +252,18 @@ export async function uploadMultipleMediaAction(formData: FormData) {
     const allFiles = files && files.length > 0 ? files : (singleFile ? [singleFile] : []);
 
     if (allFiles.length === 0) return { error: 'Aucun fichier fourni' };
-
-    const ALLOWED_MIME_TYPES = new Set([
-      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
-      'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
-      'application/pdf'
-    ]);
+    if (allFiles.length > 30) return { error: 'Maximum 30 fichiers par envoi.' };
 
     const results: Array<{ url: string; media: any }> = [];
     const errors: string[] = [];
 
     for (const file of allFiles) {
-      if (!ALLOWED_MIME_TYPES.has(file.type)) {
-        errors.push(`${file.name}: Type de fichier non autorisé.`);
-        continue;
-      }
-
-      if (file.size > 10 * 1024 * 1024) {
-        errors.push(`${file.name}: Fichier trop volumineux (> 10 Mo).`);
-        continue;
-      }
-
       try {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-
-        const secureUrl = await uploadBufferToCloudinary(buffer, file.type);
-
-        const media = await prisma.media.create({
-          data: {
-            url: secureUrl,
-            title: file.name,
-          }
-        });
-
-        results.push({ url: secureUrl, media });
+        const uploaded = await processAndCreateMedia(file);
+        results.push(uploaded);
       } catch (err: any) {
         console.error(`Error uploading ${file.name}:`, err);
-        errors.push(`${file.name}: Échec du téléversement.`);
+        errors.push(`${file.name}: ${err?.message || 'Échec du téléversement.'}`);
       }
     }
 

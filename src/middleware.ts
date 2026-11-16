@@ -8,57 +8,70 @@ const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 let ratelimit: Ratelimit | null = null;
+let adminRatelimit: Ratelimit | null = null;
 if (redisUrl && redisToken) {
+  const redis = new Redis({ url: redisUrl, token: redisToken });
+  // Public site: 60 requests / 10 s per IP (Next.js prefetching fires bursts of requests)
   ratelimit = new Ratelimit({
-    redis: new Redis({ url: redisUrl, token: redisToken }),
-    limiter: Ratelimit.slidingWindow(30, '10 s'), // 30 max requests per 10 seconds per IP
+    redis,
+    limiter: Ratelimit.slidingWindow(60, '10 s'),
     analytics: true,
+    prefix: 'gamingbm_mw_public',
+  });
+  // Back-office: much wider window (sidebar prefetch + notification polling),
+  // but NEVER exempt: a hard cap still protects /admin from floods.
+  // Brute-force protection of the login itself is enforced per action (loginAdmin).
+  adminRatelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(300, '10 s'),
+    analytics: true,
+    prefix: 'gamingbm_mw_admin',
   });
 }
 
-export async function middleware(request: NextRequest) {
-  const isPrefetch = request.headers.get('purpose') === 'prefetch' || request.headers.get('x-middleware-prefetch') === '1';
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+function tooManyRequests(request: NextRequest, limit: number, remaining: number, reset: number) {
+  const retryAfter = Math.max(1, Math.ceil((reset - Date.now()) / 1000)).toString();
+  const headers = {
+    'X-RateLimit-Limit': limit.toString(),
+    'X-RateLimit-Remaining': remaining.toString(),
+    'X-RateLimit-Reset': reset.toString(),
+    'Retry-After': retryAfter,
+  };
 
-  // 1. Rate Limiting Check (Protection anti-DDoS / Brute force sur routes publiques)
-  if (ratelimit && !isAdminRoute && !isPrefetch) {
+  // Never answer RSC / Server Action / JSON requests with an HTML page: the
+  // Next.js client router cannot parse it and shows the "reload" error screen.
+  const isRSC = request.headers.get('rsc') === '1' || request.nextUrl.searchParams.has('_rsc');
+  const isAction = request.headers.has('next-action');
+  if (isRSC || isAction || request.headers.get('accept')?.includes('application/json')) {
+    return NextResponse.json({ error: 'Too Many Requests', retryAfter: Number(retryAfter) }, { status: 429, headers });
+  }
+
+  return new NextResponse(
+    `<!DOCTYPE html><html><head><title>429 Too Many Requests</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family: system-ui; text-align: center; padding: 2rem; background: #f9fafb;"><h1 style="color: #ef4444;">Access temporarily blocked</h1><p>You have sent too many requests in a short time.</p><p>For security reasons, please wait a few seconds before trying again.</p></body></html>`,
+    { status: 429, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
+
+export async function middleware(request: NextRequest) {
+  // 1. Rate limiting (anti-DDoS / brute force).
+  // SECURITY: no bypass based on request headers (Purpose / x-middleware-prefetch are
+  // client-controlled and trivially spoofable). /admin uses a wider dedicated limiter.
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const limiter = isAdminRoute ? adminRatelimit : ratelimit;
+
+  if (limiter) {
     // Get IP address from headers (Vercel sets x-forwarded-for)
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (request as any).ip ?? '127.0.0.1';
-    
-    // Check limit for this IP
-    const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`);
-    
-    if (!success) {
-      const isRSC = request.headers.get('rsc') === '1' || request.nextUrl.searchParams.has('_rsc');
-      if (isRSC || request.headers.get('accept')?.includes('application/json')) {
-        return NextResponse.json(
-          { error: 'Too Many Requests', retryAfter: Math.ceil((reset - Date.now()) / 1000) },
-          {
-            status: 429,
-            headers: {
-              'X-RateLimit-Limit': limit.toString(),
-              'X-RateLimit-Remaining': remaining.toString(),
-              'X-RateLimit-Reset': reset.toString(),
-              'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
-            }
-          }
-        );
-      }
 
-      return new NextResponse(
-        `<!DOCTYPE html><html><head><title>429 Too Many Requests</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family: system-ui; text-align: center; padding: 2rem; background: #f9fafb;"><h1 style="color: #ef4444;">Access temporarily blocked</h1><p>You have sent too many requests in a short time.</p><p>For security reasons, please wait a few seconds before trying again.</p></body></html>`,
-        { 
-          status: 429, 
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': reset.toString(),
-            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
-          } 
-        }
-      );
+    try {
+      const { success, limit, reset, remaining } = await limiter.limit(`ip_${ip}`);
+      if (!success) {
+        return tooManyRequests(request, limit, remaining, reset);
+      }
+    } catch (err) {
+      // Fail open if Redis is unreachable: never take the whole site down.
+      console.error('[Middleware] Rate limiter error:', err);
     }
   }
 

@@ -8,6 +8,9 @@ export async function generateMetadata() {
   return {
     title: `${t('page_title')} - ${storeName}`,
     description: t('page_description'),
+    alternates: {
+      canonical: '/store-locator',
+    },
   };
 }
 

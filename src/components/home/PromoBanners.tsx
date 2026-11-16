@@ -58,7 +58,7 @@ export default async function PromoBanners({ config }: { config?: any }) {
               </Link>
             </div>
             {config.BANNER_1_IMAGE && (
-              <Image src={config.BANNER_1_IMAGE} alt={config.BANNER_1_TITLE} width={600} height={600} className="absolute right-4 top-1/2 -translate-y-1/2 h-4/5 object-contain group-hover:scale-105 transition-transform duration-500 z-0" />
+              <Image src={config.BANNER_1_IMAGE} alt={config.BANNER_1_TITLE} width={600} height={600} loading="lazy" className="absolute right-4 top-1/2 -translate-y-1/2 h-4/5 object-contain group-hover:scale-105 transition-transform duration-500 z-0" />
             )}
           </div>
         )}
@@ -90,7 +90,7 @@ export default async function PromoBanners({ config }: { config?: any }) {
               </Link>
             </div>
             {config.BANNER_2_IMAGE && (
-              <Image src={config.BANNER_2_IMAGE} alt={config.BANNER_2_TITLE} width={600} height={600} className="absolute right-4 top-1/2 -translate-y-1/2 h-4/5 object-contain group-hover:scale-105 transition-transform duration-500 z-0" />
+              <Image src={config.BANNER_2_IMAGE} alt={config.BANNER_2_TITLE} width={600} height={600} loading="lazy" className="absolute right-4 top-1/2 -translate-y-1/2 h-4/5 object-contain group-hover:scale-105 transition-transform duration-500 z-0" />
             )}
           </div>
         )}

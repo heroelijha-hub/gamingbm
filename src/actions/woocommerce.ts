@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { v2 as cloudinary } from 'cloudinary';
 import { getTranslations } from 'next-intl/server';
+import { fetchRemoteImage } from '@/lib/safeFetch';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -19,11 +20,9 @@ cloudinary.config({
  */
 async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string | null> {
   try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
-    
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // SECURITY: image URLs come from a third-party store -> SSRF-safe download
+    // (http(s) only, no private/metadata IPs, validated redirects, size cap, timeout).
+    const { buffer } = await fetchRemoteImage(imageUrl);
 
     return new Promise<string>((resolve, reject) => {
       cloudinary.uploader.upload_stream(

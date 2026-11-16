@@ -56,14 +56,36 @@ export function basicSanitizeHtml(html: string): string {
   // Handles: onclick=..., /onerror=..., onfocus = "...", etc.
   out = out.replace(/(?:[\s/]|&NewLine;)+on[a-z0-9_-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>/]+))?/gi, '');
 
-  // Helper to decode HTML entities and strip whitespace/control chars for protocol checking
+  // Decode the HTML entities a browser would decode inside an attribute value,
+  // then strip whitespace/control chars (browsers ignore them inside a URL scheme).
+  // Named entities that matter for a scheme (&colon; &Tab; &NewLine;) are decoded
+  // explicitly; any OTHER named entity left over is flagged as unsafe by isSafeUrl().
+  function decodeAttr(value: string) {
+    return value
+      .replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(Math.min(parseInt(hex, 16), 0x10ffff)))
+      .replace(/&#([0-9]+);?/g, (_, dec) => String.fromCodePoint(Math.min(parseInt(dec, 10), 0x10ffff)))
+      .replace(/&colon;/gi, ':')
+      .replace(/&(?:tab|newline);/gi, '');
+  }
+
   function normalizeUrl(url: string) {
-    return url
-      .replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-      .replace(/&#([0-9]+);?/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
-      .replace(/&[a-z]+;/gi, '')
+    return decodeAttr(url)
+      .replace(/&[a-z][a-z0-9]*;/gi, '')
       .replace(/[\u0000-\u0020\s\t\r\n\\]+/g, '')
       .toLowerCase();
+  }
+
+  const SAFE_SCHEMES = new Set(['http', 'https', 'mailto', 'tel']);
+
+  // Allowlist approach: relative URLs are fine, absolute ones must use a safe scheme.
+  function isSafeUrl(raw: string) {
+    const decoded = decodeAttr(raw).replace(/[\u0000-\u0020\s\t\r\n\\]+/g, '').toLowerCase();
+    // Any unknown named entity before the first path/query/fragment delimiter could hide a scheme.
+    const head = decoded.split(/[/?#]/, 1)[0];
+    if (/&[a-z][a-z0-9]*;?/.test(head)) return false;
+    const m = decoded.match(/^([a-z][a-z0-9+.-]*):/);
+    if (m) return SAFE_SCHEMES.has(m[1]);
+    return true;
   }
 
   // 4. Neutralise dangerous URL schemes in attributes (href, src, action, etc.)
@@ -71,8 +93,7 @@ export function basicSanitizeHtml(html: string): string {
     /(?:[\s/])(href|src|action|formaction|xlink:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
     (match, attr, qDouble, qSingle, unquoted) => {
       const rawVal = qDouble !== undefined ? qDouble : (qSingle !== undefined ? qSingle : unquoted);
-      const normalized = normalizeUrl(rawVal);
-      if (/^(javascript|vbscript|data):/i.test(normalized)) {
+      if (!isSafeUrl(rawVal)) {
         return ` ${attr}="#"`;
       }
       return match;
@@ -86,6 +107,13 @@ export function basicSanitizeHtml(html: string): string {
       return '';
     }
     return match;
+  });
+
+  // 5b. Force rel="noopener noreferrer" on links opening in a new tab
+  out = out.replace(/<a\b[^>]*>/gi, (tag) => {
+    if (!/\btarget\s*=\s*["']?_blank/i.test(tag)) return tag;
+    const stripped = tag.replace(/\srel\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    return stripped.replace(/>$/, ' rel="noopener noreferrer">');
   });
 
   // 6. Only allow iframes from trusted video providers

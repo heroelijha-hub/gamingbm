@@ -57,6 +57,16 @@ export default function AdminSetupPage() {
                 placeholder={t('password_placeholder')}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Token d&apos;initialisation (si configuré)</label>
+              <input
+                name="setupToken"
+                type="password"
+                autoComplete="off"
+                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 focus:z-10 sm:text-sm"
+                placeholder="SETUP_TOKEN (optionnel si non défini)"
+              />
+            </div>
           </div>
 
           <div>

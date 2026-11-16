@@ -3,8 +3,17 @@ import TrackingMap from '@/components/tracking/TrackingMap';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { computeAutoStatus } from '@/lib/autoTracking';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Suivi de commande',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function TrackingPage({ searchParams }: { searchParams: Promise<{ number?: string }> }) {
   const { number } = await searchParams;

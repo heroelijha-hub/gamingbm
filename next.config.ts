@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
   async redirects() {
@@ -53,6 +57,41 @@ const nextConfig: NextConfig = {
         destination: '/blog',
         permanent: true,
       },
+      {
+        source: '/allgemeine-verkaufsbedingungen',
+        destination: '/allgemeine-geschaeftsbedingungen',
+        permanent: true,
+      },
+      {
+        source: '/versandrichtlinien',
+        destination: '/versand-und-lieferung',
+        permanent: true,
+      },
+      {
+        source: '/zahlungpolitik',
+        destination: '/zahlungsinformationen',
+        permanent: true,
+      },
+      {
+        source: '/rueckgabe--und-erstattungsrichtlinien',
+        destination: '/rueckgabe-und-ruecksendungen',
+        permanent: true,
+      },
+      {
+        source: '/datenschutzerklearung',
+        destination: '/datenschutzerklaerung',
+        permanent: true,
+      },
+      {
+        source: '/garantie-und-geweahrleistung',
+        destination: '/garantie-und-gewaehrleistung',
+        permanent: true,
+      },
+      {
+        source: '/orders',
+        destination: '/order-tracking',
+        permanent: true,
+      },
 
       {
         source: '/wp-content/:path*',
@@ -78,6 +117,16 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        // Cache static assets and media for 1 year
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
       {
         // Apply security headers to all routes
         source: '/(.*)',
@@ -108,7 +157,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.stripe.com https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://js.stripe.com https://www.paypal.com; object-src 'none'; base-uri 'self'; form-action 'self' https://www.paypal.com https://*.stripe.com; frame-ancestors 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://*.stripe.com https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://us.i.posthog.com https://us-assets.i.posthog.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://js.stripe.com https://www.paypal.com; object-src 'none'; base-uri 'self'; form-action 'self' https://www.paypal.com https://*.stripe.com; frame-ancestors 'self';",
           },
         ],
       },

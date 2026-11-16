@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 2. Produits dynamiques
   const products = await prisma.product.findMany({
     where: { isDeleted: false },
-    select: { slug: true, updatedAt: true },
+    select: { slug: true, updatedAt: true, images: true },
   });
 
   const productPages = products.map((product) => ({
@@ -66,22 +66,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: product.updatedAt,
     changeFrequency: 'weekly' as const,
     priority: 0.8,
+    images: product.images && product.images.length > 0 ? [product.images[0]] : undefined,
   }));
 
   // 3. Articles de Blog dynamiques
   const articles = await prisma.article.findMany({
     where: { isPublished: true },
-    select: { slug: true, updatedAt: true },
+    select: { slug: true, updatedAt: true, image: true },
   });
 
   const articlePages = articles.map((article) => ({
     url: `${baseUrl}/blog/${article.slug}`,
     lastModified: article.updatedAt,
     changeFrequency: 'weekly' as const,
-    priority: 0.7,
+    priority: 0.75,
+    images: article.image ? [article.image] : undefined,
   }));
 
-  // 4. Dynamic categories
+  // 4. Dynamic categories (landing pages e-commerce prioritaires)
   const categories = await prisma.category.findMany({
     select: { slug: true },
   });
@@ -92,11 +94,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/product-category/${category.slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
-      priority: 0.6,
+      priority: 0.85,
     }));
 
-  // 5. CMS Pages
+  // 5. CMS Pages (uniquement les pages publiées)
   const pages = await prisma.page.findMany({
+    where: { isPublished: true },
     select: { slug: true, updatedAt: true },
   });
 

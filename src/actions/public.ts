@@ -6,7 +6,7 @@ import { unstable_cache } from 'next/cache';
 export const getBestDeals = unstable_cache(
   async () => {
     return await prisma.product.findMany({
-      where: { isDealOfTheDay: true },
+      where: { isDeleted: false, isDealOfTheDay: true },
       include: { categories: true, reviews: { where: { isApproved: true } } },
       take: 4,
       orderBy: { createdAt: 'desc' }
@@ -19,7 +19,7 @@ export const getBestDeals = unstable_cache(
 export const getBestSellers = unstable_cache(
   async () => {
     return await prisma.product.findMany({
-      where: { isBestSeller: true },
+      where: { isDeleted: false, isBestSeller: true },
       include: { categories: true, reviews: { where: { isApproved: true } } },
       take: 10,
       orderBy: { createdAt: 'desc' }
@@ -34,14 +34,14 @@ export const getFilteredProducts = async (filterType: string, categoryId?: strin
     async () => {
       if (filterType === 'MANUAL' && productIds && productIds.length > 0) {
         const products = await prisma.product.findMany({
-          where: { id: { in: productIds } },
+          where: { isDeleted: false, id: { in: productIds } },
           include: { categories: true, reviews: { where: { isApproved: true } } },
           take: limit,
         });
         return products.sort((a, b) => productIds.indexOf(a.id) - productIds.indexOf(b.id));
       }
 
-      let where: any = {};
+      let where: any = { isDeleted: false };
       let orderBy: any = { createdAt: 'desc' };
 
       if (filterType === 'ON_SALE') {

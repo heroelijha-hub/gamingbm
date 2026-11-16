@@ -3,8 +3,27 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import Price from '@/components/Price';
 import ProductCard from '@/components/shop/ProductCard';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}): Promise<Metadata> {
+  const resolvedParams = await searchParams;
+  const q = typeof resolvedParams.q === 'string' ? resolvedParams.q.trim() : '';
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
+
+  return {
+    title: q ? `Recherche : "${q}" | ${storeName}` : `Recherche de produits | ${storeName}`,
+    robots: {
+      index: false,
+      follow: true,
+    },
+  };
+}
 
 export default async function SearchPage({
   searchParams

@@ -156,6 +156,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
               alt={product.title} 
               width={500}
               height={500}
+              loading="lazy"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
@@ -247,6 +248,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
             alt={product.title} 
             width={500}
             height={500}
+            loading="lazy"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
         ) : (

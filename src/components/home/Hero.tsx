@@ -105,7 +105,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.HERO_1_BG_IMAGE && settings.HERO_1_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.HERO_1_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
+          <Image src={settings.HERO_1_BG_IMAGE} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
           <div className={`absolute inset-0 z-[1] transition-opacity duration-300 ${getOverlayClass('HERO_1', 'grad-t')}`} style={{ opacity: (parseInt(settings.HERO_1_BG_OVERLAY || '80', 10) / 100).toFixed(2) }}></div>
         </>
       )}
@@ -143,7 +143,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         />
       </div>
       {settings.HERO_1_IMAGE && settings.HERO_1_SHOW_IMAGE !== 'false' && (
-        <Image src={settings.HERO_1_IMAGE} alt="Hero 1" width={800} height={800} className="absolute top-8 left-1/2 -translate-x-1/2 w-4/5 object-contain max-h-[40%] group-hover:scale-110 transition-transform duration-700 z-0 drop-shadow-2xl" priority />
+        <Image src={settings.HERO_1_IMAGE} alt={settings.HERO_1_TITLE || "Offre spéciale"} width={800} height={800} className="absolute top-8 left-1/2 -translate-x-1/2 w-4/5 object-contain max-h-[40%] group-hover:scale-110 transition-transform duration-700 z-0 drop-shadow-2xl" priority />
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={1} />}
     </div>
@@ -159,7 +159,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.HERO_2_BG_IMAGE && settings.HERO_2_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.HERO_2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
+          <Image src={settings.HERO_2_BG_IMAGE} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
           <div className={`absolute inset-0 z-[1] transition-opacity duration-300 ${getOverlayClass('HERO_2', 'grad-t')}`} style={{ opacity: (parseInt(settings.HERO_2_BG_OVERLAY || '70', 10) / 100).toFixed(2) }}></div>
         </>
       )}
@@ -188,7 +188,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         />
       </div>
       {settings.HERO_2_IMAGE && settings.HERO_2_SHOW_IMAGE !== 'false' && (
-        <Image src={settings.HERO_2_IMAGE} alt="Hero 2" width={800} height={800} className={`absolute top-4 w-[45%] sm:w-[50%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-xl ${settings.HERO_2_ALIGN === 'right' ? 'left-0' : 'right-0'}`} priority />
+        <Image src={settings.HERO_2_IMAGE} alt={settings.HERO_2_TITLE || "Produit vedette"} width={800} height={800} className={`absolute top-4 w-[45%] sm:w-[50%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-xl ${settings.HERO_2_ALIGN === 'right' ? 'left-0' : 'right-0'}`} priority />
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={2} />}
     </div>
@@ -204,7 +204,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.HERO_3_BG_IMAGE && settings.HERO_3_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.HERO_3_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
+          <Image src={settings.HERO_3_BG_IMAGE} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
           <div className={`absolute inset-0 z-[1] transition-opacity duration-300 ${getOverlayClass('HERO_3', 'grad-t')}`} style={{ opacity: (parseInt(settings.HERO_3_BG_OVERLAY || '70', 10) / 100).toFixed(2) }}></div>
         </>
       )}
@@ -233,7 +233,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         />
       </div>
       {settings.HERO_3_IMAGE && settings.HERO_3_SHOW_IMAGE !== 'false' && (
-        <Image src={settings.HERO_3_IMAGE} alt="Hero 3" width={800} height={800} className={`absolute top-4 w-[45%] sm:w-[50%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-xl ${settings.HERO_3_ALIGN === 'right' ? 'left-0' : 'right-0'}`} priority />
+        <Image src={settings.HERO_3_IMAGE} alt={settings.HERO_3_TITLE || "Nouveauté boutique"} width={800} height={800} className={`absolute top-4 w-[45%] sm:w-[50%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-xl ${settings.HERO_3_ALIGN === 'right' ? 'left-0' : 'right-0'}`} priority />
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={3} />}
     </div>
@@ -249,7 +249,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.HERO_4_BG_IMAGE && settings.HERO_4_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.HERO_4_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
+          <Image src={settings.HERO_4_BG_IMAGE} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 500px" quality={60} />
           <div className={`absolute inset-0 z-[1] transition-opacity duration-300 ${getOverlayClass('HERO_4', 'grad-r')}`} style={{ opacity: (parseInt(settings.HERO_4_BG_OVERLAY || '80', 10) / 100).toFixed(2) }}></div>
         </>
       )}
@@ -278,7 +278,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         />
       </div>
       {settings.HERO_4_IMAGE && settings.HERO_4_SHOW_IMAGE !== 'false' && (
-        <Image src={settings.HERO_4_IMAGE} alt="Hero 4" width={800} height={800} className={`absolute sm:top-1/2 sm:-translate-y-1/2 bottom-0 w-[45%] sm:w-[40%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-2xl ${settings.HERO_4_ALIGN === 'right' ? 'left-0 sm:left-4' : 'right-0 sm:right-4'}`} priority />
+        <Image src={settings.HERO_4_IMAGE} alt={settings.HERO_4_TITLE || "Sélection spéciale"} width={800} height={800} className={`absolute sm:top-1/2 sm:-translate-y-1/2 bottom-0 w-[45%] sm:w-[40%] object-contain group-hover:scale-110 transition-transform duration-700 z-10 drop-shadow-2xl ${settings.HERO_4_ALIGN === 'right' ? 'left-0 sm:left-4' : 'right-0 sm:right-4'}`} priority />
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={4} />}
     </div>
@@ -300,7 +300,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     >
       {block1Slide1BgImage && block1Slide1ShowBg && (
         <>
-          <Image src={block1Slide1BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
+          <Image src={block1Slide1BgImage} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
           <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block1Slide1BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
@@ -350,7 +350,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       {(settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE) && (settings.STYLE2_HERO_1_SHOW_IMAGE !== 'false' && settings.HERO_1_SHOW_IMAGE !== 'false') && (
         <Image
           src={settings.STYLE2_HERO_1_IMAGE || settings.HERO_1_IMAGE}
-          alt="Hero Product"
+          alt={settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE || "Produit en vedette"}
           width={800}
           height={800}
           className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none animate-hero-image"
@@ -370,7 +370,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     >
       {settings.STYLE2_HERO_1_SLIDE2_BG_IMAGE && settings.STYLE2_HERO_1_SLIDE2_SHOW_BG_IMAGE !== 'false' && (
         <>
-          <Image src={settings.STYLE2_HERO_1_SLIDE2_BG_IMAGE} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
+          <Image src={settings.STYLE2_HERO_1_SLIDE2_BG_IMAGE} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px" quality={75} />
           <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(settings.STYLE2_HERO_1_SLIDE2_BG_OVERLAY || '0', 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
@@ -420,7 +420,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
       {(settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE) && settings.STYLE2_HERO_1_SLIDE2_SHOW_IMAGE !== 'false' && (
         <Image
           src={settings.STYLE2_HERO_1_SLIDE2_IMAGE || settings.STYLE2_HERO_1_IMAGE}
-          alt="Hero Product"
+          alt={settings.STYLE2_HERO_1_SLIDE2_TITLE || settings.STYLE2_HERO_1_TITLE || "Produit en vedette"}
           width={800}
           height={800}
           className="absolute right-0 bottom-4 w-3/4 md:w-2/3 lg:w-[58%] h-[85%] object-contain object-right-bottom group-hover:scale-105 transition-transform duration-700 z-10 pointer-events-none animate-hero-image"
@@ -452,7 +452,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     >
       {block2BgImage && block2ShowBg && (
         <>
-          <Image src={block2BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <Image src={block2BgImage} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
           <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block2BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
@@ -506,7 +506,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.STYLE2_HERO_2_IMAGE && settings.STYLE2_HERO_2_SHOW_IMAGE !== 'false' && (
         <div className="absolute right-0 top-0 bottom-0 w-[45%] p-3 flex items-center justify-end z-10 pointer-events-none">
-          <Image src={settings.STYLE2_HERO_2_IMAGE} alt="Hero 2" width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
+          <Image src={settings.STYLE2_HERO_2_IMAGE} alt={settings.STYLE2_HERO_2_TITLE || "Offre exclusive"} width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={2} />}
@@ -527,7 +527,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
     >
       {block3BgImage && block3ShowBg && (
         <>
-          <Image src={block3BgImage} alt="Background" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
+          <Image src={block3BgImage} alt="" role="presentation" fill priority fetchPriority="high" className="object-cover object-center z-0" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" quality={65} />
           <div className="absolute inset-0 z-[1] transition-opacity duration-300" style={{ backgroundColor: `rgba(0,0,0,${(parseInt(block3BgOverlay, 10) / 100).toFixed(2)})` }}></div>
         </>
       )}
@@ -581,7 +581,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
 
       {settings.STYLE2_HERO_3_IMAGE && settings.STYLE2_HERO_3_SHOW_IMAGE !== 'false' && (
         <div className="absolute right-0 top-0 bottom-0 w-[45%] p-3 flex items-center justify-end z-10 pointer-events-none">
-          <Image src={settings.STYLE2_HERO_3_IMAGE} alt="Hero 3" width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
+          <Image src={settings.STYLE2_HERO_3_IMAGE} alt={settings.STYLE2_HERO_3_TITLE || "Sélection boutique"} width={500} height={500} className="w-full h-full object-contain object-right group-hover:scale-105 transition-transform duration-500" />
         </div>
       )}
       {isPreview && sectionId && <HeroPreviewEditButton sectionId={sectionId} blockNum={3} />}

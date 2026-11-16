@@ -5,6 +5,7 @@ import ShopSort from '@/components/shop/ShopSort';
 import ShopPagination from '@/components/shop/ShopPagination';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import CategorySeoSection from '@/components/shop/CategorySeoSection';
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
@@ -18,12 +19,12 @@ export async function generateMetadata({
 }) {
   const params = await searchParams;
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
-  
+
   // Extract category
   const categoryParams = params.category;
   const rawCategories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
   const categories = rawCategories.map(c => decodeURIComponent(c));
-  
+
   if (categories.length === 1) {
     const rawCat = categories[0];
     const orCond: any[] = [{ slug: rawCat }];
@@ -33,21 +34,21 @@ export async function generateMetadata({
     const category = await prisma.category.findFirst({
       where: { OR: orCond }
     });
-    
+
     if (category) {
       return {
         title: category.metaTitle ? category.metaTitle : `${category.name} | ${storeName}`,
-        description: category.metaDescription || `Kaufen Sie ${category.name} günstig online bei ${storeName}.`,
+        description: category.metaDescription || `Entdecken Sie unsere Auswahl an ${category.name} zum besten Preis bei ${storeName}. Geprüfte Qualität und schneller Versand.`,
         alternates: {
-          canonical: `/shop?category=${category.slug}`,
+          canonical: `/product-category/${category.slug}`,
         },
       };
     }
   }
 
   return {
-    title: `Shop | ${storeName}`,
-    description: 'Entdecken Sie unser großes Sortiment an Kaminöfen, Pelletöfen, Brennholz und Holzbriketts.',
+    title: `Online-Shop | ${storeName}`,
+    description: `Entdecken Sie unser gesamtes Sortiment im ${storeName} Online-Shop. Konsolen, Gaming-PCs, Smartphones und Zubehör mit 2 Jahren Garantie und schnellem Versand.`,
     alternates: {
       canonical: '/shop',
     },
@@ -61,22 +62,22 @@ export default async function ShopPage({
 }) {
   const params = await searchParams;
   const t = await getTranslations('Shop');
-  
+
   // Extract query params
   const categoryParams = params.category;
   const rawCategories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
   const categories = rawCategories.map(c => decodeURIComponent(c));
-  
+
   const brandParams = params.brand;
   const rawBrands = Array.isArray(brandParams) ? brandParams : brandParams ? [brandParams] : [];
   const brandsFilter = rawBrands.map(b => decodeURIComponent(b));
-  
+
   const minPrice = params.minPrice ? parseFloat(params.minPrice as string) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice as string) : undefined;
-  
+
   const ratingParams = params.rating;
   const ratings = Array.isArray(ratingParams) ? ratingParams.map(Number) : ratingParams ? [Number(ratingParams)] : [];
-  
+
   const sort = params.sort as string;
   const page = params.page ? parseInt(params.page as string) : 1;
   const limit = 12;
@@ -85,7 +86,7 @@ export default async function ShopPage({
   const where: any = {
     isDeleted: false,
   };
-  
+
   if (categories.length > 0) {
     const catUuids = categories.filter(isUuid);
     const catSlugs = categories.filter(s => !isUuid(s));
@@ -101,7 +102,7 @@ export default async function ShopPage({
       };
     }
   }
-  
+
   if (brandsFilter.length > 0) {
     const brandUuids = brandsFilter.filter(isUuid);
     const brandSlugs = brandsFilter.filter(s => !isUuid(s));
@@ -120,7 +121,7 @@ export default async function ShopPage({
       };
     }
   }
-  
+
   if (minPrice !== undefined || maxPrice !== undefined) {
     where.price = {};
     if (minPrice !== undefined && !isNaN(minPrice)) where.price.gte = minPrice;
@@ -185,8 +186,8 @@ export default async function ShopPage({
   let filteredProducts = products;
   if (ratings.length > 0) {
     filteredProducts = products.filter(p => {
-      const avg = p.reviews.length > 0 
-        ? p.reviews.reduce((acc, curr) => acc + curr.rating, 0) / p.reviews.length 
+      const avg = p.reviews.length > 0
+        ? p.reviews.reduce((acc, curr) => acc + curr.rating, 0) / p.reviews.length
         : 0;
       const roundedAvg = Math.round(avg);
       // We check if the rounded average rating is within the selected ratings
@@ -198,7 +199,7 @@ export default async function ShopPage({
   const totalPages = Math.ceil(totalResults / limit);
   const startIndex = (page - 1) * limit;
   const endIndex = Math.min(startIndex + limit, totalResults);
-  
+
   // Paginate in memory (since we might have filtered in memory)
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + limit);
 
@@ -224,11 +225,13 @@ export default async function ShopPage({
   const view = (params.view as 'grid' | 'list') || 'grid';
 
   let pageTitle = t('title');
+  let currentCategory = null;
   if (categories.length === 1) {
     const rawCat = categories[0];
     const selectedCategory = allCategories.find(c => c.slug === rawCat || (isUuid(rawCat) && c.id === rawCat));
     if (selectedCategory) {
       pageTitle = selectedCategory.name;
+      currentCategory = selectedCategory;
     }
   }
 
@@ -244,9 +247,16 @@ export default async function ShopPage({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-8">{pageTitle}</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-3">{pageTitle}</h1>
+          {currentCategory?.metaDescription && (
+            <p className="text-gray-600 max-w-4xl text-base leading-relaxed">
+              {currentCategory.metaDescription}
+            </p>
+          )}
+        </div>
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* Left Sidebar (Filters) */}
           <aside className="w-full lg:w-1/4 flex-shrink-0">
             <ShopFilters categories={validCategories} brands={validBrands} globalMinPrice={globalMinPrice} globalMaxPrice={globalMaxPrice} />
@@ -254,7 +264,7 @@ export default async function ShopPage({
 
           {/* Main Content (Products) */}
           <section className="w-full lg:w-3/4">
-            
+
             <ShopSort totalResults={totalResults} currentRange={currentRange} />
 
             {paginatedProducts.length > 0 ? (
@@ -275,6 +285,14 @@ export default async function ShopPage({
 
           </section>
         </div>
+
+        {/* Section Éditoriale SEO & FAQ Catégorie */}
+        <CategorySeoSection
+          categoryName={currentCategory ? currentCategory.name : 'Nos Produits'}
+          categorySlug={currentCategory?.slug || undefined}
+          storeName={storeName}
+          metaDescription={currentCategory?.metaDescription}
+        />
       </div>
     </div>
   );

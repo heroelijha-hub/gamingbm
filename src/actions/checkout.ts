@@ -8,6 +8,10 @@ const ALLOWED_PAYMENT_METHODS = ['STRIPE', 'PAYPAL', 'BANK_TRANSFER'] as const;
 const MAX_CART_LINES = 50;
 const MAX_QTY_PER_LINE = 999;
 
+function cleanField(value: FormDataEntryValue | null, maxLen: number = 200): string {
+  return String(value ?? '').replace(/[\r\n]+/g, ' ').trim().slice(0, maxLen);
+}
+
 export async function validateCoupon(code: string) {
   try {
     const ip = await getClientIp();
@@ -55,18 +59,28 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     }
 
     const email = String(formData.get('email') || '').trim().toLowerCase();
-    const firstName = formData.get('firstName') as string;
-    const lastName = formData.get('lastName') as string;
-    const country = formData.get('country') as string;
-    const shippingMethodId = formData.get('shippingMethod') as string;
+    const firstName = cleanField(formData.get('firstName'), 100);
+    const lastName = cleanField(formData.get('lastName'), 100);
+    const country = cleanField(formData.get('country'), 100);
+    const shippingMethodId = String(formData.get('shippingMethod') || '').trim();
     const shipToDifferentAddress = formData.get('shipToDifferentAddress') === 'on';
-    const shippingCountry = formData.get('shippingCountry') as string;
-    
+    const shippingCountry = cleanField(formData.get('shippingCountry'), 100);
+
+    const billingPhone = cleanField(formData.get('phone'), 40);
+    const billingAddress1 = cleanField(formData.get('address1'), 200);
+    const billingAddress2 = cleanField(formData.get('address2'), 200);
+    const billingCity = cleanField(formData.get('city'), 100);
+    const billingPostalCode = cleanField(formData.get('postalCode'), 32);
+
     const effectiveCountry = shipToDifferentAddress ? shippingCountry : country;
 
     // ===== INPUT VALIDATION (never trust the client) =====
     if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return { error: "Please provide a valid email address." };
+    }
+
+    if (!firstName || !lastName || !billingAddress1 || !billingCity || !billingPostalCode || !country) {
+      return { error: "Please fill in all required billing address fields." };
     }
 
     if (!(ALLOWED_PAYMENT_METHODS as readonly string[]).includes(paymentMethod)) {
@@ -229,22 +243,22 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         firstName,
         lastName,
         email,
-        phone: formData.get('phone') as string,
-        address1: formData.get('address1') as string,
-        address2: formData.get('address2') as string,
-        city: formData.get('city') as string,
-        postalCode: formData.get('postalCode') as string,
+        phone: billingPhone,
+        address1: billingAddress1,
+        address2: billingAddress2,
+        city: billingCity,
+        postalCode: billingPostalCode,
         country: country
       },
       shipping: shipToDifferentAddress ? {
-        firstName: formData.get('shippingFirstName') as string,
-        lastName: formData.get('shippingLastName') as string,
-        company: formData.get('shippingCompany') as string,
-        phone: formData.get('shippingPhone') as string,
-        address1: formData.get('shippingAddress1') as string,
-        address2: formData.get('shippingAddress2') as string,
-        city: formData.get('shippingCity') as string,
-        postalCode: formData.get('shippingPostalCode') as string,
+        firstName: cleanField(formData.get('shippingFirstName'), 100),
+        lastName: cleanField(formData.get('shippingLastName'), 100),
+        company: cleanField(formData.get('shippingCompany'), 120),
+        phone: cleanField(formData.get('shippingPhone'), 40),
+        address1: cleanField(formData.get('shippingAddress1'), 200),
+        address2: cleanField(formData.get('shippingAddress2'), 200),
+        city: cleanField(formData.get('shippingCity'), 100),
+        postalCode: cleanField(formData.get('shippingPostalCode'), 32),
         country: shippingCountry
       } : null,
       shippingCost: shippingRate,

@@ -9,15 +9,16 @@ import { getTranslations } from 'next-intl/server';
 import { safeJsonLd } from '@/lib/security';
 
 import { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 import { getCachedProductBySlug, getCachedSettings, getCachedRelatedProducts } from '@/lib/cache';
 import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  
+
   const product = await getCachedProductBySlug(slug);
-  
+
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
   if (!product) {
@@ -26,18 +27,36 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : undefined;
+  const description = product.metaDescription || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '') || (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '');
+  const title = product.metaTitle ? product.metaTitle : `${product.title} | ${storeName}`;
+
   return {
-    title: product.metaTitle ? product.metaTitle : `${product.title} | ${storeName}`,
-    description: product.metaDescription || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '') || (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : ''),
+    title,
+    description,
     alternates: {
       canonical: `/product/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/product/${slug}`,
+      siteName: storeName,
+      images: primaryImage ? [{ url: primaryImage, alt: product.title }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: primaryImage ? [primaryImage] : [],
     }
   };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
+
   const product = await getCachedProductBySlug(slug);
 
   const t = await getTranslations('Product');
@@ -87,9 +106,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     sku: product.id.split('-')[0].toUpperCase(),
     offers: {
       '@type': 'Offer',
-      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.gamingbm.com'}/product/${product.slug}`,
+      url: `${SITE_URL}/product/${product.slug}`,
       priceCurrency: 'EUR',
       price: product.price,
+      priceValidUntil: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
       itemCondition: 'https://schema.org/NewCondition',
       availability: product.stock && product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
@@ -168,7 +188,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
-      
+
       <main className="flex-grow pb-20">
         <script
           type="application/ld+json"
@@ -186,20 +206,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 {
                   '@type': 'ListItem',
                   position: 1,
-                  name: 'Home',
-                  item: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com',
+                  name: 'Startseite',
+                  item: SITE_URL,
                 },
                 ...((product as any).categories && (product as any).categories.length > 0 ? [{
                   '@type': 'ListItem',
                   position: 2,
                   name: (product as any).categories[0].name,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com'}/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`,
+                  item: `${SITE_URL}/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`,
                 }] : []),
                 {
                   '@type': 'ListItem',
                   position: (product as any).categories && (product as any).categories.length > 0 ? 3 : 2,
                   name: product.title,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gamingbm.com'}/product/${product.slug}`,
+                  item: `${SITE_URL}/product/${product.slug}`,
                 },
               ],
             })
@@ -211,7 +231,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <Link href="/" className="hover:text-orange-600 transition">{t('home')}</Link>
             <span className="text-gray-300">/</span>
             {(product as any).categories && (product as any).categories.length > 0 ? (
-              <Link 
+              <Link
                 href={`/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`}
                 className="hover:text-orange-600 transition"
               >
@@ -247,7 +267,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
 
           {/* Tabs Section (Description & Reviews) */}
-          <ProductReviews 
+          <ProductReviews
             productId={product.id}
             productTitle={product.title}
             reviews={(product as any).reviews || []}
@@ -260,7 +280,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="border-b border-gray-200 pb-4 mb-8">
               <h2 className="text-xl font-bold text-gray-900">{t('related_products')}</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.length > 0 ? (
                 relatedProducts.map(rp => (

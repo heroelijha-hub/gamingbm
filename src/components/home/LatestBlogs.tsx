@@ -75,7 +75,7 @@ export default async function LatestBlogs({ config }: { config?: any }) {
             {/* Image Placeholder or Actual Image */}
             <div className={`w-full aspect-[4/3] rounded-xl mb-4 bg-gray-100 flex items-center justify-center overflow-hidden border`}>
                {blog.image ? (
-                 <Image src={blog.image} alt={blog.title} width={600} height={600} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                 <Image src={blog.image} alt={blog.title} width={600} height={600} loading="lazy" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                ) : (
                  <div className="text-4xl text-gray-300">📝</div>
                )}

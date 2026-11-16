@@ -2,8 +2,36 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
+import { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Gaming BM';
+  const title = `Bestseller & Beliebte Produkte | ${storeName}`;
+  const description = `Entdecken Sie die meistverkauften Gaming-Produkte und Bestseller bei ${storeName}. Geprüfte Qualität!`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: '/hot',
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/hot`,
+      siteName: storeName,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function HotProductsPage() {
   const t = await getTranslations('HotProducts');

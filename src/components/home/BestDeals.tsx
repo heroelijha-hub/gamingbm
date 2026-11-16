@@ -180,7 +180,7 @@ export default async function BestDeals({ config }: { config?: any }) {
             </div>
             {/* Image */}
             {settings.PROMO_1_IMAGE && (
-               <Image src={settings.PROMO_1_IMAGE} alt="Promo 1" width={800} height={800} className="absolute right-0 top-0 h-full w-[45%] sm:w-1/2 object-contain z-10" />
+               <Image src={settings.PROMO_1_IMAGE} alt={settings.PROMO_1_TITLE || "Offre promotionnelle"} width={800} height={800} className="absolute right-0 top-0 h-full w-[45%] sm:w-1/2 object-contain z-10" />
             )}
             {!settings.PROMO_1_IMAGE && !settings.PROMO_1_BG_IMAGE && (
               <div className="absolute right-[-10%] sm:right-[-5%] top-4 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center z-10">
@@ -232,7 +232,7 @@ export default async function BestDeals({ config }: { config?: any }) {
             </div>
             {/* Image */}
             {settings.PROMO_2_IMAGE && (
-               <Image src={settings.PROMO_2_IMAGE} alt="Promo 2" width={800} height={800} className="absolute right-0 bottom-0 h-full w-[45%] sm:w-1/2 object-contain z-10" />
+               <Image src={settings.PROMO_2_IMAGE} alt={settings.PROMO_2_TITLE || "Offre promotionnelle"} width={800} height={800} className="absolute right-0 bottom-0 h-full w-[45%] sm:w-1/2 object-contain z-10" />
             )}
             {!settings.PROMO_2_IMAGE && !settings.PROMO_2_BG_IMAGE && (
               <div className="absolute right-2 sm:right-4 bottom-0 w-[45%] sm:w-1/2 h-[90%] flex items-end justify-center space-x-1 z-10">

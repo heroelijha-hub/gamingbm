@@ -2,8 +2,17 @@ import { getSettings } from '@/actions/settings';
 import CheckoutClient from './CheckoutClient';
 import prisma from '@/lib/prisma';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Commande & Paiement sécurisé',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function CheckoutPage() {
   const settings = await getSettings();

@@ -1,5 +1,6 @@
 'use server';
 
+import crypto from 'crypto';
 import { createClient } from '@/utils/supabase/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
@@ -45,7 +46,7 @@ export async function loginUser(formData: FormData) {
           role: 'CUSTOMER'
         }
       });
-    } else if (existingUser.id !== signInData.user.id && existingUser.role !== 'ADMIN') {
+    } else if (existingUser.id !== signInData.user.id && existingUser.role !== 'ADMIN' && Boolean(signInData.user.email_confirmed_at)) {
       // Safe transaction after verified credentials: link guest orders to registered account
       await prisma.$transaction([
         prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
@@ -168,7 +169,17 @@ export async function setupAdmin(formData: FormData) {
     return { error: 'Le mot de passe administrateur doit comporter au moins 12 caractères.' };
   }
 
-  // Atomically check that there is no existing admin
+  const expectedSetupToken = process.env.SETUP_TOKEN;
+  if (expectedSetupToken) {
+    const providedToken = String(formData.get('setupToken') || '');
+    const expectedHash = crypto.createHash('sha256').update(expectedSetupToken).digest();
+    const providedHash = crypto.createHash('sha256').update(providedToken).digest();
+    if (!providedToken || !crypto.timingSafeEqual(expectedHash, providedHash)) {
+      return { error: 'Token d\'initialisation invalide ou manquant.' };
+    }
+  }
+
+  // Check that there is no existing admin before calling Supabase
   const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
   if (adminCount > 0) {
     return { error: 'Un administrateur existe déjà. L\'initialisation est verrouillée.' };
@@ -189,21 +200,30 @@ export async function setupAdmin(formData: FormData) {
   }
 
   if (data.user) {
-    // Re-verify no other admin was created concurrently
-    const recheckCount = await prisma.user.count({ where: { role: 'ADMIN' } });
-    if (recheckCount > 0) {
-      return { error: 'Un administrateur a déjà été configuré.' };
-    }
-
-    await prisma.user.upsert({
-      where: { email: data.user.email || email },
-      update: { role: 'ADMIN', id: data.user.id },
-      create: {
-        id: data.user.id,
-        email: data.user.email || email,
-        role: 'ADMIN',
+    // Re-verify inside a serializable transaction so concurrent signups cannot create multiple admins
+    try {
+      const createdUser = data.user;
+      await prisma.$transaction(async (tx) => {
+        const recheckCount = await tx.user.count({ where: { role: 'ADMIN' } });
+        if (recheckCount > 0) {
+          throw new Error('ADMIN_ALREADY_EXISTS');
+        }
+        await tx.user.upsert({
+          where: { email: createdUser.email || email },
+          update: { role: 'ADMIN', id: createdUser.id },
+          create: {
+            id: createdUser.id,
+            email: createdUser.email || email,
+            role: 'ADMIN',
+          }
+        });
+      }, { isolationLevel: 'Serializable' });
+    } catch (txErr: any) {
+      if (txErr?.message === 'ADMIN_ALREADY_EXISTS') {
+        return { error: 'Un administrateur a déjà été configuré.' };
       }
-    });
+      throw txErr;
+    }
   }
 
   revalidatePath('/', 'layout');

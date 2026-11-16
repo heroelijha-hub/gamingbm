@@ -5,7 +5,7 @@ import { getSettings } from './settings';
 import { getContactSettings } from './contactSettings';
 import { getTranslations } from 'next-intl/server';
 import { escapeHtml } from '@/lib/security';
-import crypto from 'crypto';
+import { createNewsletterToken } from '@/lib/newsletter';
 import { SITE_URL } from '@/lib/site';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -94,11 +94,7 @@ export async function submitNewsletter(formData: FormData) {
       return { error: 'Adresse e-mail invalide.' };
     }
 
-    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
-    const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-    const payload = `${email}|${expiry}`;
-    const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    const token = Buffer.from(`${payload}|${signature}`).toString('base64');
+    const token = createNewsletterToken(email);
     const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
 
     try {
