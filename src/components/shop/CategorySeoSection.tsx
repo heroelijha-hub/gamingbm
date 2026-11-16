@@ -13,14 +13,30 @@ export default function CategorySeoSection({
   storeName = 'Gaming BM',
   metaDescription
 }: CategorySeoSectionProps) {
+  const isGeneric = !categorySlug || categoryName === 'Unsere Gaming-Produkte' || categoryName === 'Unsere Produkte';
+
+  const headingTitle = isGeneric
+    ? 'Gaming-Hardware, Konsolen & Zubehör'
+    : categoryName;
+
+  const faqHeading = isGeneric
+    ? 'Häufig gestellte Fragen zu unseren Gaming-Produkten'
+    : `Häufig gestellte Fragen zu ${categoryName}`;
+
   const faqs = [
     {
-      question: `Wie wird die Qualität und Originalität unserer Auswahl in ${categoryName} gewährleistet?`,
-      answer: `Alle Produkte der Kategorie ${categoryName} bei ${storeName} stammen direkt von autorisierten Herstellern und führenden Marken der Gaming-Branche. Jedes Gerät wird vor dem Versand einer strengen Qualitätsprüfung unterzogen und mit voller Herstellergarantie von mindestens 2 Jahren geliefert.`
+      question: isGeneric
+        ? `Wie wird die Qualität und Originalität unserer Gaming-Hardware gewährleistet?`
+        : `Wie wird die Qualität und Originalität in der Kategorie ${categoryName} gewährleistet?`,
+      answer: isGeneric
+        ? `Alle Produkte bei ${storeName} stammen direkt von autorisierten Herstellern und führenden Marken der Gaming-Branche. Jedes Gerät wird vor dem Versand einer strengen Qualitätsprüfung unterzogen und mit voller Herstellergarantie von mindestens 2 Jahren geliefert.`
+        : `Alle Produkte der Kategorie ${categoryName} bei ${storeName} stammen direkt von autorisierten Herstellern und führenden Marken der Gaming-Branche. Jedes Gerät wird vor dem Versand einer strengen Qualitätsprüfung unterzogen und mit voller Herstellergarantie von mindestens 2 Jahren geliefert.`
     },
     {
-      question: `Wie schnell erfolgt der Versand und wie sicher ist die Lieferung von ${categoryName}?`,
-      answer: `Bestellungen werden werktags innerhalb von 24 bis 48 Stunden sicher verpackt und mit zuverlässigen Versandpartnern (DHL / DPD) inklusive Sendungsverfolgung und Transportschutz versendet.`
+      question: isGeneric
+        ? `Wie schnell erfolgt der Versand und wie sicher ist die Lieferung?`
+        : `Wie schnell erfolgt der Versand von ${categoryName}?`,
+      answer: `Bestellungen werden werktags innerhalb von 24 bis 48 Stunden sicher verpackt und mit zuverlässigen Versandpartnern (DHL / DPD) inklusive lückenloser Sendungsverfolgung und vollem Transportschutz versendet.`
     },
     {
       question: `Welche Zahlungsmethoden und Rückgaberechte stehen zur Verfügung?`,
@@ -51,10 +67,15 @@ export default function CategorySeoSection({
       {/* Kaufberater & Garantien */}
       <div className="bg-gradient-to-br from-gray-50 to-orange-50/40 rounded-2xl p-6 sm:p-10 border border-gray-200 shadow-sm mb-12">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">
-          Kaufberatung &amp; Expertise: {categoryName}
+          Kaufberatung &amp; Expertise: {headingTitle}
         </h2>
         <p className="text-gray-700 text-base leading-relaxed mb-8 max-w-4xl">
-          {metaDescription ? metaDescription : `Entdecken Sie unsere erstklassige Auswahl an ${categoryName} bei ${storeName}. Ob Gelegenheitsspieler oder E-Sport-Enthusiast – wir bieten Ihnen modernste Gaming-Technologie, Top-Performance und erstklassigen Kundenservice.`}
+          {metaDescription
+            ? metaDescription
+            : isGeneric
+              ? `Entdecken Sie unsere erstklassige Auswahl an Gaming-Hardware, Konsolen und Zubehör bei ${storeName}. Ob Gelegenheitsspieler oder E-Sport-Enthusiast – wir bieten Ihnen modernste Gaming-Technologie, Top-Performance und erstklassigen Kundenservice.`
+              : `Entdecken Sie unsere erstklassige Auswahl an ${categoryName} bei ${storeName}. Ob Gelegenheitsspieler oder E-Sport-Enthusiast – wir bieten Ihnen modernste Gaming-Technologie, Top-Performance und erstklassigen Kundenservice.`
+          }
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -93,7 +114,7 @@ export default function CategorySeoSection({
       {/* Häufig gestellte Fragen (FAQ) */}
       <div className="max-w-4xl">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <span>Häufig gestellte Fragen zu {categoryName}</span>
+          <span>{faqHeading}</span>
         </h2>
         <div className="space-y-4">
           {faqs.map((faq, index) => (

@@ -105,7 +105,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                           {[1,2,3,4,5].map(i => <Star key={i} filled={i <= review.rating} />)}
                         </div>
                         <span className="text-sm font-bold text-gray-900">
-                          {review.reviewerName || 'Client'}
+                          {review.reviewerName || 'Kunde'}
                         </span>
                         <span className="text-xs text-gray-500">- {new Date(review.createdAt).toLocaleDateString(locale)}</span>
                       </div>
@@ -119,7 +119,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
             {/* Formulaire d'avis */}
             <div className="pt-2">
               <h4 className="text-sm font-bold text-gray-800 mb-1">
-                {t('be_first_to_review', { name: productTitle || 'ce produit' })}
+                {t('be_first_to_review', { name: productTitle || 'dieses Produkt' })}
               </h4>
               <p className="text-xs text-gray-500 mb-6">
                 {t('email_not_published')}

@@ -96,14 +96,14 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
                   {[1, 2, 3, 4, 5].map(i => <Star key={i} filled={i <= Math.round(avgRating)} />)}
                 </div>
                 <span className="ml-1 text-gray-600">
-                  {t?.customer_reviews ?? `${reviews.length} avis`}
+                  {t?.customer_reviews ?? `${reviews.length} Bewertungen`}
                 </span>
               </div>
               <span className="border-l border-gray-300 h-4"></span>
             </>
           )}
           <span>
-            {t?.sold ?? 'Vendu'} <span className="font-semibold text-gray-900">24</span>
+            {t?.sold ?? 'Verkauft:'} <span className="font-semibold text-gray-900">24</span>
           </span>
         </div>
 
@@ -119,11 +119,11 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
         {/* Méta */}
         <div className="space-y-2 text-sm">
           <p>
-            <span className="font-semibold text-gray-900">{t?.sku ?? 'SKU :'} </span>
+            <span className="font-semibold text-gray-900">{t?.sku ?? 'Artikelnummer:'} </span>
             {product.id.split('-')[0].toUpperCase()}
           </p>
           <p>
-            <span className="font-semibold text-gray-900">{t?.categories ?? 'Catégories :'} </span>
+            <span className="font-semibold text-gray-900">{t?.categories ?? 'Kategorien:'} </span>
             {product.categories && product.categories.length > 0
               ? product.categories.map((c: any, index: number) => (
                   <span key={c.id}>
@@ -133,14 +133,14 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
                     {index < product.categories!.length - 1 ? ', ' : ''}
                   </span>
                 ))
-              : (t?.uncategorized ?? 'Non catégorisé')}
+              : (t?.uncategorized ?? 'Nicht kategorisiert')}
           </p>
           {product.brand && !product.brand.logo && (
-            <p><span className="font-semibold text-gray-900">{t?.brand ?? 'Marque :'} </span>{product.brand.name}</p>
+            <p><span className="font-semibold text-gray-900">{t?.brand ?? 'Marke:'} </span>{product.brand.name}</p>
           )}
           {product.tags && product.tags.length > 0 && (
             <p>
-              <span className="font-semibold text-gray-900">{t?.tags ?? 'Tags :'} </span>
+              <span className="font-semibold text-gray-900">{t?.tags ?? 'Schlagworte:'} </span>
               {product.tags.map((tag: any, index: number) => (
                 <span key={tag.id}>
                   <Link href={`/shop?tag=${tag.slug || tag.id}`} className="hover:text-orange-600 hover:underline transition-colors">

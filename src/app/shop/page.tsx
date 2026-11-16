@@ -288,7 +288,7 @@ export default async function ShopPage({
 
         {/* Section Éditoriale SEO & FAQ Catégorie */}
         <CategorySeoSection
-          categoryName={currentCategory ? currentCategory.name : 'Nos Produits'}
+          categoryName={currentCategory ? currentCategory.name : 'Unsere Gaming-Produkte'}
           categorySlug={currentCategory?.slug || undefined}
           storeName={storeName}
           metaDescription={currentCategory?.metaDescription}
