@@ -6,6 +6,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import Image from "next/image";
 import { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
+import { getCachedBlogArticles, ARTICLE_CARD_SELECT } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,14 +53,17 @@ export default async function BlogIndexPage({
   const t = await getTranslations('Blog');
   const locale = await getLocale();
   
-  const articles = await prisma.article.findMany({
-    where: {
-      isPublished: true,
-      ...(query ? { title: { contains: query, mode: 'insensitive' } } : {})
-    },
-    orderBy: { createdAt: 'desc' },
-    include: { _count: { select: { comments: { where: { isApproved: true } } } } }
-  });
+  // Anti-Egress #1: Strict projection excluding heavy article HTML content
+  const articles = query
+    ? await prisma.article.findMany({
+        where: {
+          isPublished: true,
+          title: { contains: query, mode: 'insensitive' }
+        },
+        orderBy: { createdAt: 'desc' },
+        select: ARTICLE_CARD_SELECT
+      })
+    : await getCachedBlogArticles();
 
   const recentArticles = await prisma.article.findMany({
     where: { isPublished: true },
@@ -115,7 +119,7 @@ export default async function BlogIndexPage({
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
-                      {article.excerpt || article.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 150) + '...'}
+                      {article.excerpt || article.metaDescription || article.title}
                     </p>
                     <Link href={`/blog/${article.slug}`} className="inline-block mt-auto bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded transition self-start">
                       {t('read_more')}

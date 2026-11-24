@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -102,6 +102,7 @@ export async function createArticle(data: any) {
     });
     revalidatePath('/admin/blogs');
     revalidatePath('/blog');
+    updateTag('articles');
     return { success: true, article };
   } catch (error: any) {
     return { error: error.message };
@@ -132,6 +133,7 @@ export async function updateArticle(id: string, data: any) {
     revalidatePath('/admin/blogs');
     revalidatePath('/blog');
     revalidatePath(`/blog/${article.slug}`);
+    updateTag('articles');
     return { success: true, article };
   } catch (error: any) {
     return { error: error.message };
@@ -146,6 +148,7 @@ export async function deleteArticle(id: string) {
     });
     revalidatePath('/admin/blogs');
     revalidatePath('/blog');
+    updateTag('articles');
     return { success: true };
   } catch (error: any) {
     return { error: error.message };
@@ -168,6 +171,7 @@ export async function quickEditArticle(id: string, data: { title: string, slug: 
     revalidatePath('/admin/blogs');
     revalidatePath('/blog');
     revalidatePath(`/blog/${article.slug}`);
+    updateTag('articles');
     return { success: true };
   } catch (error: any) {
     console.error(error);

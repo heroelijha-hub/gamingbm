@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import prisma from '@/lib/prisma';
 import { getTranslations } from 'next-intl/server';
+import { getCachedSettings } from '@/lib/cache';
 
 export default async function PromoBanners({ config }: { config?: any }) {
   // Only render if at least one title is configured
@@ -10,9 +11,8 @@ export default async function PromoBanners({ config }: { config?: any }) {
     return null;
   }
 
-  const settingsDb = await prisma.setting.findMany();
-  const settings = settingsDb.reduce((acc: any, s: any) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-  
+  const settings = { ...(await getCachedSettings()) };
+
   if (config) {
     Object.assign(settings, config);
   }
@@ -30,10 +30,10 @@ export default async function PromoBanners({ config }: { config?: any }) {
   return (
     <section className="max-w-7xl mx-auto px-4 w-full py-8 font-sans">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Banner 1 */}
         {config?.BANNER_1_TITLE && (
-          <div 
+          <div
             className="rounded-xl overflow-hidden p-8 flex flex-col justify-center h-48 border border-gray-200 relative group"
             style={{
               backgroundColor: config.BANNER_1_BG_COLOR || '#ffedd5',
@@ -43,14 +43,14 @@ export default async function PromoBanners({ config }: { config?: any }) {
             }}
           >
             <div className="z-10 relative">
-              <h3 
-                className="font-bold mb-2 text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]" 
-                style={{ ...getResponsiveVars('BANNER_1_TITLE', {m: '24px', t: '24px', d: '24px'}), color: config.BANNER_1_TEXT_COLOR || '#111827' }}
+              <h3
+                className="font-bold mb-2 text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]"
+                style={{ ...getResponsiveVars('BANNER_1_TITLE', { m: '24px', t: '24px', d: '24px' }), color: config.BANNER_1_TEXT_COLOR || '#111827' }}
               >
                 {config.BANNER_1_TITLE}
               </h3>
-              <Link 
-                href={config.BANNER_1_LINK || '/#'} 
+              <Link
+                href={config.BANNER_1_LINK || '/#'}
                 className="font-bold hover:underline inline-block"
                 style={{ color: config.BANNER_1_TEXT_COLOR || '#ea580c' }}
               >
@@ -65,7 +65,7 @@ export default async function PromoBanners({ config }: { config?: any }) {
 
         {/* Banner 2 */}
         {config?.BANNER_2_TITLE && (
-          <div 
+          <div
             className="rounded-xl overflow-hidden p-8 flex flex-col justify-center h-48 border border-gray-200 relative group"
             style={{
               backgroundColor: config.BANNER_2_BG_COLOR || '#f3f4f6',
@@ -75,14 +75,14 @@ export default async function PromoBanners({ config }: { config?: any }) {
             }}
           >
             <div className="z-10 relative">
-              <h3 
-                className="font-bold mb-2 text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]" 
-                style={{ ...getResponsiveVars('BANNER_2_TITLE', {m: '24px', t: '24px', d: '24px'}), color: config.BANNER_2_TEXT_COLOR || '#111827' }}
+              <h3
+                className="font-bold mb-2 text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]"
+                style={{ ...getResponsiveVars('BANNER_2_TITLE', { m: '24px', t: '24px', d: '24px' }), color: config.BANNER_2_TEXT_COLOR || '#111827' }}
               >
                 {config.BANNER_2_TITLE}
               </h3>
-              <Link 
-                href={config.BANNER_2_LINK || '/#'} 
+              <Link
+                href={config.BANNER_2_LINK || '/#'}
                 className="font-bold hover:underline inline-block"
                 style={{ color: config.BANNER_2_TEXT_COLOR || '#111827' }}
               >

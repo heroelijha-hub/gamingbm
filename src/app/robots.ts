@@ -1,10 +1,12 @@
 import { MetadataRoute } from 'next';
-import prisma from '@/lib/prisma';
 import { SITE_URL } from '@/lib/site';
+import { getCachedSettings } from '@/lib/cache';
 
 const DEFAULT_DISALLOW_PATHS = [
   '/admin/',
+  '/admin',
   '/account/',
+  '/account',
   '/checkout/',
   '/checkout',
   '/cart/',
@@ -16,9 +18,20 @@ const DEFAULT_DISALLOW_PATHS = [
   '/order-tracking/',
   '/order-tracking',
   '/search',
+  '/search/',
   '/api/',
+  '/api',
   '/categorie-produit/',
   '/produit/',
+  '/*?*q=',
+  '/*?*sort=',
+  '/*?*page=',
+  '/*?*minPrice=',
+  '/*?*maxPrice=',
+  '/*?*rating=',
+  '/*?*brand=',
+  '/*?*view=',
+  '/*?*category=',
   '/*?filter_cat=',
   '/*?column=',
   '/*?per_page=',
@@ -28,26 +41,26 @@ const DEFAULT_DISALLOW_PATHS = [
   '/*?best_seller=',
   '/*?add-to-cart=',
   '/*?min_price=',
-  '/*?max_price=',
-  '/*?sort='
+  '/*?max_price='
+];
+
+// Aggressive commercial scraper bots that exhaust Serverless Fluid CPU
+const BLOCKED_SCRAPERS = [
+  'AhrefsBot',
+  'SemrushBot',
+  'DotBot',
+  'MJ12bot',
+  'PetalBot',
+  'Bytespider',
+  'DataForSeoBot',
+  'BLEXBot'
 ];
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const baseUrl = SITE_URL;
 
-  // Read robots settings from the database
-  const settings = await prisma.setting.findMany({
-    where: {
-      key: {
-        in: ['ROBOTS_DISALLOW_PATHS', 'ROBOTS_CRAWL_DELAY'],
-      },
-    },
-  });
-
-  const settingsMap = settings.reduce(
-    (acc, s) => ({ ...acc, [s.key]: s.value }),
-    {} as Record<string, string>
-  );
+  // Anti-CPU & Anti-Egress: Use cached settings (0 DB hit)
+  const settingsMap = await getCachedSettings();
 
   // Parse disallow paths from DB or use defaults
   let disallowPaths: string[] = DEFAULT_DISALLOW_PATHS;
@@ -65,12 +78,18 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     : undefined;
 
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: disallowPaths,
-      ...(crawlDelay && !isNaN(crawlDelay) ? { crawlDelay } : {}),
-    },
+    rules: [
+      {
+        userAgent: BLOCKED_SCRAPERS,
+        disallow: ['/']
+      },
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: disallowPaths,
+        ...(crawlDelay && !isNaN(crawlDelay) ? { crawlDelay } : {})
+      }
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

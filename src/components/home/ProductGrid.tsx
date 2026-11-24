@@ -4,6 +4,7 @@ import ProductGridCard from './ProductGridCard';
 import DynamicProductGrid from './DynamicProductGrid';
 import prisma from '@/lib/prisma';
 import { getTranslations } from 'next-intl/server';
+import { getCachedSettings } from '@/lib/cache';
 
 type ProductGridProps = {
   config: {
@@ -43,8 +44,7 @@ export default async function ProductGrid({ config }: ProductGridProps) {
     return null; // Do not render section if no products
   }
 
-  const settingsDb = await prisma.setting.findMany();
-  const settings = settingsDb.reduce((acc: any, s: any) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+  const settings = { ...(await getCachedSettings()) };
   
   if (config) {
     Object.assign(settings, config);

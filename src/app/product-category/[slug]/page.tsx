@@ -25,6 +25,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     where: {
       OR: orConditions,
     },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      metaTitle: true,
+      metaDescription: true,
+      metaKeywords: true,
+    }
   });
 
   if (!category) {
@@ -83,6 +91,14 @@ export default async function ProductCategoryPage({
     where: {
       OR: orConditions,
     },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      metaTitle: true,
+      metaDescription: true,
+      metaKeywords: true,
+    }
   });
 
   if (!category) {

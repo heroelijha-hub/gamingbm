@@ -2,12 +2,13 @@
 
 import prisma from '@/lib/prisma';
 import { unstable_cache } from 'next/cache';
+import { PRODUCT_CARD_SELECT } from '@/lib/cache';
 
 export const getBestDeals = unstable_cache(
   async () => {
     return await prisma.product.findMany({
       where: { isDeleted: false, isDealOfTheDay: true },
-      include: { categories: true, reviews: { where: { isApproved: true } } },
+      select: PRODUCT_CARD_SELECT,
       take: 4,
       orderBy: { createdAt: 'desc' }
     });
@@ -20,7 +21,7 @@ export const getBestSellers = unstable_cache(
   async () => {
     return await prisma.product.findMany({
       where: { isDeleted: false, isBestSeller: true },
-      include: { categories: true, reviews: { where: { isApproved: true } } },
+      select: PRODUCT_CARD_SELECT,
       take: 10,
       orderBy: { createdAt: 'desc' }
     });
@@ -35,7 +36,7 @@ export const getFilteredProducts = async (filterType: string, categoryId?: strin
       if (filterType === 'MANUAL' && productIds && productIds.length > 0) {
         const products = await prisma.product.findMany({
           where: { isDeleted: false, id: { in: productIds } },
-          include: { categories: true, reviews: { where: { isApproved: true } } },
+          select: PRODUCT_CARD_SELECT,
           take: limit,
         });
         return products.sort((a, b) => productIds.indexOf(a.id) - productIds.indexOf(b.id));
@@ -57,7 +58,7 @@ export const getFilteredProducts = async (filterType: string, categoryId?: strin
 
       return await prisma.product.findMany({
         where,
-        include: { categories: true, reviews: { where: { isApproved: true } } },
+        select: PRODUCT_CARD_SELECT,
         take: limit,
         orderBy
       });

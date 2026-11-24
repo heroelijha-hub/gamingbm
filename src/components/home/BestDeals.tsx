@@ -6,6 +6,7 @@ import CountdownTimer from './CountdownTimer';
 import ProductSliderWrapper from './ProductSliderWrapper';
 import BestDealsCard from './BestDealsCard';
 import { getTranslations } from 'next-intl/server';
+import { getCachedSettings } from '@/lib/cache';
 
 // Internal star component
 const Star = ({ filled = true }: { filled?: boolean }) => (
@@ -33,8 +34,7 @@ export default async function BestDeals({ config }: { config?: any }) {
   
   const maxNum = parseInt(config?.maxProducts || '6', 10) || 6;
   const dbProducts = await getFilteredProducts(filterType, categoryId, maxNum, config?.productIds);
-  const settingsDb = await prisma.setting.findMany();
-  const settings = settingsDb.reduce((acc: any, s: any) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+  const settings = { ...(await getCachedSettings()) };
   
   if (config) {
     Object.assign(settings, config);
