@@ -13,7 +13,10 @@ const nextConfig: NextConfig = {
   turbopack: {},
 
   images: {
-    unoptimized: true,
+    loader: 'custom',
+    loaderFile: './src/lib/cloudinaryLoader.ts',
+    deviceSizes: [384, 640, 1080, 1600],
+    imageSizes: [64, 128, 256],
     remotePatterns: [
       {
         protocol: 'https',
