@@ -168,11 +168,10 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
 
     if (res.redirectUrl) {
       clearCart();
-      router.push(res.redirectUrl);
+      window.location.href = res.redirectUrl;
     } else if (paymentMethod === 'PAYPAL') {
       clearCart();
-      alert('Opening PayPal (Simulation)... Order ' + res.orderId);
-      router.push('/checkout/success?orderId=' + res.orderId);
+      window.location.href = '/checkout/success?orderId=' + res.orderId;
     }
     
     setIsProcessing(false);

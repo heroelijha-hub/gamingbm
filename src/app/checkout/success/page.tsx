@@ -15,19 +15,22 @@ export const metadata: Metadata = {
   },
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const resolvedParams = await searchParams;
-  const orderId = resolvedParams.orderId as string;
+  const rawOrderId = resolvedParams.orderId;
+  const orderId = typeof rawOrderId === 'string' ? rawOrderId.trim() : '';
   const t = await getTranslations('Checkout');
   const tCart = await getTranslations('Cart');
   const locale = await getLocale();
   const settings = await getSettings();
 
-  if (!orderId) {
+  if (!orderId || !UUID_REGEX.test(orderId)) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('order_not_found')}</h1>
@@ -38,10 +41,15 @@ export default async function CheckoutSuccessPage({
     );
   }
 
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: { orderItems: { include: { product: true } } }
-  });
+  let order = null;
+  try {
+    order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { orderItems: { include: { product: true } } }
+    });
+  } catch (err) {
+    console.error('[CheckoutSuccess] Error loading order from database:', err);
+  }
 
   if (!order) {
     return (
@@ -125,7 +133,7 @@ export default async function CheckoutSuccessPage({
               {order.orderItems.map((item) => (
                 <tr key={item.id} className="bg-white">
                   <td className="p-4 border border-gray-200 text-gray-700">
-                    <span className="text-orange-700 font-medium">{item.product.title}</span> <strong className="text-gray-900 ml-1">× {item.quantity}</strong>
+                    <span className="text-orange-700 font-medium">{item.product?.title || 'Produkt'}</span> <strong className="text-gray-900 ml-1">× {item.quantity}</strong>
                   </td>
                   <td className="p-4 border border-gray-200 text-gray-900 font-medium">
                     {formatPrice(item.price * item.quantity)}
@@ -163,7 +171,7 @@ export default async function CheckoutSuccessPage({
             {order.orderItems.map((item) => (
               <div key={item.id} className="p-4 border-b border-gray-200 flex justify-between gap-4">
                 <div className="flex-1">
-                  <span className="text-orange-700 font-medium line-clamp-2">{item.product.title}</span> 
+                  <span className="text-orange-700 font-medium line-clamp-2">{item.product?.title || 'Produkt'}</span> 
                   <strong className="text-gray-900 block mt-1">× {item.quantity}</strong>
                 </div>
                 <div className="font-medium text-gray-900">
@@ -201,20 +209,30 @@ export default async function CheckoutSuccessPage({
           {addressToShow ? (
             <>
               {addressToShow.company && <p className="font-medium">{addressToShow.company}</p>}
-              <p>{addressToShow.firstName.charAt(0)}*** {addressToShow.lastName.charAt(0)}***</p>
-              <p>{addressToShow.address1.substring(0, 3)}***</p>
+              <p>
+                {addressToShow.firstName ? `${addressToShow.firstName.charAt(0)}***` : ''}{' '}
+                {addressToShow.lastName ? `${addressToShow.lastName.charAt(0)}***` : ''}
+              </p>
+              {addressToShow.address1 && <p>{addressToShow.address1.substring(0, 3)}***</p>}
               {addressToShow.address2 && <p>***</p>}
-              {(addressToShow.phone || metadata?.billing?.phone) && (
+              {Boolean(addressToShow.phone || metadata?.billing?.phone) && (
                 <div className="pt-4 mt-2 flex items-center gap-2">
                   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                   {String(addressToShow.phone || metadata?.billing?.phone).substring(0, 3)}***
                 </div>
               )}
               
-              {metadata?.billing?.email && (
+              {Boolean(metadata?.billing?.email) && (
                 <div className="flex items-center gap-2 mt-1">
                   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                  {String(metadata?.billing?.email).split('@')[0].charAt(0)}***@{String(metadata?.billing?.email).split('@')[1]}
+                  {(() => {
+                    const emailStr = String(metadata.billing.email);
+                    const parts = emailStr.split('@');
+                    if (parts.length === 2 && parts[0] && parts[1]) {
+                      return `${parts[0].charAt(0)}***@${parts[1]}`;
+                    }
+                    return emailStr;
+                  })()}
                 </div>
               )}
             </>

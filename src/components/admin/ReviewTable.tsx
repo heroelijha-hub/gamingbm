@@ -83,8 +83,8 @@ export default function ReviewTable({ reviews }: { reviews: Review[] }) {
                     {review.reviewerEmail || review.user?.email || 'Sans e-mail'}
                   </div>
                   {review.purchaseInfo?.hasBoughtThisProduct ? (
-                    <span 
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200" 
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200"
                       title={`Commande n° ${review.purchaseInfo.orderId} payée (${review.purchaseInfo.orderTotal?.toFixed(2)} €)`}
                     >
                       <svg className="w-3 h-3 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -93,8 +93,8 @@ export default function ReviewTable({ reviews }: { reviews: Review[] }) {
                       Achat vérifié (Produit payé)
                     </span>
                   ) : review.purchaseInfo?.hasPaidOrder ? (
-                    <span 
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200" 
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 border border-blue-200"
                       title={`Client avec ${review.purchaseInfo.orderCount} commande(s) payée(s) (#${review.purchaseInfo.orderId?.slice(0, 8)})`}
                     >
                       <svg className="w-3 h-3 text-blue-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -112,16 +112,16 @@ export default function ReviewTable({ reviews }: { reviews: Review[] }) {
               <td className="px-6 py-4 min-w-[300px]">
                 {editingId === review.id ? (
                   <div className="space-y-2">
-                    <select 
-                      value={editForm.rating} 
-                      onChange={e => setEditForm({...editForm, rating: Number(e.target.value)})}
+                    <select
+                      value={editForm.rating}
+                      onChange={e => setEditForm({ ...editForm, rating: Number(e.target.value) })}
                       className="border rounded p-1 w-20 text-sm"
                     >
-                      {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}★</option>)}
+                      {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}★</option>)}
                     </select>
-                    <textarea 
+                    <textarea
                       value={editForm.comment}
-                      onChange={e => setEditForm({...editForm, comment: e.target.value})}
+                      onChange={e => setEditForm({ ...editForm, comment: e.target.value })}
                       className="w-full border rounded p-2 text-sm"
                       rows={3}
                     />
@@ -135,10 +135,10 @@ export default function ReviewTable({ reviews }: { reviews: Review[] }) {
               </td>
               <td className="px-6 py-4">
                 {editingId === review.id ? (
-                  <input 
-                    type="datetime-local" 
+                  <input
+                    type="datetime-local"
                     value={editForm.createdAtStr}
-                    onChange={e => setEditForm({...editForm, createdAtStr: e.target.value})}
+                    onChange={e => setEditForm({ ...editForm, createdAtStr: e.target.value })}
                     className="border rounded p-1 text-sm"
                   />
                 ) : (
@@ -146,11 +146,10 @@ export default function ReviewTable({ reviews }: { reviews: Review[] }) {
                 )}
               </td>
               <td className="px-6 py-4">
-                <button 
+                <button
                   onClick={() => handleToggle(review.id, review.isApproved)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    review.isApproved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${review.isApproved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}
                 >
                   {review.isApproved ? t('approved') : t('pending')}
                 </button>

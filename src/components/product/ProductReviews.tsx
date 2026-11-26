@@ -23,9 +23,9 @@ type ProductReviewsProps = {
 };
 
 const Star = ({ filled = true }: { filled?: boolean }) => (
-  <svg 
-    className={`w-4 h-4 ${filled ? 'text-orange-600' : 'text-gray-300'}`} 
-    fill="currentColor" 
+  <svg
+    className={`w-4 h-4 ${filled ? 'text-orange-600' : 'text-gray-300'}`}
+    fill="currentColor"
     viewBox="0 0 20 20"
   >
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -49,7 +49,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
     setMsg({ type: '', text: '' });
 
     const res = await submitReview(productId, rating, comment, name, email);
-    
+
     if (res.error) {
       setMsg({ type: 'error', text: res.error });
     } else {
@@ -65,13 +65,13 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
   return (
     <div className="mt-20">
       <div className="flex justify-center gap-2 mb-0 relative z-10">
-        <button 
+        <button
           onClick={() => setActiveTab('desc')}
           className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'desc' ? 'bg-orange-600 text-white' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'}`}
         >
           {t('description_tab')}
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('reviews')}
           className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'reviews' ? 'bg-orange-600 text-white' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'}`}
         >
@@ -84,9 +84,9 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
           <div className="text-sm text-gray-700 leading-relaxed space-y-6">
             {description ? (
               <div className="w-full overflow-x-auto">
-                <SafeHTML 
+                <SafeHTML
                   html={description}
-                  className="prose prose-sm max-w-none w-full whitespace-normal" 
+                  className="prose prose-sm max-w-none w-full whitespace-normal"
                 />
               </div>
             ) : (
@@ -106,7 +106,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                     <div key={review.id} className="border-b border-gray-100 pb-6">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex">
-                          {[1,2,3,4,5].map(i => <Star key={i} filled={i <= review.rating} />)}
+                          {[1, 2, 3, 4, 5].map(i => <Star key={i} filled={i <= review.rating} />)}
                         </div>
                         <span className="text-sm font-bold text-gray-900">
                           {review.reviewerName || 'Kunde'}
@@ -128,24 +128,24 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
               <p className="text-xs text-gray-500 mb-6">
                 {t('email_not_published')}
               </p>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 {msg.text && (
                   <div className={`p-4 rounded-md text-sm font-medium ${msg.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
                     {msg.text}
                   </div>
                 )}
-                
+
                 {/* Note */}
                 <div className="flex items-center gap-3">
                   <label className="text-xs font-bold text-gray-800">{t('your_rating_text')}</label>
                   <div className="flex gap-1 cursor-pointer">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <svg 
+                      <svg
                         key={star}
                         onClick={() => setRating(star)}
-                        className={`w-5 h-5 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`} 
-                        fill="currentColor" 
+                        className={`w-5 h-5 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                        fill="currentColor"
                         viewBox="0 0 20 20"
                       >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -153,10 +153,10 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Commentaire */}
                 <div>
-                  <textarea 
+                  <textarea
                     required
                     value={comment}
                     onChange={e => setComment(e.target.value)}
@@ -169,31 +169,31 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                 {/* Nom et E-mail */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       required
                       value={name}
                       onChange={e => setName(e.target.value)}
-                      placeholder={t('name_placeholder')} 
+                      placeholder={t('name_placeholder')}
                       className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-gray-700 bg-white"
                     />
                   </div>
                   <div>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       required
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      placeholder={t('email_placeholder')} 
+                      placeholder={t('email_placeholder')}
                       className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-gray-700 bg-white"
                     />
                   </div>
                 </div>
-                
+
                 {/* Submit */}
                 <div className="pt-2">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={loading}
                     className="bg-orange-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors text-sm"
                   >
