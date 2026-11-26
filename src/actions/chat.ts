@@ -281,6 +281,17 @@ export async function closeSession(sessionId: string) {
   revalidatePath('/admin/chat');
 }
 
+export async function deleteSession(sessionId: string) {
+  await requireAdmin();
+  if (!sessionId || !UUID_REGEX.test(sessionId)) {
+    throw new Error('Invalid session identifier.');
+  }
+  await prisma.chatSession.delete({
+    where: { id: sessionId },
+  });
+  revalidatePath('/admin/chat');
+}
+
 /**
  * Upload an image for the chat (Admin or authorized Customer).
  */
