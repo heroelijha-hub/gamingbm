@@ -7,7 +7,7 @@ export default async function AdminChatPage() {
   const initialSessions = await getAdminSessions();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8.5rem)] min-h-[500px]">
+    <div className="flex flex-col h-full min-h-[480px]">
       <div className="mb-3 flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-xl font-bold text-gray-900">{t('title')}</h1>

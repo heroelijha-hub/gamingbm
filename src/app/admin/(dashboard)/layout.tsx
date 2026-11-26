@@ -32,15 +32,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar Admin */}
-      <aside className="w-64 bg-white border-r border-gray-200">
-        <div className="h-full flex flex-col">
-          <div className="h-16 flex items-center px-6 border-b border-gray-200">
-            <Link href="/admin" className="text-[12px] font-bold text-orange-700">
-              {t('title')}
-            </Link>
-          </div>
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
+          <Link href="/admin" className="text-[12px] font-bold text-orange-700">
+            {t('title')}
+          </Link>
+        </div>
+        <div className="flex-1 overflow-y-auto">
           <AdminSidebarNav links={[
             { href: '/admin', label: t('dashboard'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
             { href: '/admin/products', label: t('products'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg> },
@@ -64,8 +64,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col">
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
+      <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0">
           <h1 className="text-xl font-semibold text-gray-800">{t('dashboard')}</h1>
           <div className="flex items-center space-x-6">
             <NotificationBell isAdmin={true} />
@@ -84,7 +84,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </div>
           </div>
         </header>
-        <div className="flex-1 p-8 overflow-auto">
+        <div className="flex-1 p-6 md:p-8 overflow-y-auto min-h-0">
           {children}
         </div>
       </main>
