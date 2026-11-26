@@ -8,26 +8,43 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-
 
 // --- Client Actions ---
 
-export async function submitReview(productId: string, rating: number, comment: string) {
-  let user;
+export async function submitReview(
+  productId: string,
+  rating: number,
+  comment: string,
+  reviewerName?: string,
+  reviewerEmail?: string
+) {
+  let user: { id: string; email?: string } | null = null;
   try {
     user = await requireAuth();
   } catch {
-    return { error: "You must be logged in to leave a review." };
+    // Guest submission is permitted
   }
 
   if (!productId || !UUID_REGEX.test(productId)) {
-    return { error: "Identifiant de produit invalide." };
+    return { error: "Ungültige Produkt-ID." };
   }
 
   const intRating = Number(rating);
   if (!Number.isInteger(intRating) || intRating < 1 || intRating > 5) {
-    return { error: "La note doit être un entier entre 1 et 5." };
+    return { error: "Die Bewertung muss zwischen 1 und 5 Sternen liegen." };
   }
 
   const cleanComment = String(comment || '').trim();
   if (cleanComment.length < 3 || cleanComment.length > 2000) {
-    return { error: "Votre avis doit comporter entre 3 et 2000 caractères." };
+    return { error: "Ihre Bewertung muss zwischen 3 und 2000 Zeichen lang sein." };
+  }
+
+  const cleanName = String(reviewerName || (user?.email ? user.email.split('@')[0] : '')).trim();
+  if (!cleanName || cleanName.length < 2 || cleanName.length > 100) {
+    return { error: "Bitte geben Sie einen gültigen Namen ein (mindestens 2 Zeichen)." };
+  }
+
+  const cleanEmail = String(reviewerEmail || user?.email || '').trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+    return { error: "Bitte geben Sie eine gültige E-Mail-Adresse ein." };
   }
 
   // Check product existence
@@ -36,42 +53,53 @@ export async function submitReview(productId: string, rating: number, comment: s
     select: { id: true, slug: true },
   });
   if (!product) {
-    return { error: "Produit introuvable." };
+    return { error: "Produkt nicht gefunden." };
   }
 
-  // Prevent spamming multiple reviews on the same product within 1 hour
-  const recentReview = await prisma.review.findFirst({
-    where: {
-      productId,
-      userId: user.id,
-      createdAt: { gte: new Date(Date.now() - 3600_000) },
-    },
-  });
-  if (recentReview) {
-    return { error: "Vous avez déjà soumis un avis récemment pour ce produit." };
+  // Prevent spamming multiple reviews on the same product within 5 minutes
+  const spamConditions: any[] = [];
+  if (user?.id) spamConditions.push({ userId: user.id });
+  if (cleanEmail) spamConditions.push({ reviewerEmail: cleanEmail });
+
+  if (spamConditions.length > 0) {
+    const recentReview = await prisma.review.findFirst({
+      where: {
+        productId,
+        OR: spamConditions,
+        createdAt: { gte: new Date(Date.now() - 300_000) },
+      },
+    });
+    if (recentReview) {
+      return { error: "Sie haben kürzlich bereits eine Bewertung für dieses Produkt abgegeben." };
+    }
   }
 
   try {
-    const reviewerName = user.email ? user.email.split('@')[0] : 'Client';
-
     await prisma.review.create({
       data: {
         productId,
-        userId: user.id,
-        reviewerName,
+        userId: user?.id || null,
+        reviewerName: cleanName,
+        reviewerEmail: cleanEmail,
         rating: intRating,
         comment: cleanComment,
         isApproved: false // Requires admin moderation by default
       }
     });
 
+    if (product.slug) {
+      revalidatePath(`/product/${product.slug}`, 'page');
+    }
     revalidatePath(`/product/[slug]`, 'page');
-    revalidatePath(`/account/reviews`);
+    revalidatePath(`/admin/reviews`);
+    if (user?.id) {
+      revalidatePath(`/account/reviews`);
+    }
     
     return { success: true };
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'avis:", error);
-    return { error: "Une erreur s'est produite lors de l'enregistrement de votre avis." };
+    return { error: "Eine Fehler ist beim Speichern Ihrer Bewertung aufgetreten." };
   }
 }
 
@@ -81,12 +109,16 @@ export async function toggleReviewApproval(reviewId: string, isApproved: boolean
   await requireAdmin();
   if (!reviewId || !UUID_REGEX.test(reviewId)) return;
 
-  await prisma.review.update({
+  const review = await prisma.review.update({
     where: { id: reviewId },
-    data: { isApproved: Boolean(isApproved) }
+    data: { isApproved: Boolean(isApproved) },
+    include: { product: { select: { slug: true } } }
   });
 
   revalidatePath('/admin/reviews');
+  if (review?.product?.slug) {
+    revalidatePath(`/product/${review.product.slug}`, 'page');
+  }
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -96,16 +128,20 @@ export async function updateReview(reviewId: string, rating: number, comment: st
 
   const intRating = Math.min(Math.max(1, Math.round(Number(rating) || 5)), 5);
 
-  await prisma.review.update({
+  const review = await prisma.review.update({
     where: { id: reviewId },
     data: { 
       rating: intRating, 
       comment: String(comment || '').trim().slice(0, 5000),
       createdAt: new Date(createdAtStr)
-    }
+    },
+    include: { product: { select: { slug: true } } }
   });
 
   revalidatePath('/admin/reviews');
+  if (review?.product?.slug) {
+    revalidatePath(`/product/${review.product.slug}`, 'page');
+  }
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -113,10 +149,14 @@ export async function deleteReview(reviewId: string) {
   await requireAdmin();
   if (!reviewId || !UUID_REGEX.test(reviewId)) return;
 
-  await prisma.review.delete({
-    where: { id: reviewId }
+  const review = await prisma.review.delete({
+    where: { id: reviewId },
+    include: { product: { select: { slug: true } } }
   });
 
   revalidatePath('/admin/reviews');
+  if (review?.product?.slug) {
+    revalidatePath(`/product/${review.product.slug}`, 'page');
+  }
   revalidatePath(`/product/[slug]`, 'page');
 }

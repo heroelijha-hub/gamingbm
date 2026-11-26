@@ -120,3 +120,23 @@ a {
 .animate-hero-image {
   animation: heroFadeInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
+
+
+/* Hide Netlify injected badge, drawer and feedback widgets */
+iframe[src*="netlify"],
+iframe[id*="netlify"],
+iframe[title*="Netlify" i],
+div[id*="netlify"],
+div[class*="netlify-badge"],
+#netlify-badge,
+.netlify-badge,
+[data-netlify-deploy-id],
+#netlify-drawer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  clip: rect(0, 0, 0, 0) !important;
+}
