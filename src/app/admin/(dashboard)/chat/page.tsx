@@ -7,13 +7,17 @@ export default async function AdminChatPage() {
   const initialSessions = await getAdminSessions();
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-        <p className="text-gray-500">{t('subtitle')}</p>
+    <div className="flex flex-col h-[calc(100vh-8.5rem)] min-h-[500px]">
+      <div className="mb-3 flex items-center justify-between flex-shrink-0">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">{t('title')}</h1>
+          <p className="text-xs text-gray-500">{t('subtitle')}</p>
+        </div>
       </div>
 
-      <AdminChatClient initialSessions={initialSessions} />
-    </>
+      <div className="flex-1 min-h-0">
+        <AdminChatClient initialSessions={initialSessions} />
+      </div>
+    </div>
   );
 }
