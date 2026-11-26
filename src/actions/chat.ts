@@ -5,6 +5,14 @@ import { ChatSender, ChatSessionStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // UUID validation helper
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -34,7 +42,6 @@ export async function getOrCreateSession(guestId: string, guestName?: string, gu
 
   if (!session) {
     // SECURITY: the guestId is client-chosen, so limit session creation per IP
-    // (prevents DB bloat and flooding of the admin notification bell).
     const ip = await getClientIp();
     const rlIp = await checkRateLimit(`chat_session_ip_${ip}`, 5, 3600); // 5 new sessions / hour / IP
     if (!rlIp.success) {
@@ -69,12 +76,12 @@ export async function getOrCreateSession(guestId: string, guestName?: string, gu
 /**
  * Internal helper (NOT exported => not callable from the browser).
  */
-async function createChatMessage(sessionId: string, sender: ChatSender, content: string) {
-  // Validate content
-  if (!content || content.trim().length === 0) {
+async function createChatMessage(sessionId: string, sender: ChatSender, content: string, imageUrl?: string) {
+  const trimmed = content ? content.trim() : '';
+  if (!trimmed && !imageUrl) {
     throw new Error('Message cannot be empty.');
   }
-  if (content.length > MAX_MESSAGE_LENGTH) {
+  if (trimmed.length > MAX_MESSAGE_LENGTH) {
     throw new Error(`Message is too long (max ${MAX_MESSAGE_LENGTH} characters).`);
   }
 
@@ -82,7 +89,8 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
     data: {
       sessionId,
       sender,
-      content: content.trim(),
+      content: trimmed,
+      imageUrl: imageUrl || null,
     },
   });
   
@@ -108,7 +116,7 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
       sendAdminNewChatMessageEmail(
         updatedSession.guestName || 'Visiteur',
         updatedSession.guestEmail,
-        content.trim(),
+        trimmed || (imageUrl ? '📷 [Image partagée]' : ''),
         adminEmail,
         storeUrl
       ).catch(e => console.error('Chat admin email failed', e));
@@ -155,25 +163,27 @@ async function getOwnedSession(sessionId: string, guestId: string) {
 }
 
 /**
- * Customer sends a message. The sender is ALWAYS forced to CUSTOMER
- * (previously the client could choose ADMIN and impersonate support).
+ * Customer sends a message (text and/or image).
  */
-export async function sendMessage(sessionId: string, guestId: string, content: string) {
-  const rl = await checkRateLimit(`chat_${guestId}`, 10, 60); // 10 messages per min
+export async function sendMessage(sessionId: string, guestId: string, content: string, imageUrl?: string) {
+  const rl = await checkRateLimit(`chat_${guestId}`, 15, 60); // 15 messages per min
   if (!rl.success) {
     throw new Error('Too many messages sent. Please wait a moment.');
   }
 
-  // SECURITY: also limit per IP (guestId can be rotated freely by an attacker);
-  // every customer message triggers an e-mail + push notification to the admin.
   const ip = await getClientIp();
-  const rlIp = await checkRateLimit(`chat_msg_ip_${ip}`, 30, 3600); // 30 messages / hour / IP
+  const rlIp = await checkRateLimit(`chat_msg_ip_${ip}`, 40, 3600); // 40 messages / hour / IP
   if (!rlIp.success) {
     throw new Error('Too many messages sent. Please try again later.');
   }
 
-  await getOwnedSession(sessionId, guestId);
-  return createChatMessage(sessionId, ChatSender.CUSTOMER, content);
+  const session = await getOwnedSession(sessionId, guestId);
+
+  if (imageUrl && !session.allowCustomerImages) {
+    throw new Error("L'envoi d'images n'est pas autorisé par l'administrateur.");
+  }
+
+  return createChatMessage(sessionId, ChatSender.CUSTOMER, content, imageUrl);
 }
 
 /**
@@ -188,8 +198,29 @@ export async function getSessionMessages(sessionId: string, guestId: string) {
   });
 }
 
+/**
+ * Returns session details + messages for the customer widget
+ */
+export async function getChatSessionDetails(sessionId: string, guestId: string) {
+  const session = await getOwnedSession(sessionId, guestId);
+  const messages = await prisma.chatMessage.findMany({
+    where: { sessionId },
+    orderBy: { createdAt: 'asc' },
+  });
+  return {
+    session: {
+      id: session.id,
+      guestId: session.guestId,
+      guestName: session.guestName,
+      status: session.status,
+      allowCustomerImages: session.allowCustomerImages,
+    },
+    messages,
+  };
+}
+
 // Admin actions
-export async function sendAdminMessage(sessionId: string, content: string) {
+export async function sendAdminMessage(sessionId: string, content: string, imageUrl?: string) {
   await requireAdmin();
   if (!sessionId || !UUID_REGEX.test(sessionId)) {
     throw new Error('Invalid session identifier.');
@@ -198,7 +229,20 @@ export async function sendAdminMessage(sessionId: string, content: string) {
   if (!session) {
     throw new Error('Chat session not found.');
   }
-  return createChatMessage(sessionId, ChatSender.ADMIN, content);
+  return createChatMessage(sessionId, ChatSender.ADMIN, content, imageUrl);
+}
+
+export async function toggleSessionCustomerImages(sessionId: string, allow: boolean) {
+  await requireAdmin();
+  if (!sessionId || !UUID_REGEX.test(sessionId)) {
+    throw new Error('Invalid session identifier.');
+  }
+  const updated = await prisma.chatSession.update({
+    where: { id: sessionId },
+    data: { allowCustomerImages: allow },
+  });
+  revalidatePath('/admin/chat');
+  return updated;
 }
 
 export async function getAdminSessionMessages(sessionId: string) {
@@ -212,7 +256,6 @@ export async function getAdminSessionMessages(sessionId: string) {
   });
 }
 
-// Admin actions
 export async function getAdminSessions() {
   await requireAdmin();
   return await prisma.chatSession.findMany({
@@ -228,7 +271,6 @@ export async function getAdminSessions() {
 
 export async function closeSession(sessionId: string) {
   await requireAdmin();
-  // Validate sessionId format
   if (!sessionId || !UUID_REGEX.test(sessionId)) {
     throw new Error('Invalid session identifier.');
   }
@@ -237,4 +279,61 @@ export async function closeSession(sessionId: string) {
     data: { status: 'CLOSED' },
   });
   revalidatePath('/admin/chat');
+}
+
+/**
+ * Upload an image for the chat (Admin or authorized Customer).
+ */
+export async function uploadChatImage(formData: FormData, sessionId: string, guestId?: string): Promise<{ url: string }> {
+  const file = formData.get('file') as File;
+  if (!file) {
+    throw new Error('Aucun fichier fourni.');
+  }
+
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+  if (!allowedMimeTypes.includes(file.type)) {
+    throw new Error('Format de fichier non supporté. Veuillez envoyer une image (JPEG, PNG, WebP, GIF).');
+  }
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 Mo
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error("L'image dépasse la taille maximale autorisée (5 Mo).");
+  }
+
+  if (guestId) {
+    const session = await getOwnedSession(sessionId, guestId);
+    if (!session.allowCustomerImages) {
+      throw new Error("L'administrateur n'a pas autorisé l'envoi d'images pour cette conversation.");
+    }
+    const ip = await getClientIp();
+    const rlIp = await checkRateLimit(`chat_img_ip_${ip}`, 10, 3600); // 10 uploads / hour / IP
+    if (!rlIp.success) {
+      throw new Error("Limite d'envoi d'images atteinte. Veuillez réessayer plus tard.");
+    }
+  } else {
+    await requireAdmin();
+    if (!sessionId || !UUID_REGEX.test(sessionId)) {
+      throw new Error('Invalid session identifier.');
+    }
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  return new Promise<{ url: string }>((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        folder: 'gamingbm/chat',
+        resource_type: 'image',
+      },
+      (error, result) => {
+        if (error || !result) {
+          console.error("Erreur d'upload Cloudinary:", error);
+          reject(new Error("Erreur lors de l'hébergement de l'image."));
+        } else {
+          resolve({ url: result.secure_url });
+        }
+      }
+    ).end(buffer);
+  });
 }
