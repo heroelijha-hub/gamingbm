@@ -5,6 +5,8 @@ import { getContactSettings } from '@/actions/contactSettings';
 
 import { SITE_URL } from '@/lib/site';
 
+export const revalidate = 3600; // Revalidate sitemap every hour (ISR)
+
 function sanitizeSitemapImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   const trimmed = url.trim();
@@ -69,23 +71,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ];
 
-  // 2. Produits dynamiques
+  // 2. Produits dynamiques (valides, avec prix > 0 et image)
   const products = await prisma.product.findMany({
-    where: { isDeleted: false },
+    where: {
+      isDeleted: false,
+      price: { gt: 0 }
+    },
     select: { slug: true, updatedAt: true, images: true },
   });
 
-  const productPages = products.map((product) => {
-    const rawImage = product.images && product.images.length > 0 ? product.images[0] : null;
-    const cleanImage = sanitizeSitemapImageUrl(rawImage);
-    return {
-      url: `${baseUrl}/product/${product.slug}`,
-      lastModified: product.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-      images: cleanImage ? [cleanImage] : undefined,
-    };
-  });
+  const productPages = products
+    .filter((product) => product.images && product.images.length > 0)
+    .map((product) => {
+      const rawImage = product.images[0];
+      const cleanImage = sanitizeSitemapImageUrl(rawImage);
+      return {
+        url: `${baseUrl}/product/${product.slug}`,
+        lastModified: product.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+        images: cleanImage ? [cleanImage] : undefined,
+      };
+    });
 
   // 3. Articles de Blog dynamiques
   const articles = await prisma.article.findMany({
@@ -113,7 +120,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter(c => c.slug)
     .map((category) => ({
       url: `${baseUrl}/product-category/${category.slug}`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.85,
     }));

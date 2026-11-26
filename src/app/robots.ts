@@ -21,8 +21,6 @@ const DEFAULT_DISALLOW_PATHS = [
   '/search/',
   '/api/',
   '/api',
-  '/categorie-produit/',
-  '/produit/',
   '/*?*q=',
   '/*?*sort=',
   '/*?*page=',

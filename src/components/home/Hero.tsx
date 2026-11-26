@@ -387,13 +387,13 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
         </div>
 
         {/* Big Title */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5 animate-hero-title">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15] mb-5 animate-hero-title">
           {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
           ) : (
             <>Samsung<br />Galaxy S9 | S9+</>
           )}
-        </h1>
+        </h2>
 
         {/* Price & Label */}
         {(settings.STYLE2_HERO_1_SLIDE2_PRICE || settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL) && (

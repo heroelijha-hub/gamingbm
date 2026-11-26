@@ -14,6 +14,20 @@ import { SITE_URL } from '@/lib/site';
 import { getCachedProductBySlug, getCachedSettings, getCachedRelatedProducts } from '@/lib/cache';
 import Image from "next/image";
 
+export const revalidate = 3600; // 1 hour ISR cache
+
+function cleanSeoText(text: string | null | undefined): string {
+  if (!text) return '';
+  return text
+    .replace(/<[^>]*>?/gm, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
 
@@ -28,7 +42,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const primaryImage = product.images && product.images.length > 0 ? product.images[0] : undefined;
-  const description = product.metaDescription || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '') || (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 160) : '');
+  
+  const rawDesc = cleanSeoText(product.metaDescription) || cleanSeoText(product.shortDescription) || cleanSeoText(product.description);
+  const fallbackDesc = `${product.title} günstig kaufen bei ${storeName}. Top-Preise, schneller Versand in Deutschland und 30 Tage Rückgaberecht.`;
+  const description = rawDesc.length >= 25 ? (rawDesc.length > 155 ? `${rawDesc.substring(0, 152)}...` : rawDesc) : fallbackDesc;
+
   const title = product.metaTitle ? product.metaTitle : `${product.title} | ${storeName}`;
 
   return {
@@ -44,6 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: storeName,
       images: primaryImage ? [{ url: primaryImage, alt: product.title }] : [],
       type: 'website',
+      locale: 'de_DE',
     },
     twitter: {
       card: 'summary_large_image',
@@ -102,7 +121,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     '@type': 'Product',
     name: product.title,
     image: product.images || [],
-    description: (product.description ? product.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : undefined) || (product.shortDescription ? product.shortDescription.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : undefined),
+    description: cleanSeoText(product.description) || cleanSeoText(product.shortDescription) || `${product.title} bei ${storeName} kaufen.`,
     sku: product.id.split('-')[0].toUpperCase(),
     offers: {
       '@type': 'Offer',
@@ -111,7 +130,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       price: product.price,
       priceValidUntil: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
       itemCondition: 'https://schema.org/NewCondition',
-      availability: product.stock && product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: (product.stock == null || product.stock > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
         name: storeName

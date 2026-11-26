@@ -36,6 +36,9 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(baseUrl),
     title: title,
     description: description,
+    alternates: {
+      canonical: '/',
+    },
     openGraph: {
       title: title,
       description: description,
@@ -139,8 +142,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const storeSettings = {
     announcement: settingsMap.HEADER_ANNOUNCEMENT || `Welcome to ${storeName}`,
     logoImage: settingsMap.HEADER_LOGO_IMAGE || '/logo.png',
-    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '+08 9229 8228',
-    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'support@mystore.com',
+    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '',
+    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'info@gamingbm.com',
     menuLinks: menuLinks,
     topBarLinks: topBarLinks,
     loginText: settingsMap.LOGIN_TEXT,
@@ -151,8 +154,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     footerBgColor: settingsMap.FOOTER_BG_COLOR || '#0B162C',
     footerTextColor: settingsMap.FOOTER_TEXT_COLOR || '#d1d5db',
     footerHeadingColor: settingsMap.FOOTER_HEADING_COLOR || '#ffffff',
-    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? '2972 Westheimer Rd. Illinois 85486',
-    footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? '17 Princess Road, London, Greater London NW1 8JR, UK',
+    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? 'Wildbader Straße 51, 75394 Oberreichenbach',
+    footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? '',
     footerLocationsTitle: settingsMap.FOOTER_LOCATIONS_TITLE || 'Our Locations',
     footerNewsletterTitle: settingsMap.FOOTER_NEWSLETTER_TITLE || 'Newsletter',
     footerNewsletterText: settingsMap.FOOTER_NEWSLETTER_TEXT || 'Get 15% off your first purchase! Plus, be the first to know about sales new product launches and exclusive offers!',
@@ -197,10 +200,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         return defaultMenuLinks;
       }
     })(),
-    mobileContactAddress: settingsMap.MOBILE_CONTACT_ADDRESS ?? '123 Main Street',
-    mobileContactPhone: settingsMap.MOBILE_CONTACT_PHONE ?? '+1 234 567 89',
-    mobileContactEmail: settingsMap.MOBILE_CONTACT_EMAIL ?? 'contact@mystore.com',
-    mobileContactWebsite: settingsMap.MOBILE_CONTACT_WEBSITE ?? 'www.mystore.com',
+    mobileContactAddress: settingsMap.MOBILE_CONTACT_ADDRESS ?? 'Wildbader Straße 51, 75394 Oberreichenbach',
+    mobileContactPhone: settingsMap.MOBILE_CONTACT_PHONE ?? '',
+    mobileContactEmail: settingsMap.MOBILE_CONTACT_EMAIL ?? 'info@gamingbm.com',
+    mobileContactWebsite: settingsMap.MOBILE_CONTACT_WEBSITE ?? 'www.gamingbm.com',
     mobileHeaderBorderColor: settingsMap.MOBILE_HEADER_BORDER_COLOR || '#d1d5db',
     allCategoriesBgColor: settingsMap.ALL_CATEGORIES_BG_COLOR || '#111827', // text-gray-900 by default
     allCategoriesTextColor: settingsMap.ALL_CATEGORIES_TEXT_COLOR || '#ffffff', // text-white
@@ -274,13 +277,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   "url": SITE_URL,
                   "image": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
                   "logo": settingsMap.HEADER_LOGO_IMAGE || '/logo.jpg',
-                  "telephone": settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE,
-                  "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
-                  "address": settingsMap.FOOTER_ADDRESS_1 ? {
+                  "telephone": settingsMap.FOOTER_SUPPORT_PHONE || settingsMap.HEADER_SUPPORT_PHONE || undefined,
+                  "email": settingsMap.FOOTER_SUPPORT_EMAIL || settingsMap.HEADER_SUPPORT_EMAIL || 'info@gamingbm.com',
+                  "address": {
                     "@type": "PostalAddress",
-                    "streetAddress": settingsMap.FOOTER_ADDRESS_1,
+                    "streetAddress": settingsMap.FOOTER_ADDRESS_1 || "Wildbader Straße 51",
+                    "postalCode": "75394",
+                    "addressLocality": "Oberreichenbach",
                     "addressCountry": settingsMap.STORE_COUNTRY || "DE"
-                  } : undefined,
+                  },
                   "description": settingsMap.HOME_META_DESCRIPTION || `Offizieller Online-Shop ${storeName}.`
                 }
               ]

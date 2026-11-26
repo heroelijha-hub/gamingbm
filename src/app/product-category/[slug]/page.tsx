@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { SITE_URL } from '@/lib/site';
 import { safeJsonLd } from '@/lib/security';
 
+export const revalidate = 3600; // 1 hour ISR cache
+
 const isUuid = (str: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
 
@@ -42,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const title = category?.metaTitle ? category.metaTitle : `${category?.name || 'Kategorie'} | ${storeName}`;
-  const description = category?.metaDescription || `Entdecken Sie unsere Auswahl an ${category?.name || ''} zum besten Preis bei ${storeName}. Schneller und sicherer Versand.`;
+  const description = category?.metaDescription || `Entdecken Sie ${category?.name || 'unsere Produkte'} bei ${storeName}. Top-Preise, schneller Versand in Deutschland und 30 Tage Rückgaberecht.`;
 
   return {
     title,
